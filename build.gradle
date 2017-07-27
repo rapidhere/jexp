@@ -11,7 +11,8 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'org.testng', name: 'testng', version: '6.11'
+    compile "de.jflex:jflex:1.6.1"
+    testCompile 'org.testng:testng:6.11'
 }
 
 compileJava {
@@ -64,3 +65,50 @@ sourceSets {
         resources.srcDirs = ['test/resources']
     }
 }
+
+import jflex.Main
+import jflex.GeneratorException
+
+class JflexTask extends DefaultTask {
+    @InputDirectory
+    File srcDir
+
+    @OutputDirectory
+    File destDir
+
+    @TaskAction
+    void generate() throws Exception {
+        def flexFiles = project.fileTree(dir: srcDir, includes: '**/*.flex')
+
+        if(flexFiles.filter {!it.directory}.empty) {
+            logger.warn("no flex files found")
+        } else {
+            flexFiles.visit { FileVisitDetails file ->
+                if (file.isDirectory()) {
+                    return
+                }
+
+                try {
+                    def args = ['-q', file.file.absolutePath,
+                                '-d', destDir.absolutePath + '/'] as String[]
+
+                    logger.debug "running jflex $args"
+
+                    Main.generate(args)
+
+                    logger.info "Java code generated from JFlex file : $file.relativePath"
+                } catch (GeneratorException e) {
+                    logger.error("JFlex $e.message", e)
+                    throw new StopActionException('error occurred during JFlex code generation')
+                }
+            }
+        }
+
+    }
+}
+
+task jflex(type: JflexTask) {
+    srcDir = project.file('src/jflex')
+    destDir = project.file('src/java/ranttu/rapid/jexp/compile/jflex')
+}
+compileJava.dependsOn jflex
