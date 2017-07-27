@@ -15,4 +15,5 @@
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/common/$.java
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/JExpCompiler.java
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/JExpExecutable.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/jflex/Lexer.java
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/JExp.java

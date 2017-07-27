@@ -11,8 +11,18 @@ repositories {
 }
 
 dependencies {
-    compile "de.jflex:jflex:1.6.1"
+    compile 'de.jflex:jflex:1.6.1'
     testCompile 'org.testng:testng:6.11'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "de.jflex:jflex:1.6.1"
+    }
 }
 
 compileJava {
@@ -77,8 +87,8 @@ class JflexTask extends DefaultTask {
     File destDir
 
     @TaskAction
-    void generate() throws Exception {
-        def flexFiles = project.fileTree(dir: srcDir, includes: '**/*.flex')
+    void generateAndTransformJflex() throws Exception {
+        def flexFiles = project.fileTree(dir: srcDir, include: '**/*.flex')
 
         if(flexFiles.filter {!it.directory}.empty) {
             logger.warn("no flex files found")
@@ -92,7 +102,7 @@ class JflexTask extends DefaultTask {
                     def args = ['-q', file.file.absolutePath,
                                 '-d', destDir.absolutePath + '/'] as String[]
 
-                    logger.debug "running jflex $args"
+                    logger.info "running jflex $args"
 
                     Main.generate(args)
 
