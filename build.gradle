@@ -1,0 +1,66 @@
+group 'ranttu.rapid.jexp'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'org.testng', name: 'testng', version: '6.11'
+}
+
+compileJava {
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+    options.compilerArgs << "-XDignore.symbol.file"
+}
+
+compileTestJava {
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+    options.compilerArgs << "-XDignore.symbol.file"
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut"
+        showExceptions true
+        exceptionFormat "full"
+        showCauses true
+        showStackTraces true
+
+        // set options for log level DEBUG and INFO
+        debug {
+            events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+            exceptionFormat "full"
+        }
+        info.events = debug.events
+        info.exceptionFormat = debug.exceptionFormat
+
+        afterSuite { desc, result ->
+            if (!desc.parent) { // will match the outermost suite
+                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                def startItem = '|  ', endItem = '  |'
+                def repeatLength = startItem.length() + output.length() + endItem.length()
+                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java.srcDirs = ['src/java']
+        resources.srcDirs = ['src/resources']
+    }
+
+    test {
+        java.srcDirs = ['test/java']
+        resources.srcDirs = ['test/resources']
+    }
+}
