@@ -25,5 +25,29 @@ public enum TokenType {
 
     RIGHT_BRACKET,
 
-    PLUS,
+    /** math */
+    PLUS(0),
+
+    SUBTRACT(0),
+
+    MULTIPLY(1),
+
+    DIVIDE(1),
+
+    MODULAR(1),
+
+    /** fake */
+    FAKE(Integer.MIN_VALUE)
+
+    ;
+
+    public int priority;
+
+    TokenType() {
+        priority = -100;
+    }
+
+    TokenType(int i) {
+        priority = i;
+    }
 }

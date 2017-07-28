@@ -4,6 +4,7 @@ import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.parse.JExpParser;
 import ranttu.rapid.jexp.compile.parse.Token;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
@@ -14,6 +15,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.INT_TYPE;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
@@ -104,7 +106,7 @@ public class JExpCompiler implements Opcodes {
                 "(I)Ljava/lang/Integer;", false);
         } else if (retType == Type.DOUBLE_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
-                    "(I)Ljava/lang/Double;", false);
+                "(I)Ljava/lang/Double;", false);
         }
         // otherwise, do nothing
         mv.visitInsn(ARETURN);
@@ -139,8 +141,36 @@ public class JExpCompiler implements Opcodes {
         switch (astNode.type) {
             case PRIMARY_EXP:
                 return visit((PrimaryExpression) astNode);
+            case BINARY_EXP:
+                return visit((BinaryExpression) astNode);
             default:
                 return $.notSupport(astNode.type);
+        }
+    }
+
+    private Type visit(BinaryExpression binary) {
+        // support integer only
+        visit(binary.left);
+        visit(binary.right);
+
+        switch (binary.op.type) {
+            case PLUS:
+                mv.visitInsn(IADD);
+                return Type.INT_TYPE;
+            case SUBTRACT:
+                mv.visitInsn(ISUB);
+                return Type.INT_TYPE;
+            case MULTIPLY:
+                mv.visitInsn(IMUL);
+                return INT_TYPE;
+            case DIVIDE:
+                mv.visitInsn(IDIV);
+                return INT_TYPE;
+            case MODULAR:
+                mv.visitInsn(IREM);
+                return INT_TYPE;
+            default:
+                return $.notSupport(binary.op.type);
         }
     }
 
@@ -153,7 +183,7 @@ public class JExpCompiler implements Opcodes {
                 return getType(String.class);
             case INTEGER:
                 mv.visitLdcInsn(t.getInt());
-                return getType(int.class);
+                return Type.INT_TYPE;
             default:
                 return $.notSupport(t.type);
         }

@@ -54,6 +54,12 @@ OctIntegerLiteral = 0[0-9]+
 
   /* operators */
   "+"                            { return token(TokenType.PLUS, yytext()); }
+  "-"                            { return token(TokenType.SUBTRACT, yytext()); }
+  "*"                            { return token(TokenType.MULTIPLY, yytext()); }
+  "/"                            { return token(TokenType.DIVIDE, yytext()); }
+  "%"                            { return token(TokenType.MODULAR, yytext()); }
+  "("                            { return token(TokenType.LEFT_PARENTHESIS, yytext()); }
+  ")"                            { return token(TokenType.RIGHT_PARENTHESIS, yytext()); }
 
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }

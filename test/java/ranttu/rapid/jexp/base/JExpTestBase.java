@@ -23,7 +23,7 @@ abstract public class JExpTestBase extends TestNG {
     @Test(dataProvider = "load-from-yaml")
     public void testExpression(CaseData caseData) {
         Object res = JExp.eval(caseData.exp, caseData.ctx);
-        AssertJUnit.assertEquals(res, caseData.res);
+        AssertJUnit.assertEquals(caseData.res, res);
     }
 
     @DataProvider(name = "load-from-yaml")
