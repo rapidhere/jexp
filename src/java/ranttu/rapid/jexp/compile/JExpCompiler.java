@@ -11,6 +11,8 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.indy.JExpIndyFactory;
+import ranttu.rapid.jexp.indy.JIndyType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -131,6 +133,8 @@ public class JExpCompiler implements Opcodes {
             // `execute` method
             mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
                 getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
+            mv.visitParameter("this", 0);
+            mv.visitParameter("context", 0);
             mv.visitCode();
         } else {
             throw new JExpCompilingException("unknown java version");
@@ -184,8 +188,21 @@ public class JExpCompiler implements Opcodes {
             case INTEGER:
                 mv.visitLdcInsn(t.getInt());
                 return Type.INT_TYPE;
+            case IDENTIFIER:
+                return getFromContext(t.getString());
             default:
                 return $.notSupport(t.type);
         }
+    }
+
+    private Type getFromContext(String name) {
+        Class type = bindingTypes.getOrDefault(name, Object.class);
+        mv.visitVarInsn(ALOAD, 1);
+        indy(JIndyType.GET_PROPERTY, name);
+        return Type.getType(type);
+    }
+
+    private void indy(JIndyType type, String name) {
+        mv.visitInvokeDynamicInsn(type.name(), "", JExpIndyFactory.INDY_CALLSITE, name);
     }
 }
