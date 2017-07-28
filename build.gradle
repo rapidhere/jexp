@@ -12,7 +12,11 @@ repositories {
 
 dependencies {
     compile 'de.jflex:jflex:1.6.1'
+
     testCompile 'org.testng:testng:6.11'
+    testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
+    testCompile 'com.fasterxml.jackson.core:jackson-core:2.8.8'
+    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
 }
 
 buildscript {
@@ -25,19 +29,9 @@ buildscript {
     }
 }
 
-compileJava {
-    options.fork = true
-    options.forkOptions.executable = 'javac'
-    options.compilerArgs << "-XDignore.symbol.file"
-}
-
-compileTestJava {
-    options.fork = true
-    options.forkOptions.executable = 'javac'
-    options.compilerArgs << "-XDignore.symbol.file"
-}
-
 test {
+    useTestNG()
+
     testLogging {
         events "passed", "skipped", "failed", "standardOut"
         showExceptions true

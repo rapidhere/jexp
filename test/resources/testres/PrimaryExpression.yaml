@@ -1,0 +1,15 @@
+- desc: base string
+  exp: '"hello world"'
+  res: hello world
+
+- desc: string escaping 1
+  exp: '"hello \" world"'
+  res: 'hello " world'
+
+- desc: string escaping 2
+  exp: '"hello \ world"'
+  res: 'hello \ world'
+
+- desc: integer literal
+  exp: 10000000
+  res: 10000000
