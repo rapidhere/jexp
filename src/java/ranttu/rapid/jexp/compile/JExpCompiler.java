@@ -1,5 +1,8 @@
 package ranttu.rapid.jexp.compile;
 
+import ranttu.rapid.jexp.compile.parse.JExpParser;
+import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,13 +29,17 @@ public class JExpCompiler {
 
     public JExpExecutable compile(String expression, Map<String, Class> bindingTypes) {
         this.bindingTypes = bindingTypes;
-        if(this.bindingTypes == null) {
+        if (this.bindingTypes == null) {
             this.bindingTypes = new HashMap<>();
         }
+
+        // get ast node
+        AstNode ast = JExpParser.parse(expression);
 
         return null;
     }
 
+    // compiler option object
     protected static class CompileOption {
 
     }

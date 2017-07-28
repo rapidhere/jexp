@@ -16,4 +16,15 @@
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/JExpCompiler.java
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/JExpExecutable.java
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/jflex/Lexer.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/parse/ast/AstNode.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/parse/ast/AstType.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/parse/ast/PrimaryExpression.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/parse/ast/Type.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/parse/JExpParser.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/parse/Token.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/compile/parse/TokenType.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/exception/JExpBaseException.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/exception/JExpCompilingException.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/exception/UnexpectedEOF.java
+/Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/exception/UnexpectedToken.java
 /Users/rapid/repo/jexp/src/java/ranttu/rapid/jexp/JExp.java
