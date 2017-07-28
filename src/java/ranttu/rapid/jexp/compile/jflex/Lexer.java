@@ -192,10 +192,10 @@ public class Lexer {
 
   private static final String ZZ_ACTION_PACKED_0 =
     "\2\0\1\1\1\2\1\3\2\4\1\5\1\6\1\7"+
-    "\1\10\1\11\1\0\1\12\1\13";
+    "\1\10\1\11\1\12\1\0\1\13\1\14\1\15";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[15];
+    int [] result = new int[17];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -221,10 +221,11 @@ public class Lexer {
 
   private static final String ZZ_ROWMAP_PACKED_0 =
     "\0\0\0\14\0\30\0\30\0\44\0\60\0\74\0\30"+
-    "\0\30\0\110\0\30\0\124\0\74\0\30\0\30";
+    "\0\30\0\110\0\30\0\124\0\140\0\154\0\30\0\30"+
+    "\0\154";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[15];
+    int [] result = new int[17];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -249,12 +250,13 @@ public class Lexer {
   private static final String ZZ_TRANS_PACKED_0 =
     "\2\3\1\4\1\5\1\3\1\6\1\7\1\5\1\10"+
     "\1\11\1\3\1\5\1\12\1\3\6\12\1\13\1\12"+
-    "\1\14\1\12\17\0\5\5\3\0\1\5\5\0\2\7"+
-    "\1\15\11\0\2\7\5\0\1\12\1\0\6\12\1\0"+
-    "\1\12\1\0\1\12\10\0\1\16\2\0\1\17";
+    "\1\14\1\12\17\0\5\5\3\0\1\5\5\0\2\15"+
+    "\1\16\11\0\2\7\5\0\1\12\1\0\6\12\1\0"+
+    "\1\12\1\0\1\12\10\0\1\17\2\0\1\20\5\0"+
+    "\2\15\12\0\2\21\5\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[96];
+    int [] result = new int[120];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -292,11 +294,11 @@ public class Lexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\2\0\2\11\3\1\2\11\1\1\1\11\1\1\1\0"+
-    "\2\11";
+    "\2\0\2\11\3\1\2\11\1\1\1\11\2\1\1\0"+
+    "\2\11\1\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[15];
+    int [] result = new int[17];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -753,48 +755,56 @@ public class Lexer {
             { throw new Error("unexpected character at line "
                                             + yyline + ", column " + yycolumn + ": " + yytext());
             }
-          case 12: break;
+          case 14: break;
           case 2: 
             { /* ignore */
             }
-          case 13: break;
+          case 15: break;
           case 3: 
             { return token(TokenType.IDENTIFIER, yytext());
             }
-          case 14: break;
+          case 16: break;
           case 4: 
             { return token(TokenType.INTEGER, Integer.valueOf(yytext()));
             }
-          case 15: break;
+          case 17: break;
           case 5: 
             { string.setLength(0); yybegin(STRING);
             }
-          case 16: break;
+          case 18: break;
           case 6: 
             { return token(TokenType.PLUS, yytext());
             }
-          case 17: break;
+          case 19: break;
           case 7: 
             { string.append( yytext() );
             }
-          case 18: break;
+          case 20: break;
           case 8: 
             { yybegin(YYINITIAL);
                                    return token(TokenType.STRING, string.toString());
             }
-          case 19: break;
+          case 21: break;
           case 9: 
             { string.append('\\');
             }
-          case 20: break;
+          case 22: break;
           case 10: 
+            { return token(TokenType.INTEGER, Integer.parseInt(yytext(), 8));
+            }
+          case 23: break;
+          case 11: 
             { string.append('\"');
             }
-          case 21: break;
-          case 11: 
+          case 24: break;
+          case 12: 
             { string.append('\t');
             }
-          case 22: break;
+          case 25: break;
+          case 13: 
+            { return token(TokenType.INTEGER, Integer.parseInt(yytext().substring(2), 16));
+            }
+          case 26: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }

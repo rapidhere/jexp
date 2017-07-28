@@ -13,3 +13,15 @@
 - desc: integer literal
   exp: 10000000
   res: 10000000
+
+- desc: hex literal
+  exp: 0x1000
+  res: 4096
+
+- desc: oct literal
+  exp: 01000
+  res: 512
+
+- desc: zero
+  exp: 0
+  res: 0

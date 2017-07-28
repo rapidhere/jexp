@@ -46,9 +46,9 @@ OctIntegerLiteral = 0[0-9]+
   {Identifier}                   { return token(TokenType.IDENTIFIER, yytext()); }
 
   /* literals */
-  {DecIntegerLiteral}            |
-  {OctIntegerLiteral}            |
-  {HexIntegerLiteral}            { return token(TokenType.INTEGER, Integer.valueOf(yytext())); }
+  {DecIntegerLiteral}            { return token(TokenType.INTEGER, Integer.valueOf(yytext())); }
+  {HexIntegerLiteral}            { return token(TokenType.INTEGER, Integer.parseInt(yytext().substring(2), 16)); }
+  {OctIntegerLiteral}            { return token(TokenType.INTEGER, Integer.parseInt(yytext(), 8)); }
 
   \"                             { string.setLength(0); yybegin(STRING); }
 
