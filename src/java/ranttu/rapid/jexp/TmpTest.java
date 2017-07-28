@@ -5,7 +5,7 @@ package ranttu.rapid.jexp;
  */
 class TmpTest {
     public Object f() {
-        return "1";
+        return 10000000;
     }
 
 }

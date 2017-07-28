@@ -40,7 +40,7 @@ final public class JExp {
     // ~~~
     // only for common test usage
     public static void main(String args[]) {
-        Object o = eval("\"hello world\"", null);
+        Object o = eval("12", null);
         System.out.println(o);
     }
 }

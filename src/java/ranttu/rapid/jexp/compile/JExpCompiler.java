@@ -9,6 +9,7 @@ import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,10 +68,10 @@ public class JExpCompiler implements Opcodes {
         cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         String clsName = nextName();
         visitClass(clsName.replace('.', '/'));
-        visit(ast);
+        Type rType = visit(ast);
 
         // return
-        mv.visitInsn(ARETURN);
+        genReturn(rType);
 
         // end
         mv.visitMaxs(0, 0);
@@ -95,6 +96,18 @@ public class JExpCompiler implements Opcodes {
 
     private String nextName() {
         return "ranttu.rapid.jexp.JExpCompiledExpression$" + nameCount++;
+    }
+
+    private void genReturn(Type retType) {
+        if (retType == Type.INT_TYPE) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
+                "(I)Ljava/lang/Integer;", false);
+        } else if (retType == Type.DOUBLE_TYPE) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
+                    "(I)Ljava/lang/Double;", false);
+        }
+        // otherwise, do nothing
+        mv.visitInsn(ARETURN);
     }
 
     private void visitClass(String name) {
@@ -122,25 +135,27 @@ public class JExpCompiler implements Opcodes {
         }
     }
 
-    private void visit(AstNode astNode) {
+    private Type visit(AstNode astNode) {
         switch (astNode.type) {
             case PRIMARY_EXP:
-                visit((PrimaryExpression) astNode);
-                break;
+                return visit((PrimaryExpression) astNode);
             default:
-                $.notSupport(astNode.type);
+                return $.notSupport(astNode.type);
         }
     }
 
-    private void visit(PrimaryExpression primary) {
+    private Type visit(PrimaryExpression primary) {
         Token t = primary.token;
 
         switch (t.type) {
             case STRING:
                 mv.visitLdcInsn(t.getString());
-                break;
+                return getType(String.class);
+            case INTEGER:
+                mv.visitLdcInsn(t.getInt());
+                return getType(int.class);
             default:
-                $.notSupport(t.type);
+                return $.notSupport(t.type);
         }
     }
 }
