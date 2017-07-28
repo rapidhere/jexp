@@ -27,7 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.util;
+package ranttu.rapid.jexp.external.org.objectweb.asm.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -39,19 +39,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.TypePath;
-import org.objectweb.asm.TypeReference;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.analysis.Analyzer;
-import org.objectweb.asm.tree.analysis.BasicValue;
-import org.objectweb.asm.tree.analysis.BasicVerifier;
+import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypeReference;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.Analyzer;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.BasicValue;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.BasicVerifier;
 
 /**
  * A {@link MethodVisitor} that checks that its methods are properly used. More
@@ -60,7 +60,7 @@ import org.objectweb.asm.tree.analysis.BasicVerifier;
  * arguments - such as the fact that the given opcode is correct for a given
  * visit method. This adapter can also perform some basic data flow checks (more
  * precisely those that can be performed without the full class hierarchy - see
- * {@link org.objectweb.asm.tree.analysis.BasicVerifier}). For instance in a
+ * {@link ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.BasicVerifier}). For instance in a
  * method whose signature is <tt>void m ()</tt>, the invalid instruction
  * IRETURN, or the invalid sequence IADD L2I will be detected if the data flow
  * checks are enabled. These checks are enabled by using the

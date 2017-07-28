@@ -27,13 +27,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.tree;
+package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents an annotation.
@@ -52,7 +52,7 @@ public class AnnotationNode extends AnnotationVisitor {
      * as two consecutive elements in the list. The name is a {@link String},
      * and the value may be a {@link Byte}, {@link Boolean}, {@link Character},
      * {@link Short}, {@link Integer}, {@link Long}, {@link Float},
-     * {@link Double}, {@link String} or {@link org.objectweb.asm.Type}, or a
+     * {@link Double}, {@link String} or {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}, or a
      * two elements String array (for enumeration values), an
      * {@link AnnotationNode}, or a {@link List} of values of one of the
      * preceding types. The list may be <tt>null</tt> if there is no name value

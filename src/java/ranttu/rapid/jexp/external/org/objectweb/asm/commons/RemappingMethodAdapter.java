@@ -28,14 +28,14 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.commons;
+package ranttu.rapid.jexp.external.org.objectweb.asm.commons;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.TypePath;
+import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
 /**
  * A {@link LocalVariablesSorter} for type mapping.

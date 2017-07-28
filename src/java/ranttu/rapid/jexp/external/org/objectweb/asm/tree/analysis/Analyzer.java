@@ -27,25 +27,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.tree.analysis;
+package ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.IincInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LookupSwitchInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TableSwitchInsnNode;
-import org.objectweb.asm.tree.TryCatchBlockNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.AbstractInsnNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.IincInsnNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.InsnList;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.JumpInsnNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.LabelNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.LookupSwitchInsnNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.TableSwitchInsnNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.TryCatchBlockNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.VarInsnNode;
 
 /**
  * A semantic bytecode analyzer. <i>This class does not fully check that JSR and

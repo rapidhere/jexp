@@ -27,12 +27,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.tree;
+package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
 import java.util.Map;
 
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents an IINC instruction.

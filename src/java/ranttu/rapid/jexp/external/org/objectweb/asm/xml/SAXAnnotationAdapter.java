@@ -27,12 +27,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.xml;
+package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.TypePath;
+import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**

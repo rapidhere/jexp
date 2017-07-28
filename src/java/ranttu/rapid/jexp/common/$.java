@@ -1,5 +1,11 @@
 package ranttu.rapid.jexp.common;
 
+import ranttu.rapid.jexp.exception.UnsupportedYet;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.util.TraceClassVisitor;
+
+import java.io.PrintWriter;
+
 /**
  * common utilities
  *
@@ -8,4 +14,21 @@ package ranttu.rapid.jexp.common;
  */
 final public class $ {
     private $() {}
+
+    /**
+     * print the class from byte code
+     * @param className  the name of the class
+     * @param bytes      the bytes
+     */
+    public static void printClass(String className, byte[] bytes) {
+        System.out.println("========Class: " + className);
+        ClassReader reader = new ClassReader(bytes);
+        reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
+        System.out.println();
+    }
+
+    // ~~~ common helpers
+    public static <T> T notSupport(Object s) {
+        throw new UnsupportedYet(s.toString());
+    }
 }

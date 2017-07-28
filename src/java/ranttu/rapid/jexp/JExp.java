@@ -36,4 +36,11 @@ final public class JExp {
         JExpCompiler compiler = new JExpCompiler();
         return compiler.compile(expression, null);
     }
+
+    // ~~~
+    // only for common test usage
+    public static void main(String args[]) {
+        Object o = eval("\"hello world\"", null);
+        System.out.println(o);
+    }
 }

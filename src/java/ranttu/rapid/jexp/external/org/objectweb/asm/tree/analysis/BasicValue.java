@@ -27,9 +27,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.tree.analysis;
+package ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis;
 
-import org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
 /**
  * A {@link Value} that is represented by its type in a seven types type system.

@@ -27,7 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.optimizer;
+package ranttu.rapid.jexp.external.org.objectweb.asm.optimizer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,11 +47,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A Jar file optimizer.

@@ -27,13 +27,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.optimizer;
+package ranttu.rapid.jexp.external.org.objectweb.asm.optimizer;
 
 import java.util.HashMap;
 
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
 /**
  * A constant pool.

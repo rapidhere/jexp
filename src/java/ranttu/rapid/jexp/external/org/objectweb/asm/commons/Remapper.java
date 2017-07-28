@@ -28,13 +28,13 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm.commons;
+package ranttu.rapid.jexp.external.org.objectweb.asm.commons;
 
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.signature.SignatureReader;
-import org.objectweb.asm.signature.SignatureVisitor;
-import org.objectweb.asm.signature.SignatureWriter;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureReader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureWriter;
 
 /**
  * A class responsible for remapping types and names. Subclasses can override

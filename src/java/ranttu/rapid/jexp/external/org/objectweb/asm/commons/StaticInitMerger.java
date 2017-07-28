@@ -27,11 +27,11 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.commons;
+package ranttu.rapid.jexp.external.org.objectweb.asm.commons;
 
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A {@link ClassVisitor} that merges clinit methods into a single one.

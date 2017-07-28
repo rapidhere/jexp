@@ -27,7 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.util;
+package ranttu.rapid.jexp.external.org.objectweb.asm.util;
 
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -37,23 +37,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.TypePath;
-import org.objectweb.asm.TypeReference;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.analysis.Analyzer;
-import org.objectweb.asm.tree.analysis.BasicValue;
-import org.objectweb.asm.tree.analysis.Frame;
-import org.objectweb.asm.tree.analysis.SimpleVerifier;
+import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypeReference;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.ClassNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodNode;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.Analyzer;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.BasicValue;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.Frame;
+import ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.SimpleVerifier;
 
 /**
  * A {@link ClassVisitor} that checks that its methods are properly used. More
@@ -93,9 +93,9 @@ import org.objectweb.asm.tree.analysis.SimpleVerifier;
  * insnNumber locals : stack):
  * 
  * <pre>
- * org.objectweb.asm.tree.analysis.AnalyzerException: Error at instruction 71: Expected I, but found .
- *   at org.objectweb.asm.tree.analysis.Analyzer.analyze(Analyzer.java:289)
- *   at org.objectweb.asm.util.CheckClassAdapter.verify(CheckClassAdapter.java:135)
+ * ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.AnalyzerException: Error at instruction 71: Expected I, but found .
+ *   at ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis.Analyzer.analyze(Analyzer.java:289)
+ *   at ranttu.rapid.jexp.external.org.objectweb.asm.util.CheckClassAdapter.verify(CheckClassAdapter.java:135)
  * ...
  * remove()V
  * 00000 LinkedBlockingQueue$Itr . . . . . . . .  :

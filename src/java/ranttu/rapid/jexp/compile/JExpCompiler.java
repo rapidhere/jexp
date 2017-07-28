@@ -1,10 +1,21 @@
 package ranttu.rapid.jexp.compile;
 
+import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.parse.JExpParser;
+import ranttu.rapid.jexp.compile.parse.Token;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.exception.JExpCompilingException;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
 
 /**
  * the jexp compiler
@@ -12,35 +23,124 @@ import java.util.Map;
  * @author rapidhere@gmail.com
  * @version $Id: Compiler.java, v0.1 2017-07-27 7:58 PM dongwei.dq Exp $
  */
-public class JExpCompiler {
-    /**
-     * the id-type binding offered by user
-     */
-    private Map<String, Class> bindingTypes;
+public class JExpCompiler implements Opcodes {
+    /** the id-type binding offered by user */
+    private Map<String, Class>     bindingTypes;
 
-    /**
-     * the compile option
-     */
-    private CompileOption      option;
+    /** the compile option */
+    private final CompileOption    option;
+
+    /** the jexp class loader */
+    private static JExpClassLoader jExpClassLoader = new JExpClassLoader(
+                                                       JExpCompiler.class.getClassLoader());
+
+    /** the class writer */
+    private ClassWriter            cw;
+
+    /** the method visitor */
+    private MethodVisitor          mv;
+
+    /** the name count */
+    private static long            nameCount       = 0;
 
     public JExpCompiler() {
         this.option = new CompileOption();
     }
 
-    public JExpExecutable compile(String expression, Map<String, Class> bindingTypes) {
+    /**
+     * compile the expression with binding types
+     * @param expression        expression to compile
+     * @param bindingTypes      static type binding, can be null
+     * @return                  compiled expression
+     * @throws JExpCompilingException   compile failed exception info
+     */
+    public JExpExecutable compile(String expression, Map<String, Class> bindingTypes)
+                                                                                     throws JExpCompilingException {
         this.bindingTypes = bindingTypes;
         if (this.bindingTypes == null) {
             this.bindingTypes = new HashMap<>();
         }
 
-        // get ast node
         AstNode ast = JExpParser.parse(expression);
 
-        return null;
+        // prepare
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        String clsName = nextName();
+        visitClass(clsName.replace('.', '/'));
+        visit(ast);
+
+        // return
+        mv.visitInsn(ARETURN);
+
+        // end
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        cw.visitEnd();
+
+        // write class
+        byte[] byteCodes = cw.toByteArray();
+
+        // for debug
+        // $.printClass(clsName, byteCodes);
+
+        @SuppressWarnings("unchecked")
+        Class<JExpExecutable> klass = jExpClassLoader.defineClass(clsName, byteCodes);
+
+        try {
+            return klass.newInstance();
+        } catch (Exception e) {
+            throw new JExpCompilingException("error when instance compiled class", e);
+        }
     }
 
-    // compiler option object
-    protected static class CompileOption {
+    private String nextName() {
+        return "ranttu.rapid.jexp.JExpCompiledExpression$" + nameCount++;
+    }
 
+    private void visitClass(String name) {
+        if (option.tagetVersion.equals(CompileOption.JAVA_VERSION_17)) {
+            cw.visit(V1_7, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, name, null,
+                getInternalName(Object.class),
+                new String[] { getInternalName(JExpExecutable.class) });
+            cw.visitSource("<jexp-gen>", null);
+
+            // construct method
+            mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+            mv.visitCode();
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V", false);
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+
+            // `execute` method
+            mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
+                getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
+            mv.visitCode();
+        } else {
+            throw new JExpCompilingException("unknown java version");
+        }
+    }
+
+    private void visit(AstNode astNode) {
+        switch (astNode.type) {
+            case PRIMARY_EXP:
+                visit((PrimaryExpression) astNode);
+                break;
+            default:
+                $.notSupport(astNode.type);
+        }
+    }
+
+    private void visit(PrimaryExpression primary) {
+        Token t = primary.token;
+
+        switch (t.type) {
+            case STRING:
+                mv.visitLdcInsn(t.getString());
+                break;
+            default:
+                $.notSupport(t.type);
+        }
     }
 }

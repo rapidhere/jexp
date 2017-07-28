@@ -27,9 +27,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.signature;
+package ranttu.rapid.jexp.external.org.objectweb.asm.signature;
 
-import org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A visitor to visit a generic signature. The methods of this interface must be

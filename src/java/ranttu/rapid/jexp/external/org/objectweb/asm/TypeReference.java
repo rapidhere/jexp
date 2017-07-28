@@ -28,7 +28,7 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.objectweb.asm;
+package ranttu.rapid.jexp.external.org.objectweb.asm;
 
 /**
  * A reference to a type appearing in a class, field or method declaration, or

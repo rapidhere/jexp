@@ -27,25 +27,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.xml;
+package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.TypePath;
+import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
- * A {@link org.objectweb.asm.ClassVisitor ClassVisitor} that generates SAX 2.0
+ * A {@link ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor ClassVisitor} that generates SAX 2.0
  * events from the visited class. It can feed any kind of
  * {@link org.xml.sax.ContentHandler ContentHandler}, e.g. XML serializer, XSLT
  * or XQuery engines.
  * 
- * @see org.objectweb.asm.xml.Processor
- * @see org.objectweb.asm.xml.ASMContentHandler
+ * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.Processor
+ * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.ASMContentHandler
  * 
  * @author Eugene Kuleshov
  */

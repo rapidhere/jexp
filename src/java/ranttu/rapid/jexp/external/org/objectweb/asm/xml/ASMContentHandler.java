@@ -27,22 +27,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.objectweb.asm.xml;
+package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.TypePath;
+import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -52,8 +52,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * document into Java class file. This class can be feeded by any kind of SAX
  * 2.0 event producers, e.g. XML parser, XSLT or XPath engines, or custom code.
  * 
- * @see org.objectweb.asm.xml.SAXClassAdapter
- * @see org.objectweb.asm.xml.Processor
+ * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.SAXClassAdapter
+ * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.Processor
  * 
  * @author Eugene Kuleshov
  */
