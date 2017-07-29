@@ -17,4 +17,8 @@ public class JExpCallSite extends MutableCallSite {
         this.name = name;
         indyType = jIndyType;
     }
+
+    public void init() {
+
+    }
 }

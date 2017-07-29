@@ -31,6 +31,9 @@ final public class JExpIndyFactory {
     public static CallSite callsite(MethodHandles.Lookup lookup, String methodName, MethodType mt,
                                     String name) {
         JIndyType type = JIndyType.valueOf(methodName);
-        return new JExpCallSite(type, name);
+        JExpCallSite callSite = new JExpCallSite(type, name);
+        callSite.init();
+
+        return callSite;
     }
 }

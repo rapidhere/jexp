@@ -72,7 +72,7 @@ public class JExpCompiler implements Opcodes {
         cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         String clsName = nextName();
         visitClass(clsName.replace('.', '/'));
-        Type rType = visit(ast);
+        TypeUnit rType = visit(ast);
 
         // return
         genReturn(rType);
@@ -102,11 +102,15 @@ public class JExpCompiler implements Opcodes {
         return "ranttu.rapid.jexp.JExpCompiledExpression$" + nameCount++;
     }
 
-    private void genReturn(Type retType) {
-        if (retType == Type.INT_TYPE) {
+    private void genReturn(TypeUnit retType) {
+        if (retType.isConstant) {
+            mv.visitLdcInsn(retType.value);
+        }
+
+        if (retType.type == Type.INT_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
                 "(I)Ljava/lang/Integer;", false);
-        } else if (retType == Type.DOUBLE_TYPE) {
+        } else if (retType.type == Type.DOUBLE_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
                 "(I)Ljava/lang/Double;", false);
         }
@@ -141,7 +145,7 @@ public class JExpCompiler implements Opcodes {
         }
     }
 
-    private Type visit(AstNode astNode) {
+    private TypeUnit visit(AstNode astNode) {
         switch (astNode.type) {
             case PRIMARY_EXP:
                 return visit((PrimaryExpression) astNode);
@@ -152,54 +156,78 @@ public class JExpCompiler implements Opcodes {
         }
     }
 
-    private Type visit(BinaryExpression binary) {
+    private TypeUnit visit(BinaryExpression binary) {
         // support integer only
-        visit(binary.left);
-        visit(binary.right);
+        TypeUnit leftUnit = visit(binary.left), rightUnit = visit(binary.right);
 
-        switch (binary.op.type) {
-            case PLUS:
-                mv.visitInsn(IADD);
-                return Type.INT_TYPE;
-            case SUBTRACT:
-                mv.visitInsn(ISUB);
-                return Type.INT_TYPE;
-            case MULTIPLY:
-                mv.visitInsn(IMUL);
-                return INT_TYPE;
-            case DIVIDE:
-                mv.visitInsn(IDIV);
-                return INT_TYPE;
-            case MODULAR:
-                mv.visitInsn(IREM);
-                return INT_TYPE;
-            default:
-                return $.notSupport(binary.op.type);
+        if (leftUnit.isConstant && rightUnit.isConstant) {
+            switch (binary.op.type) {
+                case PLUS:
+                    return constantUnit(INT_TYPE, (Integer) leftUnit.value
+                                                  + (Integer) rightUnit.value);
+                case SUBTRACT:
+                    return constantUnit(INT_TYPE, (Integer) leftUnit.value
+                                                  - (Integer) rightUnit.value);
+                case MULTIPLY:
+                    return constantUnit(INT_TYPE, (Integer) leftUnit.value
+                                                  * (Integer) rightUnit.value);
+                case DIVIDE:
+                    return constantUnit(INT_TYPE, (Integer) leftUnit.value
+                                                  / (Integer) rightUnit.value);
+                case MODULAR:
+                    return constantUnit(INT_TYPE, (Integer) leftUnit.value
+                                                  % (Integer) rightUnit.value);
+                default:
+                    return $.notSupport(binary.op.type);
+            }
+        } else {
+            switch (binary.op.type) {
+                case PLUS:
+                    mv.visitInsn(IADD);
+                    return typeUnit(INT_TYPE);
+                case SUBTRACT:
+                    mv.visitInsn(ISUB);
+                    return typeUnit(INT_TYPE);
+                case MULTIPLY:
+                    mv.visitInsn(IMUL);
+                    return typeUnit(INT_TYPE);
+                case DIVIDE:
+                    mv.visitInsn(IDIV);
+                    return typeUnit(INT_TYPE);
+                case MODULAR:
+                    mv.visitInsn(IREM);
+                    return typeUnit(INT_TYPE);
+                default:
+                    return $.notSupport(binary.op.type);
+            }
         }
     }
 
-    private Type visit(PrimaryExpression primary) {
+    private TypeUnit visit(PrimaryExpression primary) {
         Token t = primary.token;
 
         switch (t.type) {
             case STRING:
-                mv.visitLdcInsn(t.getString());
-                return getType(String.class);
+                return constantUnit(Type.getType(String.class), t.getString());
             case INTEGER:
-                mv.visitLdcInsn(t.getInt());
-                return Type.INT_TYPE;
-            case IDENTIFIER:
-                return getFromContext(t.getString());
+                return constantUnit(Type.INT_TYPE, t.getInt());
             default:
                 return $.notSupport(t.type);
         }
     }
 
-    private Type getFromContext(String name) {
-        Class type = bindingTypes.getOrDefault(name, Object.class);
-        mv.visitVarInsn(ALOAD, 1);
-        indy(JIndyType.GET_PROPERTY, name);
-        return Type.getType(type);
+    private TypeUnit typeUnit(Type type) {
+        TypeUnit typeUnit = new TypeUnit();
+        typeUnit.type = type;
+        return typeUnit;
+    }
+
+    private TypeUnit constantUnit(Type type, Object constantVal) {
+        TypeUnit typeUnit = new TypeUnit();
+        typeUnit.type = type;
+        typeUnit.isConstant = true;
+        typeUnit.value = constantVal;
+        return typeUnit;
     }
 
     private void indy(JIndyType type, String name) {
