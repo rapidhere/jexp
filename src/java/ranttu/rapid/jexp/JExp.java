@@ -34,7 +34,7 @@ final public class JExp {
      */
     public static JExpExecutable compile(String expression) {
         JExpCompiler compiler = new JExpCompiler();
-        return compiler.compile(expression, null);
+        return compiler.compile(expression);
     }
 
     // ~~~

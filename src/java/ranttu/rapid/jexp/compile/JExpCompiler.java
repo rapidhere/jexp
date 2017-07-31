@@ -14,9 +14,6 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.indy.JExpIndyFactory;
 import ranttu.rapid.jexp.indy.JIndyType;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.INT_TYPE;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
@@ -29,9 +26,6 @@ import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
  * @version $Id: Compiler.java, v0.1 2017-07-27 7:58 PM dongwei.dq Exp $
  */
 public class JExpCompiler implements Opcodes {
-    /** the id-type binding offered by user */
-    private Map<String, Class>     bindingTypes;
-
     /** the compile option */
     private final CompileOption    option;
 
@@ -55,17 +49,11 @@ public class JExpCompiler implements Opcodes {
     /**
      * compile the expression with binding types
      * @param expression        expression to compile
-     * @param bindingTypes      static type binding, can be null
      * @return                  compiled expression
      * @throws JExpCompilingException   compile failed exception info
      */
-    public JExpExecutable compile(String expression, Map<String, Class> bindingTypes)
+    public JExpExecutable compile(String expression)
                                                                                      throws JExpCompilingException {
-        this.bindingTypes = bindingTypes;
-        if (this.bindingTypes == null) {
-            this.bindingTypes = new HashMap<>();
-        }
-
         AstNode ast = JExpParser.parse(expression);
 
         // prepare
