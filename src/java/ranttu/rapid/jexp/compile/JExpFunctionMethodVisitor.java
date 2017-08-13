@@ -44,7 +44,7 @@ class JExpFunctionMethodVisitor extends MethodVisitor implements Opcodes {
             case FRETURN:
             case DRETURN:
             case ARETURN:
-                // cmv.visitJumpInsn(GOTO, endLabel);
+                cmv.visitJumpInsn(GOTO, endLabel);
                 break;
             // ~~~ other instructions, pass through
             default:
@@ -121,6 +121,6 @@ class JExpFunctionMethodVisitor extends MethodVisitor implements Opcodes {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        $.opNotSupport(functionInfo, opcode);
+        cmv.visitMethodInsn(opcode, owner, name, desc, itf);
     }
 }

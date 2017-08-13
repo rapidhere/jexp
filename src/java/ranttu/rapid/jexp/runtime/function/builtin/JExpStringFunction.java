@@ -6,6 +6,8 @@ package ranttu.rapid.jexp.runtime.function.builtin;
 
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
+import java.util.Date;
+
 /**
  * string function helpers
  *
@@ -18,8 +20,8 @@ public class JExpStringFunction {
         return s == null || s.length() == 0;
     }
 
-    @JExpFunction(name = "hello_world")
+    @JExpFunction(name = "sysdate")
     public static String sysDate() {
-        return "hello world";
+        return new Date().toString();
     }
 }

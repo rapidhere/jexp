@@ -5,8 +5,11 @@ package ranttu.rapid.jexp;
  */
 class TmpTest {
     public Object f() {
-        int a = 1, b = 2;
-        return a % b;
+        if(1 == 1) {
+            return 1;
+        } else {
+            return 2;
+        }
     }
 
 }

@@ -168,7 +168,8 @@ public class JExpCompiler implements Opcodes {
         cr.accept(new JExpFunctionClassVisitor(info, func, this, endLabel), ClassReader.SKIP_DEBUG);
 
         // put endLabel
-        // mv.visitLabel(endLabel);
+        mv.visitLabel(endLabel);
+        mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { Type.getInternalName(info.retType) });
 
         return typeUnit(Type.getType(info.retType));
     }

@@ -40,7 +40,7 @@ final public class JExp {
     // ~~~
     // only for common test usage
     public static void main(String args[]) {
-        Object o = eval("hello_world()", null);
+        Object o = eval("sysdate()", null);
         System.out.println(o);
     }
 }
