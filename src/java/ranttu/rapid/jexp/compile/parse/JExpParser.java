@@ -3,6 +3,7 @@ package ranttu.rapid.jexp.compile.parse;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
+import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnexpectedEOF;
@@ -11,6 +12,8 @@ import ranttu.rapid.jexp.exception.UnexpectedToken;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -81,8 +84,45 @@ public class JExpParser {
             next();
             return parseBinary();
         } else {
-            return parsePrimary();
+            return parseFunction();
         }
+    }
+
+    private AstNode parseFunction() {
+        PrimaryExpression id = parsePrimary();
+        Token nextToken = peekOrNull();
+
+        if (id.token.is(TokenType.IDENTIFIER) && nextToken != null
+            && nextToken.is(TokenType.LEFT_PARENTHESIS)) {
+            // eat up `(`
+            next();
+
+            return new FunctionExpression(id.token.getString(), parseParameters());
+        } else {
+            return id;
+        }
+    }
+
+    private List<AstNode> parseParameters() {
+        List<AstNode> pars = new ArrayList<>();
+
+        Token t = peek();
+        // meet ')', break
+        if (t.is(TokenType.RIGHT_PARENTHESIS)) {
+            next();
+            return pars;
+        }
+
+        while (true) {
+            pars.add(parse());
+
+            t = next(TokenType.RIGHT_PARENTHESIS, TokenType.COMMA);
+            if (t.is(TokenType.RIGHT_PARENTHESIS)) {
+                break;
+            }
+        }
+
+        return pars;
     }
 
     private PrimaryExpression parsePrimary() {
@@ -97,6 +137,15 @@ public class JExpParser {
                 throw new UnexpectedEOF();
             }
             return t;
+
+        } catch (IOException e) {
+            throw new JExpCompilingException(e.getMessage(), e);
+        }
+    }
+
+    private Token peekOrNull() {
+        try {
+            return _peek();
 
         } catch (IOException e) {
             throw new JExpCompilingException(e.getMessage(), e);

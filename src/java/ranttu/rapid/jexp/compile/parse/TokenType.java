@@ -25,6 +25,8 @@ public enum TokenType {
 
     RIGHT_BRACKET,
 
+    COMMA,
+
     /** math */
     PLUS(0),
 

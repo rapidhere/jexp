@@ -1,8 +1,10 @@
 package ranttu.rapid.jexp.common;
 
+import ranttu.rapid.jexp.exception.FunctionOpcodeNotSupportedYet;
 import ranttu.rapid.jexp.exception.UnsupportedYet;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.util.TraceClassVisitor;
+import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 
 import java.io.PrintWriter;
 
@@ -30,5 +32,9 @@ final public class $ {
     // ~~~ common helpers
     public static <T> T notSupport(Object s) {
         throw new UnsupportedYet(s.toString());
+    }
+
+    public static <T> T opNotSupport(FunctionInfo info, int op) {
+        throw new FunctionOpcodeNotSupportedYet(info.name, op);
     }
 }

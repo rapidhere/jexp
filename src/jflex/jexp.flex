@@ -60,6 +60,7 @@ OctIntegerLiteral = 0[0-9]+
   "%"                            { return token(TokenType.MODULAR, yytext()); }
   "("                            { return token(TokenType.LEFT_PARENTHESIS, yytext()); }
   ")"                            { return token(TokenType.RIGHT_PARENTHESIS, yytext()); }
+  ","                            { return token(TokenType.COMMA, yytext()); }
 
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
