@@ -54,4 +54,8 @@ final public class $ {
     public static <T> T opNotSupport(FunctionInfo info, int op) {
         throw new FunctionOpcodeNotSupportedYet(info.name, op);
     }
+
+    public static <T> T shouldNotReach() {
+        throw new AssertionError();
+    }
 }

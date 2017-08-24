@@ -41,9 +41,9 @@ public class Lexer {
    */
   private static final String ZZ_CMAP_PACKED = 
     "\11\4\1\2\1\1\1\0\1\2\1\1\16\4\4\0\1\2\1\0"+
-    "\1\10\1\0\1\3\1\15\2\0\1\16\1\17\1\13\1\11\1\0"+
+    "\1\10\1\0\1\3\1\15\2\0\1\16\1\17\1\13\1\11\1\20"+
     "\1\12\1\0\1\14\1\5\11\6\7\0\27\3\1\7\2\3\1\0"+
-    "\1\20\2\0\1\3\1\0\23\3\1\21\3\3\1\7\2\3\4\0"+
+    "\1\21\2\0\1\3\1\0\23\3\1\22\3\3\1\7\2\3\4\0"+
     "\41\4\2\0\4\3\4\0\1\3\2\0\1\4\7\0\1\3\4\0"+
     "\1\3\5\0\27\3\1\0\37\3\1\0\u01ca\3\4\0\14\3\16\0"+
     "\5\3\7\0\1\3\1\0\1\3\21\0\160\4\5\3\1\0\2\3"+
@@ -193,10 +193,10 @@ public class Lexer {
   private static final String ZZ_ACTION_PACKED_0 =
     "\2\0\1\1\1\2\1\3\2\4\1\5\1\6\1\7"+
     "\1\10\1\11\1\12\1\13\1\14\1\15\1\16\1\17"+
-    "\1\20\1\0\1\21\1\22\1\23";
+    "\1\20\1\21\1\0\1\22\1\23\1\24";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[23];
+    int [] result = new int[24];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -221,12 +221,12 @@ public class Lexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\22\0\44\0\44\0\66\0\110\0\132\0\44"+
-    "\0\44\0\44\0\44\0\44\0\44\0\44\0\44\0\154"+
-    "\0\44\0\176\0\220\0\242\0\44\0\44\0\242";
+    "\0\0\0\23\0\46\0\46\0\71\0\114\0\137\0\46"+
+    "\0\46\0\46\0\46\0\46\0\46\0\46\0\46\0\46"+
+    "\0\162\0\46\0\205\0\230\0\253\0\46\0\46\0\253";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[23];
+    int [] result = new int[24];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -250,15 +250,15 @@ public class Lexer {
 
   private static final String ZZ_TRANS_PACKED_0 =
     "\2\3\1\4\1\5\1\3\1\6\1\7\1\5\1\10"+
-    "\1\11\1\12\1\13\1\14\1\15\1\16\1\17\1\3"+
-    "\1\5\1\20\1\3\6\20\1\21\7\20\1\22\1\20"+
-    "\25\0\5\5\11\0\1\5\5\0\2\23\1\24\17\0"+
-    "\2\7\13\0\1\20\1\0\6\20\1\0\7\20\1\0"+
-    "\1\20\10\0\1\25\10\0\1\26\5\0\2\23\20\0"+
-    "\2\27\13\0";
+    "\1\11\1\12\1\13\1\14\1\15\1\16\1\17\1\20"+
+    "\1\3\1\5\1\21\1\3\6\21\1\22\10\21\1\23"+
+    "\1\21\26\0\5\5\12\0\1\5\5\0\2\24\1\25"+
+    "\20\0\2\7\14\0\1\21\1\0\6\21\1\0\10\21"+
+    "\1\0\1\21\10\0\1\26\11\0\1\27\5\0\2\24"+
+    "\21\0\2\30\14\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[180];
+    int [] result = new int[190];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -296,11 +296,11 @@ public class Lexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\2\0\2\11\3\1\10\11\1\1\1\11\2\1\1\0"+
+    "\2\0\2\11\3\1\11\11\1\1\1\11\2\1\1\0"+
     "\2\11\1\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[23];
+    int [] result = new int[24];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -757,80 +757,84 @@ public class Lexer {
             { throw new Error("unexpected character at line "
                                             + yyline + ", column " + yycolumn + ": " + yytext());
             }
-          case 20: break;
+          case 21: break;
           case 2: 
             { /* ignore */
             }
-          case 21: break;
+          case 22: break;
           case 3: 
             { return token(TokenType.IDENTIFIER, yytext());
             }
-          case 22: break;
+          case 23: break;
           case 4: 
             { return token(TokenType.INTEGER, Integer.valueOf(yytext()));
             }
-          case 23: break;
+          case 24: break;
           case 5: 
             { string.setLength(0); yybegin(STRING);
             }
-          case 24: break;
+          case 25: break;
           case 6: 
             { return token(TokenType.PLUS, yytext());
             }
-          case 25: break;
+          case 26: break;
           case 7: 
             { return token(TokenType.SUBTRACT, yytext());
             }
-          case 26: break;
+          case 27: break;
           case 8: 
             { return token(TokenType.MULTIPLY, yytext());
             }
-          case 27: break;
+          case 28: break;
           case 9: 
             { return token(TokenType.DIVIDE, yytext());
             }
-          case 28: break;
+          case 29: break;
           case 10: 
             { return token(TokenType.MODULAR, yytext());
             }
-          case 29: break;
+          case 30: break;
           case 11: 
             { return token(TokenType.LEFT_PARENTHESIS, yytext());
             }
-          case 30: break;
+          case 31: break;
           case 12: 
             { return token(TokenType.RIGHT_PARENTHESIS, yytext());
             }
-          case 31: break;
+          case 32: break;
           case 13: 
+            { return token(TokenType.COMMA, yytext());
+            }
+          case 33: break;
+          case 14: 
             { string.append( yytext() );
             }
-          case 32: break;
-          case 14: 
+          case 34: break;
+          case 15: 
             { yybegin(YYINITIAL);
                                    return token(TokenType.STRING, string.toString());
             }
-          case 33: break;
-          case 15: 
+          case 35: break;
+          case 16: 
             { string.append('\\');
             }
-          case 34: break;
-          case 16: 
+          case 36: break;
+          case 17: 
             { return token(TokenType.INTEGER, Integer.parseInt(yytext(), 8));
             }
-          case 35: break;
-          case 17: 
+          case 37: break;
+          case 18: 
             { string.append('\"');
             }
-          case 36: break;
-          case 18: 
+          case 38: break;
+          case 19: 
             { string.append('\t');
             }
-          case 37: break;
-          case 19: 
+          case 39: break;
+          case 20: 
             { return token(TokenType.INTEGER, Integer.parseInt(yytext().substring(2), 16));
             }
-          case 38: break;
+          case 40: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }

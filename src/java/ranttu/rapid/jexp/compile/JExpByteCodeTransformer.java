@@ -7,13 +7,13 @@ package ranttu.rapid.jexp.compile;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 
 import java.util.HashMap;
@@ -25,13 +25,13 @@ import java.util.Map;
  * @version $Id: JExpByteCodeTransformer.java, v0.1 2017-08-22 9:56 PM dongwei.dq Exp $
  */
 public class JExpByteCodeTransformer implements Opcodes {
-    public static void transform(FunctionInfo functionInfo, JExpCompiler jExpCompiler,
-                                 MethodVisitor cmv, FunctionExpression functionExpression) {
+    public static void transform(FunctionInfo functionInfo, GeneratePass pass, MethodVisitor cmv,
+                                 FunctionExpression functionExpression) {
         JExpByteCodeTransformer transformer = new JExpByteCodeTransformer();
         transformer.cmv = cmv;
         transformer.functionInfo = functionInfo;
         transformer.functionExpression = functionExpression;
-        transformer.compiler = jExpCompiler;
+        transformer.pass = pass;
 
         transformer.transform();
     }
@@ -45,7 +45,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
     private MethodVisitor      cmv;
 
-    private JExpCompiler       compiler;
+    private GeneratePass       pass;
 
     private Label              endLabel = new Label();
 
@@ -141,7 +141,7 @@ public class JExpByteCodeTransformer implements Opcodes {
                         // this is a variable in parameter, and this is the first time we meet it
                         if (var < functionExpression.parameters.size()) {
                             // first, put the variable on the stack
-                            compiler.visitAndOnStack(functionExpression.parameters.get(var));
+                            pass.visitOnStack(functionExpression.parameters.get(var));
                             // if we'll use it in the future, we store it
                             if (functionInfo.localVarUsedMap.getOrDefault(var, 0) > 1) {
                                 // calculate the slot
@@ -196,7 +196,6 @@ public class JExpByteCodeTransformer implements Opcodes {
         public void visitFrame(int frame, int nLocal, Object[] locals, int nStack, Object[] stacks) {
             cmv.visitFrame(frame, nLocal, locals, nStack, stacks);
         }
-
 
         @Override
         public void visitLdcInsn(Object cst) {

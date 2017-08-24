@@ -18,6 +18,8 @@ public class FunctionInfo {
 
     public Class                 retType;
 
+    public boolean               inline;
+
     //~~~ for compiling usage
     public byte[]                byteCodes;
 

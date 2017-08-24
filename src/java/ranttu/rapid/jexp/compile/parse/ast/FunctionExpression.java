@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.compile.parse.ast;
 
+import ranttu.rapid.jexp.runtime.function.FunctionInfo;
+
 import java.util.List;
 
 /**
@@ -15,6 +17,8 @@ public class FunctionExpression extends AstNode {
     final public String        functionName;
 
     final public List<AstNode> parameters;
+
+    public FunctionInfo        functionInfo;
 
     public FunctionExpression(String functionName, List<AstNode> parameters) {
         this.functionName = functionName;

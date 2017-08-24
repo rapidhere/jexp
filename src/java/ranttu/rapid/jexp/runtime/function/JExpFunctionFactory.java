@@ -56,9 +56,14 @@ final public class JExpFunctionFactory {
                 info.name = ann.name();
                 info.retType = m.getReturnType();
                 info.javaName = m.getName();
+                info.inline = ann.inline();
 
                 infos.put(ann.name(), info);
-                infoCollectMap.put(m.getName(), info);
+
+                // for inline functions, we need to collect the compiling info
+                if (info.inline) {
+                    infoCollectMap.put(m.getName(), info);
+                }
             }
         }
 

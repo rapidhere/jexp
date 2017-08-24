@@ -16,4 +16,7 @@ import java.lang.annotation.Target;
 public @interface JExpFunction {
     /** the name (identifier) of the function */
     String name();
+
+    /** whether this function is inlinable, default is true */
+    boolean inline() default true;
 }

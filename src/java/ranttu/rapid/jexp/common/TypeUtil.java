@@ -16,6 +16,22 @@ final public class TypeUtil {
     private TypeUtil() {
     }
 
+    public static boolean isString(Type t) {
+        return !isPrimitive(t) && "java/lang/String".equals(t.getInternalName());
+    }
+
+    public static boolean isFloat(Type t) {
+        return t.getSort() == Type.DOUBLE;
+    }
+
+    public static boolean isNumber(Type t) {
+        return $.in(t.getSort(), Type.INT, Type.DOUBLE);
+    }
+
+    public static boolean isInt(Type t) {
+        return t.getSort() == Type.INT;
+    }
+
     public static Type getWrapper(Type t) {
         switch (t.getSort()) {
             case Type.INT:

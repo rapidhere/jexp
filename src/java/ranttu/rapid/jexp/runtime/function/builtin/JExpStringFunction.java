@@ -20,9 +20,9 @@ public class JExpStringFunction {
         return s == null || s.length() == 0;
     }
 
-    @JExpFunction(name = "length3")
+    @JExpFunction(name = "length")
     public static int length(String s) {
-        return s.length() + s.length() + s.length();
+        return s.length();
     }
 
     @JExpFunction(name = "sysdate")
