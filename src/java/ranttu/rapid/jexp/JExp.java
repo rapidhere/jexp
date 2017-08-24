@@ -40,7 +40,7 @@ final public class JExp {
     // ~~~
     // only for common test usage
     public static void main(String args[]) {
-        Object o = eval("sysdate()", null);
+        Object o = eval("is_blank(sysdate())", null);
         System.out.println(o);
     }
 }

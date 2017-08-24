@@ -1,5 +1,6 @@
 package ranttu.rapid.jexp.compile.parse;
 
+import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
@@ -51,12 +52,15 @@ public class JExpParser {
         exps.push(parseUnary());
 
         while (true) {
-            Token t = nextOrNull(TokenType.PLUS, TokenType.SUBTRACT, TokenType.DIVIDE,
-                TokenType.MULTIPLY, TokenType.MODULAR, TokenType.RIGHT_PARENTHESIS);
-
-            if (t == null || t.is(TokenType.RIGHT_PARENTHESIS)) {
+            Token t = peekOrNull();
+            // not a math oper, break
+            if (t == null
+                || $.notIn(t.type, TokenType.PLUS, TokenType.SUBTRACT, TokenType.DIVIDE,
+                    TokenType.MULTIPLY, TokenType.MODULAR)) {
                 break;
             }
+            // eat the token
+            next();
 
             reduceStack(ops, exps, t);
             ops.push(t);
@@ -82,7 +86,10 @@ public class JExpParser {
         Token t = peek();
         if (t.is(TokenType.LEFT_PARENTHESIS)) {
             next();
-            return parseBinary();
+            AstNode exp = parseBinary();
+            // eat the right parenthesis
+            next(TokenType.RIGHT_PARENTHESIS);
+            return exp;
         } else {
             return parseFunction();
         }

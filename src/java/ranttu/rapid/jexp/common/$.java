@@ -15,7 +15,8 @@ import java.io.PrintWriter;
  * @version $Id: $.java, v0.1 2017-07-27 7:56 PM dongwei.dq Exp $
  */
 final public class $ {
-    private $() {}
+    private $() {
+    }
 
     /**
      * print the class from byte code
@@ -30,6 +31,22 @@ final public class $ {
     }
 
     // ~~~ common helpers
+    @SafeVarargs
+    public static <T> boolean in(T o, T... toCheck) {
+        for (T c : toCheck) {
+            if (o.equals(c)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @SafeVarargs
+    public static <T> boolean notIn(T o, T... toCheck) {
+        return ! in(o, toCheck);
+    }
+
     public static <T> T notSupport(Object s) {
         throw new UnsupportedYet(s.toString());
     }

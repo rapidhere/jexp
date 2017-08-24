@@ -35,6 +35,7 @@ final public class JExpFunctionFactory {
     public static void register(Class<?> callClass) throws JExpFunctionLoadException {
         // load class bytes
         byte[] classBytes = loadClassByteCode(callClass);
+        Map<String, FunctionInfo> infoCollectMap = new HashMap<>();
 
         // filter methods
         for (Method m : callClass.getMethods()) {
@@ -57,8 +58,12 @@ final public class JExpFunctionFactory {
                 info.javaName = m.getName();
 
                 infos.put(ann.name(), info);
+                infoCollectMap.put(m.getName(), info);
             }
         }
+
+        // collect info
+        FunctionInfoCollector.collectInfo(classBytes, infoCollectMap);
     }
 
     /**

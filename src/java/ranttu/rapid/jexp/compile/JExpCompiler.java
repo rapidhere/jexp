@@ -9,7 +9,6 @@ import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnknownFunction;
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
@@ -67,10 +66,10 @@ public class JExpCompiler implements Opcodes {
         cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         String clsName = nextName();
         visitClass(clsName.replace('.', '/'));
-        TypeUnit rType = visit(ast);
+        visitAndOnStack(ast);
 
         // return
-        genReturn(rType);
+        mv.visitInsn(ARETURN);
 
         // end
         mv.visitMaxs(0, 0);
@@ -95,22 +94,6 @@ public class JExpCompiler implements Opcodes {
 
     private String nextName() {
         return "ranttu.rapid.jexp.JExpCompiledExpression$" + nameCount++;
-    }
-
-    private void genReturn(TypeUnit retType) {
-        if (retType.isConstant) {
-            mv.visitLdcInsn(retType.value);
-        }
-
-        if (retType.type == Type.INT_TYPE) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
-                "(I)Ljava/lang/Integer;", false);
-        } else if (retType.type == Type.DOUBLE_TYPE) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
-                "(I)Ljava/lang/Double;", false);
-        }
-        // otherwise, do nothing
-        mv.visitInsn(ARETURN);
     }
 
     void visitClass(String name) {
@@ -140,6 +123,25 @@ public class JExpCompiler implements Opcodes {
         }
     }
 
+    void visitAndOnStack(AstNode astNode) {
+        TypeUnit unit = visit(astNode);
+
+        if (unit.isConstant) {
+            mv.visitLdcInsn(unit.value);
+        }
+
+        if (unit.type == Type.INT_TYPE) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
+                "(I)Ljava/lang/Integer;", false);
+        } else if (unit.type == Type.DOUBLE_TYPE) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
+                "(I)Ljava/lang/Double;", false);
+        } else if (unit.type == Type.BOOLEAN_TYPE) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
+                "(Z)Ljava/lang/Boolean;", false);
+        }
+    }
+
     TypeUnit visit(AstNode astNode) {
         switch (astNode.type) {
             case PRIMARY_EXP:
@@ -163,13 +165,7 @@ public class JExpCompiler implements Opcodes {
         FunctionInfo info = infoOptional.get();
 
         // build class reader
-        Label endLabel = new Label();
-        ClassReader cr = new ClassReader(info.byteCodes);
-        cr.accept(new JExpFunctionClassVisitor(info, func, this, endLabel), ClassReader.SKIP_DEBUG);
-
-        // put endLabel
-        mv.visitLabel(endLabel);
-        mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { Type.getInternalName(info.retType) });
+        JExpByteCodeTransformer.transform(info, this, mv, func);
 
         return typeUnit(Type.getType(info.retType));
     }

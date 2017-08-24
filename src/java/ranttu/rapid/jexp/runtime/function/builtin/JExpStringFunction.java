@@ -20,6 +20,11 @@ public class JExpStringFunction {
         return s == null || s.length() == 0;
     }
 
+    @JExpFunction(name = "length3")
+    public static int length(String s) {
+        return s.length() + s.length() + s.length();
+    }
+
     @JExpFunction(name = "sysdate")
     public static String sysDate() {
         return new Date().toString();
