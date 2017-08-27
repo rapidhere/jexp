@@ -58,7 +58,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 "(I)Ljava/lang/Integer;", false);
         } else if (root.valueType == Type.DOUBLE_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
-                "(I)Ljava/lang/Double;", false);
+                "(D)Ljava/lang/Double;", false);
         } else if (root.valueType == Type.BOOLEAN_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
                 "(Z)Ljava/lang/Boolean;", false);

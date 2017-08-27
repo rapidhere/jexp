@@ -40,7 +40,7 @@ public class TypeInferPass extends NoReturnPass {
                 primary.constantValue = t.getInt();
                 return;
             case FLOAT:
-                primary.valueType = Type.FLOAT_TYPE;
+                primary.valueType = Type.DOUBLE_TYPE;
                 primary.constantValue = t.getDouble();
                 return;
             default:

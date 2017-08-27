@@ -25,3 +25,11 @@
 - desc: zero
   exp: 0
   res: 0
+
+- desc: double literal
+  exp: 1.0
+  res: 1.0
+
+- desc: double zero
+  exp: 0.0
+  res: 0.0

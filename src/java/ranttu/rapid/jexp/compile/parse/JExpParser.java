@@ -133,7 +133,7 @@ public class JExpParser {
     }
 
     private PrimaryExpression parsePrimary() {
-        Token t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER);
+        Token t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.FLOAT);
         return new PrimaryExpression(t);
     }
 
