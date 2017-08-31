@@ -21,7 +21,7 @@ final public class TypeUtil {
     }
 
     public static boolean isFloat(Type t) {
-        return t.getSort() == Type.DOUBLE;
+        return t == Type.DOUBLE_TYPE;
     }
 
     public static boolean isNumber(Type t) {
