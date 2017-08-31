@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JExpFunction {
     /** the name (identifier) of the function */
-    String name();
+    String name() default "";
 
     /** whether this function is inlinable, default is true */
     boolean inline() default true;

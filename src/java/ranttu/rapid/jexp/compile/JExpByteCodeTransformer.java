@@ -6,7 +6,7 @@ package ranttu.rapid.jexp.compile;
 
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
-import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -17,6 +17,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,28 +27,28 @@ import java.util.Map;
  */
 public class JExpByteCodeTransformer implements Opcodes {
     public static void transform(FunctionInfo functionInfo, GeneratePass pass, MethodVisitor cmv,
-                                 FunctionExpression functionExpression) {
+                                 List<AstNode> parameters) {
         JExpByteCodeTransformer transformer = new JExpByteCodeTransformer();
         transformer.cmv = cmv;
         transformer.functionInfo = functionInfo;
-        transformer.functionExpression = functionExpression;
+        transformer.parameters = parameters;
         transformer.pass = pass;
 
         transformer.transform();
     }
 
     //~~~ impl
-    private FunctionInfo       functionInfo;
+    private FunctionInfo  functionInfo;
 
-    private FunctionExpression functionExpression;
+    private List<AstNode> parameters;
 
-    private ClassReader        cr;
+    private ClassReader   cr;
 
-    private MethodVisitor      cmv;
+    private MethodVisitor cmv;
 
-    private GeneratePass       pass;
+    private GeneratePass  pass;
 
-    private Label              endLabel = new Label();
+    private Label         endLabel = new Label();
 
     private void transform() {
         cr = new ClassReader(functionInfo.byteCodes);
@@ -139,9 +140,9 @@ public class JExpByteCodeTransformer implements Opcodes {
                         cmv.visitVarInsn(ALOAD, inlineVar);
                     } else {
                         // this is a variable in parameter, and this is the first time we meet it
-                        if (var < functionExpression.parameters.size()) {
+                        if (var < parameters.size()) {
                             // first, put the variable on the stack
-                            pass.visitOnStack(functionExpression.parameters.get(var));
+                            pass.visitOnStack(parameters.get(var));
                             // if we'll use it in the future, we store it
                             if (functionInfo.localVarUsedMap.getOrDefault(var, 0) > 1) {
                                 // calculate the slot

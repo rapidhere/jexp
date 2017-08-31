@@ -1,6 +1,7 @@
 package ranttu.rapid.jexp.compile.parse.ast;
 
 import ranttu.rapid.jexp.compile.parse.Token;
+import ranttu.rapid.jexp.compile.parse.TokenType;
 
 /**
  * the primary expression like identifier, string, integers
@@ -14,5 +15,10 @@ public class PrimaryExpression extends AstNode {
 
     public PrimaryExpression(Token token) {
         this.token = token;
+    }
+
+    public static PrimaryExpression of(String s) {
+        Token t = new Token(TokenType.STRING, -1, -1, s);
+        return new PrimaryExpression(t);
     }
 }

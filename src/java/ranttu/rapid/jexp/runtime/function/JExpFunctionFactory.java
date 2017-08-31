@@ -2,6 +2,7 @@ package ranttu.rapid.jexp.runtime.function;
 
 import org.apache.commons.io.IOUtils;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpBaseFunction;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpStringFunction;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ final public class JExpFunctionFactory {
     // builtin register
     static {
         register(JExpStringFunction.class);
+        register(JExpBaseFunction.class);
     }
 
     /**
@@ -41,24 +43,30 @@ final public class JExpFunctionFactory {
         for (Method m : callClass.getMethods()) {
             if (m.isAnnotationPresent(JExpFunction.class)) {
                 JExpFunction ann = m.getAnnotation(JExpFunction.class);
-
-                if (!Modifier.isStatic(m.getModifiers())) {
-                    throw new JExpFunctionLoadException("java function can only be static: "
-                                                        + ann.name());
+                // get name
+                String name = ann.name();
+                if (name.length() == 0) {
+                    name = m.getName();
                 }
 
-                if (infos.containsKey(ann.name())) {
-                    throw new JExpFunctionLoadException("function name duplicated: " + ann.name());
+                // modifier check
+                if (!Modifier.isStatic(m.getModifiers())) {
+                    throw new JExpFunctionLoadException("java function can only be static: " + name);
+                }
+
+                // update function info
+                if (infos.containsKey(name)) {
+                    throw new JExpFunctionLoadException("function name duplicated: " + name);
                 }
 
                 FunctionInfo info = new FunctionInfo();
                 info.byteCodes = classBytes;
-                info.name = ann.name();
+                info.name = name;
                 info.retType = m.getReturnType();
                 info.javaName = m.getName();
                 info.inline = ann.inline();
 
-                infos.put(ann.name(), info);
+                infos.put(name, info);
 
                 // for inline functions, we need to collect the compiling info
                 if (info.inline) {

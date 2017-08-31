@@ -14,6 +14,7 @@ import java.util.Date;
  * @author rapidhere@gmail.com
  * @version $Id: JExpStringFunction.java, v0.1 2017-08-03 1:55 PM dongwei.dq Exp $
  */
+@SuppressWarnings("unused")
 public class JExpStringFunction {
     @JExpFunction(name = "is_blank")
     public static boolean isBlank(String s) {

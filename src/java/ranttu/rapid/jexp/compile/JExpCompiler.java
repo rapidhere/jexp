@@ -1,5 +1,6 @@
 package ranttu.rapid.jexp.compile;
 
+import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.parse.JExpParser;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
@@ -50,7 +51,7 @@ public class JExpCompiler implements Opcodes {
         byte[] byteCodes = cw.toByteArray();
 
         // for debug
-        // $.printClass(clsName, byteCodes);
+        $.printClass(clsName, byteCodes);
 
         @SuppressWarnings("unchecked")
         Class<JExpExecutable> klass = jExpClassLoader.defineClass(clsName, byteCodes);

@@ -9,9 +9,12 @@ import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.JExpExecutable;
+import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LoadContextExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
@@ -19,6 +22,11 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
+import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
@@ -118,8 +126,19 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(PrimaryExpression exp) {
-        // primary expression is always constant
-        $.shouldNotReach();
+        // should not be a constant
+        if (exp.isConstant) {
+            $.shouldNotReach();
+        }
+
+        if (exp.token.is(TokenType.IDENTIFIER)) {
+            // load it on stack
+            List<AstNode> args = new ArrayList<>();
+            args.add(new LoadContextExpression());
+            args.add(PrimaryExpression.of(exp.getStringValue()));
+
+            applyFunction("get_prop", args);
+        }
     }
 
     @Override
@@ -185,9 +204,24 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         FunctionInfo info = func.functionInfo;
 
         if (info.inline) {
-            JExpByteCodeTransformer.transform(info, this, mv, func);
+            JExpByteCodeTransformer.transform(info, this, mv, func.parameters);
         } else {
             $.notSupport("current only supports inline functions!");
         }
+    }
+
+    @Override
+    protected void visit(LoadContextExpression exp) {
+        mv.visitVarInsn(ALOAD, 1);
+    }
+
+    // function apply util
+    private void applyFunction(String functionName, List<AstNode> args) {
+        Optional<FunctionInfo> info = JExpFunctionFactory.getInfo(functionName);
+        if (!info.isPresent()) {
+            throw new JExpCompilingException("function name not found: " + functionName);
+        }
+
+        JExpByteCodeTransformer.transform(info.get(), this, mv, args);
     }
 }

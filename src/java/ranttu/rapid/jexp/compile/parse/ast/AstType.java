@@ -12,5 +12,9 @@ public enum AstType {
 
     UNARY_EXP,
 
-    CALL_EXP
+    CALL_EXP,
+
+    // ~~~ inner usages
+    // expression that load ctx arg to statck
+    LOAD_CTX_EXP,
 }

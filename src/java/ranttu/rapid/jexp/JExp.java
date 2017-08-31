@@ -3,6 +3,9 @@ package ranttu.rapid.jexp;
 import ranttu.rapid.jexp.compile.JExpCompiler;
 import ranttu.rapid.jexp.compile.JExpExecutable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The jExp facade
  * @author rapidhere@gmail.com
@@ -40,7 +43,9 @@ final public class JExp {
     // ~~~
     // only for common test usage
     public static void main(String args[]) {
-        Object o = eval("sysdate()", null);
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("a", "hello world");
+        Object o = eval("a", ctx);
         System.out.println(o);
     }
 }
