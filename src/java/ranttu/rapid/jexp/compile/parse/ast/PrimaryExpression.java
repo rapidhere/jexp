@@ -17,8 +17,16 @@ public class PrimaryExpression extends AstNode {
         this.token = token;
     }
 
-    public static PrimaryExpression of(String s) {
+    public String getId() {
+        return this.token.getString();
+    }
+
+    public static PrimaryExpression ofString(String s) {
         Token t = new Token(TokenType.STRING, -1, -1, s);
-        return new PrimaryExpression(t);
+        PrimaryExpression exp = new PrimaryExpression(t);
+        exp.isConstant = true;
+        exp.constantValue = s;
+
+        return exp;
     }
 }

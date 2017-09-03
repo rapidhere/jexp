@@ -44,7 +44,7 @@ final public class JExp {
     // only for common test usage
     public static void main(String args[]) {
         Map<String, Object> ctx = new HashMap<>();
-        ctx.put("a", "hello world");
+        ctx.put("a", 1);
         Object o = eval("a", ctx);
         System.out.println(o);
     }

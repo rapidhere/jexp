@@ -37,6 +37,10 @@ final public class JExpFunctionFactory {
     public static void register(Class<?> callClass) throws JExpFunctionLoadException {
         // load class bytes
         byte[] classBytes = loadClassByteCode(callClass);
+
+        // for debug
+        // $.printClass(callClass.getSimpleName(), classBytes);
+
         Map<String, FunctionInfo> infoCollectMap = new HashMap<>();
 
         // filter methods

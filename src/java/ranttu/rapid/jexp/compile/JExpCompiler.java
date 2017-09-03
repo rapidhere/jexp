@@ -51,7 +51,7 @@ public class JExpCompiler implements Opcodes {
         byte[] byteCodes = cw.toByteArray();
 
         // for debug
-        $.printClass(clsName, byteCodes);
+        // $.printClass(clsName, byteCodes);
 
         @SuppressWarnings("unchecked")
         Class<JExpExecutable> klass = jExpClassLoader.defineClass(clsName, byteCodes);

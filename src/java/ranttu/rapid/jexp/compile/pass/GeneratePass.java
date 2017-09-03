@@ -11,7 +11,6 @@ import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.JExpExecutable;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
-import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LoadContextExpression;
@@ -135,7 +134,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             // load it on stack
             List<AstNode> args = new ArrayList<>();
             args.add(new LoadContextExpression());
-            args.add(PrimaryExpression.of(exp.getStringValue()));
+            args.add(PrimaryExpression.ofString(exp.getId()));
 
             applyFunction("get_prop", args);
         }
@@ -212,7 +211,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(LoadContextExpression exp) {
-        mv.visitVarInsn(ALOAD, 1);
+        $.shouldNotReach();
     }
 
     // function apply util

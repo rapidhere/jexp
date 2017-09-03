@@ -7,6 +7,7 @@ package ranttu.rapid.jexp.compile;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -93,7 +94,9 @@ public class JExpByteCodeTransformer implements Opcodes {
      */
     private class TransformPass extends MethodVisitor {
         private Map<Integer, Integer> functionVarInlineMap = new HashMap<>();
-        private int                   numberStored         = 0;
+
+        // begin with 1, because 0 = this and 1 = context
+        private int                   numberStored         = 2;
 
         public TransformPass() {
             super(ASM5);
@@ -141,18 +144,27 @@ public class JExpByteCodeTransformer implements Opcodes {
                     } else {
                         // this is a variable in parameter, and this is the first time we meet it
                         if (var < parameters.size()) {
+                            AstNode parameterNode = parameters.get(var);
                             // first, put the variable on the stack
-                            pass.visitOnStack(parameters.get(var));
-                            // if we'll use it in the future, we store it
-                            if (functionInfo.localVarUsedMap.getOrDefault(var, 0) > 1) {
-                                // calculate the slot
-                                int currentStoreVar = functionInfo.localVarCount + numberStored;
-                                numberStored++;
-                                functionVarInlineMap.put(var, currentStoreVar);
+                            // LoadContext, just pass through
+                            if (parameterNode.is(AstType.LOAD_CTX_EXP)) {
+                                cmv.visitVarInsn(ALOAD, 1);
+                                functionVarInlineMap.put(var, 1);
+                            }
+                            // others, visit and put on stack
+                            else {
+                                pass.visitOnStack(parameters.get(var));
+                                // if we'll use it in the future, we store it
+                                if (functionInfo.localVarUsedMap.getOrDefault(var, 0) > 1) {
+                                    // calculate the slot
+                                    int currentStoreVar = functionInfo.localVarCount + numberStored;
+                                    numberStored++;
+                                    functionVarInlineMap.put(var, currentStoreVar);
 
-                                // gen bytecodes
-                                cmv.visitInsn(DUP);
-                                cmv.visitVarInsn(ASTORE, currentStoreVar);
+                                    // gen bytecodes
+                                    cmv.visitInsn(DUP);
+                                    cmv.visitVarInsn(ASTORE, currentStoreVar);
+                                }
                             }
                         }
                         // just deal it normal
