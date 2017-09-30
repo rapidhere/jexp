@@ -4,6 +4,7 @@
  */
 package ranttu.rapid.jexp.runtime.function;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -19,6 +20,9 @@ public class FunctionInfo {
     public Class                 retType;
 
     public boolean               inline;
+
+    // reflection object
+    public Method                method;
 
     //~~~ for compiling usage
     public byte[]                byteCodes;

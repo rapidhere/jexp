@@ -60,9 +60,16 @@ public class TypeInferPass extends NoReturnPass {
         visit(exp.right);
 
         //~~~ infer ret type
+        // Object
+        if (exp.left.valueType.getClassName().equals(Object.class.getName())
+            || exp.right.valueType.getClassName().equals(Object.class.getName())) {
+            exp.valueType = Type.getType(Object.class);
+            return;
+        }
         // string
-        if (exp.op.is(TokenType.PLUS)
-            && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
+        else if (exp.op.is(TokenType.PLUS)
+                 && (TypeUtil.isString(exp.left.valueType) || TypeUtil
+                     .isString(exp.right.valueType))) {
             exp.valueType = Type.getType(String.class);
         }
         // number
@@ -152,7 +159,7 @@ public class TypeInferPass extends NoReturnPass {
         func.valueType = Type.getType(info.retType);
 
         // visit all parameters
-        for (AstNode astNode: func.parameters) {
+        for (AstNode astNode : func.parameters) {
             visit(astNode);
         }
     }

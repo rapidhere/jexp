@@ -20,6 +20,7 @@ import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * the visitor working on the bytecode
@@ -28,28 +29,33 @@ import java.util.Map;
  */
 public class JExpByteCodeTransformer implements Opcodes {
     public static void transform(FunctionInfo functionInfo, GeneratePass pass, MethodVisitor cmv,
-                                 List<AstNode> parameters) {
+                                 List<AstNode> parameters, CompilingContext context) {
         JExpByteCodeTransformer transformer = new JExpByteCodeTransformer();
         transformer.cmv = cmv;
         transformer.functionInfo = functionInfo;
         transformer.parameters = parameters;
         transformer.pass = pass;
+        transformer.context = context;
 
         transformer.transform();
     }
 
     //~~~ impl
-    private FunctionInfo  functionInfo;
+    private FunctionInfo          functionInfo;
 
-    private List<AstNode> parameters;
+    private List<AstNode>         parameters;
 
-    private ClassReader   cr;
+    private ClassReader           cr;
 
-    private MethodVisitor cmv;
+    private MethodVisitor         cmv;
 
-    private GeneratePass  pass;
+    private GeneratePass          pass;
 
-    private Label         endLabel = new Label();
+    private CompilingContext      context;
+
+    private Label                 endLabel             = new Label();
+
+    private Map<Integer, Integer> localVarIndexMapping = new HashMap<>();
 
     private void transform() {
         cr = new ClassReader(functionInfo.byteCodes);
@@ -64,6 +70,17 @@ public class JExpByteCodeTransformer implements Opcodes {
 
     private void accept(MethodVisitor mv) {
         cr.accept(new InnerClassVisitor(mv), ClassReader.SKIP_DEBUG);
+    }
+
+    private int getInlineVarIndex(int rawIndex) {
+        localVarIndexMapping.computeIfAbsent(rawIndex, integer -> {
+            int inlineIndex = context.inlinedLocalVarCount;
+            context.inlinedLocalVarCount ++;
+
+            return inlineIndex;
+        });
+
+        return localVarIndexMapping.get(rawIndex);
     }
 
     /**
@@ -93,13 +110,28 @@ public class JExpByteCodeTransformer implements Opcodes {
      * the pass that transform the codes
      */
     private class TransformPass extends MethodVisitor {
-        private Map<Integer, Integer> functionVarInlineMap = new HashMap<>();
-
-        // begin with 1, because 0 = this and 1 = context
-        private int                   numberStored         = 2;
-
         public TransformPass() {
             super(ASM5);
+
+            // generate multiple used arguments first
+            for (int rawFuncParIdx = 0; rawFuncParIdx < parameters.size(); rawFuncParIdx++) {
+                // used <= 1, ignored
+                if (functionInfo.localVarUsedMap.getOrDefault(rawFuncParIdx, 0) <= 1) {
+                    continue;
+                }
+
+                // load_ctx, do not store
+                if (parameters.get(rawFuncParIdx).is(AstType.LOAD_CTX_EXP)) {
+                    continue;
+                }
+
+                // visit and put on stack
+                pass.visitOnStack(parameters.get(rawFuncParIdx));
+
+                // dup and store
+                cmv.visitInsn(DUP);
+                cmv.visitVarInsn(ASTORE, getInlineVarIndex(rawFuncParIdx));
+            }
         }
 
         @Override
@@ -136,47 +168,39 @@ public class JExpByteCodeTransformer implements Opcodes {
                 case FLOAD:
                 case DLOAD:
                 case ALOAD:
-                    // get the variable load count
-                    int inlineVar = functionVarInlineMap.getOrDefault(var, -1);
-                    // i.e., the var is already loaded and stored
-                    if (inlineVar >= 0) {
-                        cmv.visitVarInsn(ALOAD, inlineVar);
-                    } else {
-                        // this is a variable in parameter, and this is the first time we meet it
-                        if (var < parameters.size()) {
-                            AstNode parameterNode = parameters.get(var);
-                            // first, put the variable on the stack
-                            // LoadContext, just pass through
-                            if (parameterNode.is(AstType.LOAD_CTX_EXP)) {
-                                cmv.visitVarInsn(ALOAD, 1);
-                                functionVarInlineMap.put(var, 1);
-                            }
-                            // others, visit and put on stack
-                            else {
-                                pass.visitOnStack(parameters.get(var));
-                                // if we'll use it in the future, we store it
-                                if (functionInfo.localVarUsedMap.getOrDefault(var, 0) > 1) {
-                                    // calculate the slot
-                                    int currentStoreVar = functionInfo.localVarCount + numberStored;
-                                    numberStored++;
-                                    functionVarInlineMap.put(var, currentStoreVar);
+                    // this is a variable in parameter
+                    if (var < parameters.size()) {
+                        AstNode parameterNode = parameters.get(var);
 
-                                    // gen bytecodes
-                                    cmv.visitInsn(DUP);
-                                    cmv.visitVarInsn(ASTORE, currentStoreVar);
-                                }
-                            }
+                        // LoadContext, just pass through
+                        if (parameterNode.is(AstType.LOAD_CTX_EXP)) {
+                            cmv.visitVarInsn(ALOAD, 1);
                         }
-                        // just deal it normal
+                        // i.e., multiply used argument, just load from stored
+                        else if (functionInfo.localVarUsedMap.getOrDefault(var, 0) > 1) {
+                            cmv.visitVarInsn(ALOAD, getInlineVarIndex(var));
+                        }
+                        // single-usage parameter
                         else {
-                            cmv.visitVarInsn(opcode, var);
+                            // first, put the variable on the stack
+                            pass.visitOnStack(parameters.get(var));
                         }
                     }
+                    // local variables, don't rewrite `this` and `context`
+                    else {
+                        cmv.visitVarInsn(opcode, getInlineVarIndex(var));
+                    }
                     break;
-
                 default:
                     // other is store
-                    cmv.visitVarInsn(opcode, var);
+                    // this is a variable in parameter
+                    if (var < parameters.size()) {
+                        $.opNotSupport(functionInfo, opcode);
+                    }
+                    // local variables, don't rewrite `this` and `context`
+                    else {
+                        cmv.visitVarInsn(opcode, getInlineVarIndex(var));
+                    }
             }
         }
 

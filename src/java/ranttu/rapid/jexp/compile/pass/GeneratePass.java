@@ -7,6 +7,7 @@ package ranttu.rapid.jexp.compile.pass;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.CompileOption;
+import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.JExpExecutable;
 import ranttu.rapid.jexp.compile.parse.TokenType;
@@ -52,24 +53,16 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     @Override
-    public void apply(AstNode root) {
+    public void apply(AstNode root, CompilingContext context) {
         // prepare class
         visitClass(className.replace('.', '/'));
 
         // visit the method
-        super.apply(root);
+        context.inlinedLocalVarCount = 2;
+        super.apply(root, context);
 
         // return
-        if (root.valueType == Type.INT_TYPE) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
-                "(I)Ljava/lang/Integer;", false);
-        } else if (root.valueType == Type.DOUBLE_TYPE) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
-                "(D)Ljava/lang/Double;", false);
-        } else if (root.valueType == Type.BOOLEAN_TYPE) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
-                "(Z)Ljava/lang/Boolean;", false);
-        }
+        mathOpValConvert(root);
         mv.visitInsn(ARETURN);
 
         // end
@@ -143,8 +136,33 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     @SuppressWarnings("Duplicates")
     protected void visit(BinaryExpression exp) {
+        // for Object(runtime)
+        if (exp.valueType.getClassName().equals(Object.class.getName())) {
+            // build arguments
+            List<AstNode> args = new ArrayList<>();
+            args.add(exp.left);
+            args.add(exp.right);
+
+            switch (exp.op.type) {
+                case PLUS:
+                    applyFunction("add", args);
+                    break;
+                case SUBTRACT:
+                    applyFunction("sub", args);
+                    break;
+                case MULTIPLY:
+                    applyFunction("mul", args);
+                    break;
+                case DIVIDE:
+                    applyFunction("div", args);
+                    break;
+                case MODULAR:
+                    applyFunction("mod", args);
+                    break;
+            }
+        }
         // for float type
-        if (TypeUtil.isFloat(exp.valueType)) {
+        else if (TypeUtil.isFloat(exp.valueType)) {
             visit(exp.left);
             if (TypeUtil.isInt(exp.left.valueType)) {
                 mv.visitInsn(I2D);
@@ -200,18 +218,25 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(FunctionExpression func) {
-        FunctionInfo info = func.functionInfo;
-
-        if (info.inline) {
-            JExpByteCodeTransformer.transform(info, this, mv, func.parameters);
-        } else {
-            $.notSupport("current only supports inline functions!");
-        }
+        applyFunction(func.functionInfo, func.parameters);
     }
 
     @Override
     protected void visit(LoadContextExpression exp) {
-        $.shouldNotReach();
+        mv.visitVarInsn(ALOAD, 1);
+    }
+
+    private void mathOpValConvert(AstNode exp) {
+        if (TypeUtil.isInt(exp.valueType)) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
+                "(I)Ljava/lang/Integer;", false);
+        } else if (TypeUtil.isFloat(exp.valueType)) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
+                "(D)Ljava/lang/Double;", false);
+        } else if (exp.valueType == Type.BOOLEAN_TYPE) {
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
+                "(Z)Ljava/lang/Boolean;", false);
+        }
     }
 
     // function apply util
@@ -221,6 +246,23 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             throw new JExpCompilingException("function name not found: " + functionName);
         }
 
-        JExpByteCodeTransformer.transform(info.get(), this, mv, args);
+        applyFunction(info.get(), args);
+    }
+
+    private void applyFunction(FunctionInfo info, List<AstNode> args) {
+
+        if (info.inline) {
+            // inline the function
+            JExpByteCodeTransformer.transform(info, this, mv, args, context);
+        } else {
+            // load stack
+            for (AstNode astNode : args) {
+                visitOnStack(astNode);
+            }
+
+            // call
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
+                info.javaName, Type.getMethodDescriptor(info.method), false);
+        }
     }
 }

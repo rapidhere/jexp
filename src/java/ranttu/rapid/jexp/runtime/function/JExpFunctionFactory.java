@@ -69,6 +69,7 @@ final public class JExpFunctionFactory {
                 info.retType = m.getReturnType();
                 info.javaName = m.getName();
                 info.inline = ann.inline();
+                info.method = m;
 
                 infos.put(name, info);
 

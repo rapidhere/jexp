@@ -5,6 +5,7 @@
 package ranttu.rapid.jexp.compile.pass;
 
 import ranttu.rapid.jexp.common.$;
+import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
@@ -16,8 +17,11 @@ import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
  * @version $Id: NoReturnPass.java, v0.1 2017-08-24 6:08 PM dongwei.dq Exp $
  */
 public abstract class NoReturnPass implements Pass {
+    protected CompilingContext context;
+
     @Override
-    public void apply(AstNode astNode) {
+    public void apply(AstNode astNode, CompilingContext context) {
+        this.context = context;
         visit(astNode);
     }
 

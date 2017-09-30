@@ -45,7 +45,8 @@ final public class JExp {
     public static void main(String args[]) {
         Map<String, Object> ctx = new HashMap<>();
         ctx.put("a", 1);
-        Object o = eval("a", ctx);
+        ctx.put("b", 3);
+        Object o = eval("a + b + b * b", ctx);
         System.out.println(o);
     }
 }

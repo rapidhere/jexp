@@ -38,20 +38,21 @@ public class JExpCompiler implements Opcodes {
      */
     public JExpExecutable compile(String expression) throws JExpCompilingException {
         AstNode ast = JExpParser.parse(expression);
+        CompilingContext compilingContext = new CompilingContext();
 
         // infer the types first
-        new TypeInferPass().apply(ast);
+        new TypeInferPass().apply(ast, compilingContext);
 
         // generate byte codes
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         String clsName = nextName();
-        new GeneratePass(cw, clsName, option).apply(ast);
+        new GeneratePass(cw, clsName, option).apply(ast, compilingContext);
 
         // write class
         byte[] byteCodes = cw.toByteArray();
 
         // for debug
-        // $.printClass(clsName, byteCodes);
+        $.printClass(clsName, byteCodes);
 
         @SuppressWarnings("unchecked")
         Class<JExpExecutable> klass = jExpClassLoader.defineClass(clsName, byteCodes);
