@@ -47,6 +47,9 @@ public class TypeInferPass extends NoReturnPass {
             case IDENTIFIER:
                 primary.valueType = Type.getType(Object.class);
                 primary.isConstant = false;
+                int cnt = context.identifierCountMap.getOrDefault(primary.getId(), 0);
+                cnt ++;
+                context.identifierCountMap.put(primary.getId(), cnt);
                 return;
             default:
                 $.notSupport(t.type);

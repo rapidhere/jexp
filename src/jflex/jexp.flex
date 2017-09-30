@@ -31,8 +31,6 @@ import ranttu.rapid.jexp.compile.parse.TokenType;
 InputCharacter = [^\r\n]
 WhiteSpace     = [ \t\f]
 
-Identifier = [:jletter:] [:jletterdigit:]*
-
 DecIntegerLiteral = 0 | [1-9][0-9]*
 HexIntegerLiteral = 0[xX][0-9]+
 OctIntegerLiteral = 0[0-9]+
@@ -43,10 +41,10 @@ OctIntegerLiteral = 0[0-9]+
 
 <YYINITIAL> {
   /* identifiers */
-  {Identifier}                   { return token(TokenType.IDENTIFIER, yytext()); }
+  [a-zA-Z\_][a-zA-Z0-9\_]*(\.[a-zA-Z\_][a-zA-Z0-9\_]*)*   { return token(TokenType.IDENTIFIER, yytext()); }
 
   /* literals */
-  (0 | [1-9][0-9]*)\.[0-9]+       { return token(TokenType.FLOAT, Double.valueOf(yytext())); }
+  (0 | [1-9][0-9]*)\.[0-9]+      { return token(TokenType.FLOAT, Double.valueOf(yytext())); }
   {DecIntegerLiteral}            { return token(TokenType.INTEGER, Integer.valueOf(yytext())); }
   {HexIntegerLiteral}            { return token(TokenType.INTEGER, Integer.parseInt(yytext().substring(2), 16)); }
   {OctIntegerLiteral}            { return token(TokenType.INTEGER, Integer.parseInt(yytext(), 8)); }

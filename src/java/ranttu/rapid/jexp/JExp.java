@@ -44,9 +44,11 @@ final public class JExp {
     // only for common test usage
     public static void main(String args[]) {
         Map<String, Object> ctx = new HashMap<>();
-        ctx.put("a", 1);
-        ctx.put("b", 3);
-        Object o = eval("a + b + b * b", ctx);
+        ctx.put("aaafasf", 1);
+        ctx.put("b", new Object() {
+            public Integer b = 3;
+        });
+        Object o = eval("aaafasf + b.b + b.b * b.b", ctx);
         System.out.println(o);
     }
 }

@@ -24,10 +24,12 @@ final public class $ {
      * @param bytes      the bytes
      */
     public static void printClass(String className, byte[] bytes) {
-        System.out.println("========Class: " + className);
-        ClassReader reader = new ClassReader(bytes);
-        reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
-        System.out.println();
+        if (Boolean.valueOf(System.getProperty("jexp.printBC"))) {
+            System.out.println("========Class: " + className);
+            ClassReader reader = new ClassReader(bytes);
+            reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
+            System.out.println();
+        }
     }
 
     // ~~~ common helpers
@@ -44,7 +46,7 @@ final public class $ {
 
     @SafeVarargs
     public static <T> boolean notIn(T o, T... toCheck) {
-        return ! in(o, toCheck);
+        return !in(o, toCheck);
     }
 
     public static <T> T notSupport(Object s) {

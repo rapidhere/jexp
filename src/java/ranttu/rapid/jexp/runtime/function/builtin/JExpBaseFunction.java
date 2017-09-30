@@ -6,6 +6,7 @@ package ranttu.rapid.jexp.runtime.function.builtin;
 
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -16,14 +17,21 @@ import java.util.Map;
 @SuppressWarnings("unused")
 final public class JExpBaseFunction {
     // getter
-    @JExpFunction(name = "get_prop")
-    public static Object getProperty(Object o, String name) {
-        if (o instanceof Map) {
-            return ((Map) o).get(name);
-        } else {
-            // not supported yet
-            return null;
+    @JExpFunction(name = "get_prop", inline = false)
+    public static Object getProperty(Object o, String name) throws Throwable {
+        Object res = o;
+        for (String subId: name.split("\\.")) {
+            if (res instanceof Map) {
+                res = ((Map) res).get(subId);
+            } else {
+                Field f = res.getClass().getField(subId);
+                f.setAccessible(true);
+                res = f.get(res);
+            }
         }
+
+        return res;
+
     }
 
     // ~~~ math

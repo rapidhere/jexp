@@ -57,9 +57,13 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // prepare class
         visitClass(className.replace('.', '/'));
 
+        // prepare identifier values
+        this.context = context;
+        this.context.inlinedLocalVarCount = 2;
+        prepareIdentifiers();
+
         // visit the method
-        context.inlinedLocalVarCount = 2;
-        super.apply(root, context);
+        visit(root);
 
         // return
         mathOpValConvert(root);
@@ -76,6 +80,26 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
      */
     public void visitOnStack(AstNode astNode) {
         visit(astNode);
+    }
+
+    private void prepareIdentifiers() {
+        // store all identifier values that is greater than 1
+        for (String id : context.identifierCountMap.keySet()) {
+            if (context.identifierCountMap.get(id) <= 1) {
+                continue;
+            }
+
+            // put prop value on stack
+            putIdentifierValue(id);
+
+            // get store index
+            int varIndex = context.inlinedLocalVarCount;
+            context.inlinedLocalVarCount++;
+            context.identifierInlineVarMap.put(id, varIndex);
+
+            // store
+            mv.visitVarInsn(ASTORE, varIndex);
+        }
     }
 
     private void visitClass(String name) {
@@ -124,12 +148,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         if (exp.token.is(TokenType.IDENTIFIER)) {
-            // load it on stack
-            List<AstNode> args = new ArrayList<>();
-            args.add(new LoadContextExpression());
-            args.add(PrimaryExpression.ofString(exp.getId()));
-
-            applyFunction("get_prop", args);
+            if (context.identifierCountMap.get(exp.getId()) > 1) {
+                mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(exp.getId()));
+            } else {
+                putIdentifierValue(exp.getId());
+            }
         }
     }
 
@@ -226,6 +249,15 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         mv.visitVarInsn(ALOAD, 1);
     }
 
+    private void putIdentifierValue(String id) {
+        // load it on stack
+        List<AstNode> args = new ArrayList<>();
+        args.add(new LoadContextExpression());
+        args.add(PrimaryExpression.ofString(id));
+
+        applyFunction("get_prop", args);
+    }
+
     private void mathOpValConvert(AstNode exp) {
         if (TypeUtil.isInt(exp.valueType)) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
@@ -250,7 +282,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void applyFunction(FunctionInfo info, List<AstNode> args) {
-
         if (info.inline) {
             // inline the function
             JExpByteCodeTransformer.transform(info, this, mv, args, context);

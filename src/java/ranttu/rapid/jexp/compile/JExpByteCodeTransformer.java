@@ -20,7 +20,6 @@ import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * the visitor working on the bytecode
@@ -127,9 +126,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
                 // visit and put on stack
                 pass.visitOnStack(parameters.get(rawFuncParIdx));
-
-                // dup and store
-                cmv.visitInsn(DUP);
+                // store
                 cmv.visitVarInsn(ASTORE, getInlineVarIndex(rawFuncParIdx));
             }
         }
@@ -241,7 +238,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
         @Override
         public void visitIincInsn(int var, int increment) {
-            $.opNotSupport(functionInfo, IINC);
+            cmv.visitIincInsn(getInlineVarIndex(var), increment);
         }
 
         @Override
