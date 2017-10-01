@@ -18,14 +18,7 @@ import java.util.List;
  * @author rapidhere@gmail.com
  * @version $Id: JExpTestBase.java, v0.1 2017-07-28 6:53 PM dongwei.dq Exp $
  */
-@Test
 abstract public class JExpTestBase extends TestNG {
-    @Test(dataProvider = "load-from-yaml")
-    public void testExpression(CaseData caseData) {
-        Object res = JExp.eval(caseData.exp, caseData.ctx);
-        AssertJUnit.assertEquals(caseData.res, res);
-    }
-
     @DataProvider(name = "load-from-yaml")
     public Iterator<Object[]> loadFromYaml() throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
@@ -47,7 +40,7 @@ abstract public class JExpTestBase extends TestNG {
         };
     }
 
-    private InputStream getTestResource() {
+    protected InputStream getTestResource() {
         String className = getClass().getSimpleName();
 
         return getClass().getClassLoader().getResourceAsStream("testres/" + className + ".yaml");

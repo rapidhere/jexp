@@ -19,19 +19,13 @@ final public class JExpBaseFunction {
     // getter
     @JExpFunction(name = "get_prop", inline = false)
     public static Object getProperty(Object o, String name) throws Throwable {
-        Object res = o;
-        for (String subId: name.split("\\.")) {
-            if (res instanceof Map) {
-                res = ((Map) res).get(subId);
-            } else {
-                Field f = res.getClass().getField(subId);
-                f.setAccessible(true);
-                res = f.get(res);
-            }
+        if (o instanceof Map) {
+            return ((Map) o).get(name);
+        } else {
+            Field f = o.getClass().getField(name);
+            f.setAccessible(true);
+            return f.get(o);
         }
-
-        return res;
-
     }
 
     // ~~~ math

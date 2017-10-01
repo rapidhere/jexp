@@ -1,12 +1,10 @@
 package ranttu.rapid.jexp.compile;
 
-import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.parse.JExpParser;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.compile.pass.TypeInferPass;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
@@ -18,10 +16,6 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 public class JExpCompiler implements Opcodes {
     /** the compile option */
     private final CompileOption    option;
-
-    /** the jexp class loader */
-    private static JExpClassLoader jExpClassLoader = new JExpClassLoader(
-                                                       JExpCompiler.class.getClassLoader());
 
     /** the name count */
     private static long            nameCount       = 0;
@@ -39,29 +33,16 @@ public class JExpCompiler implements Opcodes {
     public JExpExecutable compile(String expression) throws JExpCompilingException {
         AstNode ast = JExpParser.parse(expression);
         CompilingContext compilingContext = new CompilingContext();
+        compilingContext.option = option;
 
         // infer the types first
         new TypeInferPass().apply(ast, compilingContext);
 
         // generate byte codes
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        String clsName = nextName();
-        new GeneratePass(cw, clsName, option).apply(ast, compilingContext);
+        compilingContext.className = nextName();
+        new GeneratePass().apply(ast, compilingContext);
 
-        // write class
-        byte[] byteCodes = cw.toByteArray();
-
-        // for debug
-        $.printClass(clsName, byteCodes);
-
-        @SuppressWarnings("unchecked")
-        Class<JExpExecutable> klass = jExpClassLoader.defineClass(clsName, byteCodes);
-
-        try {
-            return klass.newInstance();
-        } catch (Exception e) {
-            throw new JExpCompilingException("error when instance compiled class", e);
-        }
+        return compilingContext.compiledStub;
     }
 
     private String nextName() {

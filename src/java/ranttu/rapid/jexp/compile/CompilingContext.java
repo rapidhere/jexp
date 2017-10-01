@@ -13,9 +13,15 @@ import java.util.Map;
  * @version $Id: CompileContext.java, v 0.1 2017年09月30日 5:59 PM rapid Exp $
  */
 public class CompilingContext {
+    public CompileOption        option;
+
+    public String               className;
+
     public int                  inlinedLocalVarCount   = 0;
 
     public Map<String, Integer> identifierCountMap     = new HashMap<>();
 
     public Map<String, Integer> identifierInlineVarMap = new HashMap<>();
+
+    public JExpExecutable       compiledStub;
 }

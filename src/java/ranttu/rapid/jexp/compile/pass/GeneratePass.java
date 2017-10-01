@@ -9,7 +9,9 @@ import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
+import ranttu.rapid.jexp.compile.JExpClassLoader;
 import ranttu.rapid.jexp.compile.JExpExecutable;
+import ranttu.rapid.jexp.compile.JExpMutableExpression;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
@@ -42,37 +44,55 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     private MethodVisitor mv;
 
-    private String        className;
-
-    private CompileOption option;
-
-    public GeneratePass(ClassWriter cw, String className, CompileOption option) {
-        this.cw = cw;
-        this.className = className;
-        this.option = option;
+    public GeneratePass() {
+        this.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
     @Override
     public void apply(AstNode root, CompilingContext context) {
-        // prepare class
-        visitClass(className.replace('.', '/'));
+        if (root.isConstant) {
+            context.compiledStub = JExpMutableExpression.of(root.constantValue);
+            return;
+        }
 
-        // prepare identifier values
         this.context = context;
         this.context.inlinedLocalVarCount = 2;
+
+        // prepare class
+        visitClass(context.className.replace('.', '/'));
+
+        // prepare identifier values
         prepareIdentifiers();
 
-        // visit the method
-        visit(root);
+        if (root.isConstant) {
+            mv.visitLdcInsn(root.constantValue);
+        } else {
+            // visit the method
+            visit(root);
+            mathOpValConvert(root);
+        }
 
         // return
-        mathOpValConvert(root);
         mv.visitInsn(ARETURN);
 
         // end
         mv.visitMaxs(0, 0);
         mv.visitEnd();
         cw.visitEnd();
+
+        // generate
+        // write class
+        byte[] byteCodes = cw.toByteArray();
+
+        // for debug
+        $.printClass(context.className, byteCodes);
+
+        try {
+            context.compiledStub = JExpClassLoader.define(context.className, byteCodes)
+                .newInstance();
+        } catch (Exception e) {
+            throw new JExpCompilingException("error when instance compiled class", e);
+        }
     }
 
     /**
@@ -103,7 +123,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void visitClass(String name) {
-        if (option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_16)) {
+        if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_16)) {
             cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, name, null,
                 getInternalName(Object.class),
                 new String[] { getInternalName(JExpExecutable.class) });
@@ -125,7 +145,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitParameter("context", 0);
             mv.visitCode();
         } else {
-            throw new JExpCompilingException("unknown java version" + option.targetJavaVersion);
+            throw new JExpCompilingException("unknown java version"
+                                             + context.option.targetJavaVersion);
         }
     }
 
@@ -249,13 +270,20 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         mv.visitVarInsn(ALOAD, 1);
     }
 
-    private void putIdentifierValue(String id) {
+    private void putIdentifierValue(String name) {
         // load it on stack
-        List<AstNode> args = new ArrayList<>();
-        args.add(new LoadContextExpression());
-        args.add(PrimaryExpression.ofString(id));
+        AstNode arg = new LoadContextExpression();
+        for (String id : name.split("\\.")) {
+            List<AstNode> args = new ArrayList<>();
+            args.add(arg);
+            args.add(PrimaryExpression.ofString(id));
+            arg = new FunctionExpression("get_prop", args);
 
-        applyFunction("get_prop", args);
+            //noinspection ConstantConditions
+            ((FunctionExpression) arg).functionInfo = JExpFunctionFactory.getInfo("get_prop").get();
+        }
+
+        visit(arg);
     }
 
     private void mathOpValConvert(AstNode exp) {
