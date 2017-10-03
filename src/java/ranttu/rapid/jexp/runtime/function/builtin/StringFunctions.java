@@ -12,22 +12,16 @@ import java.util.Date;
  * string function helpers
  *
  * @author rapidhere@gmail.com
- * @version $Id: JExpStringFunction.java, v0.1 2017-08-03 1:55 PM dongwei.dq Exp $
+ * @version $Id: StringFunctions.java, v0.1 2017-08-03 1:55 PM dongwei.dq Exp $
  */
-@SuppressWarnings("unused")
-public class JExpStringFunction {
-    @JExpFunction(name = "is_blank")
+public class StringFunctions {
+    @JExpFunction(name = "string.is_blank")
     public static boolean isBlank(String s) {
         return s == null || s.length() == 0;
     }
 
-    @JExpFunction(name = "length")
+    @JExpFunction(name = "string.length")
     public static int length(String s) {
         return s.length();
-    }
-
-    @JExpFunction(name = "sysdate")
-    public static String sysDate() {
-        return new Date().toString();
     }
 }

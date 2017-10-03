@@ -12,12 +12,11 @@ import java.util.Map;
 /**
  * jexp basement function supports
  * @author dongwei.dq
- * @version $Id: JExpBaseFunction.java, v0.1 2017-08-31 8:45 PM dongwei.dq Exp $
+ * @version $Id: JExpLang.java, v0.1 2017-08-31 8:45 PM dongwei.dq Exp $
  */
-@SuppressWarnings("unused")
-final public class JExpBaseFunction {
+final public class JExpLang {
     // getter
-    @JExpFunction(name = "get_prop", inline = false)
+    @JExpFunction(name = "lang.get_prop")
     public static Object getProperty(Object o, String name) throws Throwable {
         if (o instanceof Map) {
             return ((Map) o).get(name);
@@ -29,7 +28,7 @@ final public class JExpBaseFunction {
     }
 
     // ~~~ math
-    @JExpFunction
+    @JExpFunction(name = "math.add")
     public static Object add(Object a, Object b) {
         if (a instanceof String || b instanceof String) {
             return String.valueOf(a) + String.valueOf(b);
@@ -44,7 +43,7 @@ final public class JExpBaseFunction {
         }
     }
 
-    @JExpFunction
+    @JExpFunction(name = "math.sub")
     public static Object sub(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 
@@ -55,7 +54,7 @@ final public class JExpBaseFunction {
         }
     }
 
-    @JExpFunction
+    @JExpFunction(name = "math.mul")
     public static Object mul(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 
@@ -66,7 +65,7 @@ final public class JExpBaseFunction {
         }
     }
 
-    @JExpFunction
+    @JExpFunction(name = "math.div")
     public static Object div(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 
@@ -77,7 +76,7 @@ final public class JExpBaseFunction {
         }
     }
 
-    @JExpFunction
+    @JExpFunction(name = "math.mod")
     public static Object mod(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 

@@ -189,19 +189,19 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             switch (exp.op.type) {
                 case PLUS:
-                    applyFunction("add", args);
+                    applyFunction("math.add", args);
                     break;
                 case SUBTRACT:
-                    applyFunction("sub", args);
+                    applyFunction("math.sub", args);
                     break;
                 case MULTIPLY:
-                    applyFunction("mul", args);
+                    applyFunction("math.mul", args);
                     break;
                 case DIVIDE:
-                    applyFunction("div", args);
+                    applyFunction("math.div", args);
                     break;
                 case MODULAR:
-                    applyFunction("mod", args);
+                    applyFunction("math.mod", args);
                     break;
             }
         }
@@ -277,10 +277,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             List<AstNode> args = new ArrayList<>();
             args.add(arg);
             args.add(PrimaryExpression.ofString(id));
-            arg = new FunctionExpression("get_prop", args);
+            arg = new FunctionExpression("lang.get_prop", args);
 
             //noinspection ConstantConditions
-            ((FunctionExpression) arg).functionInfo = JExpFunctionFactory.getInfo("get_prop").get();
+            ((FunctionExpression) arg).functionInfo = JExpFunctionFactory.getInfo("lang.get_prop")
+                .get();
         }
 
         visit(arg);
@@ -310,7 +311,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void applyFunction(FunctionInfo info, List<AstNode> args) {
-        if (info.inline) {
+        if (info.inline && context.option.inlineFunction) {
             // inline the function
             JExpByteCodeTransformer.transform(info, this, mv, args, context);
         } else {

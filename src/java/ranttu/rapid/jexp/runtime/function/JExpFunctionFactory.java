@@ -2,8 +2,9 @@ package ranttu.rapid.jexp.runtime.function;
 
 import org.apache.commons.io.IOUtils;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
-import ranttu.rapid.jexp.runtime.function.builtin.JExpBaseFunction;
-import ranttu.rapid.jexp.runtime.function.builtin.JExpStringFunction;
+import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
+import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +28,9 @@ final public class JExpFunctionFactory {
 
     // builtin register
     static {
-        register(JExpStringFunction.class);
-        register(JExpBaseFunction.class);
+        register(StringFunctions.class);
+        register(CommonFunctions.class);
+        register(JExpLang.class);
     }
 
     /**

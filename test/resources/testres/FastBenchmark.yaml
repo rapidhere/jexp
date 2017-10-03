@@ -4,8 +4,12 @@
   mvelExpression: (((1000.0+100*99-(600-3*15)/(((68.0-9)-3)*2-100)+10023%7*71)))
 
 - description: simple var
-  jexpExpression: a
-  aviatorExpression: a
-  mvelExpression: a
+  jexpExpression: a + b * c.c - d
+  aviatorExpression: a + b * c.c - d
+  mvelExpression: a + b * c.c - d
   env:
-    a: 1
+    a: 12
+    b: 123
+    c:
+      c: 23
+    d: -10

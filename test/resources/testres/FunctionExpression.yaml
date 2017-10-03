@@ -19,9 +19,9 @@
   res: 'hello world: hello world: rapid!!'
 
 - desc: len
-  exp: 'sum(length(get_str("rapid")), sum(1, 2, 3), two())'
+  exp: 'sum(string.length(get_str("rapid")), sum(1, 2, 3), two())'
   res: 27
 
 - desc: is_blank
-  exp: 'is_blank(get_str(""))'
+  exp: 'string.is_blank(get_str(""))'
   res: false

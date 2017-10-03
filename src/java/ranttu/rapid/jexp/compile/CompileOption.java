@@ -16,4 +16,6 @@ public class CompileOption {
     //~~~ options
     // the compiled target java version, default to current jvm version
     public String              targetJavaVersion    = JAVA_VERSION_16;
+
+    public boolean             inlineFunction       = true;
 }

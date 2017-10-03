@@ -24,6 +24,10 @@ public class JExpCompiler implements Opcodes {
         this.option = new CompileOption();
     }
 
+    public JExpCompiler(CompileOption option) {
+        this.option = option;
+    }
+
     /**
      * compile the expression with binding types
      * @param expression        expression to compile

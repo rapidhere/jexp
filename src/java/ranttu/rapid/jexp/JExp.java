@@ -1,5 +1,6 @@
 package ranttu.rapid.jexp;
 
+import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpCompiler;
 import ranttu.rapid.jexp.compile.JExpExecutable;
 
@@ -40,15 +41,24 @@ final public class JExp {
         return compiler.compile(expression);
     }
 
+    /**
+     * compile a expression and get the compiled stub
+     * @param expression  the expression to compile
+     * @param compileOption compiling options
+     * @return            the compiled stub
+     */
+    public static JExpExecutable compile(String expression, CompileOption compileOption) {
+        JExpCompiler compiler = new JExpCompiler(compileOption);
+        return compiler.compile(expression);
+    }
+
     // ~~~
     // only for common test usage
     public static void main(String args[]) {
         Map<String, Object> ctx = new HashMap<>();
-        ctx.put("aaafasf", 1);
-        ctx.put("b", new Object() {
-            public Integer b = 3;
-        });
-        Object o = eval("aaafasf + b.b + b.b * b.b", ctx);
+        ctx.put("a", 1);
+        ctx.put("b", 123);
+        Object o = eval("a + b", ctx);
         System.out.println(o);
     }
 }

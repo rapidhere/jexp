@@ -12,6 +12,7 @@ import org.mvel2.MVEL;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
+import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpExecutable;
 
 import java.io.IOException;
@@ -27,17 +28,9 @@ import java.util.Map;
  * @version $Id: JExpBenchmarkBase.java, v 0.1 2017年10月01日 10:25 AM rapid Exp $
  */
 abstract public class JExpBenchmarkBase extends JExpTestBase {
-    private List<BenchmarkRunner>   runnerList  = new ArrayList<BenchmarkRunner>() {
-                                                    {
-                                                        add(new JExpRunner());
-                                                        add(new AviatorRunner());
-                                                        add(new MvelRunner());
-                                                    }
-                                                };
-
     private static final int        TURN_LENGTH = 10;
 
-    private static final int        TURN_COUNT  = 10000;
+    private static final int        TURN_COUNT  = 20;
 
     private Map<String, List<Long>> turnCostMap;
 
@@ -53,14 +46,23 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
             System.out.print(name + " ===========\n");
 
             for (int i = 0; i < TURN_LENGTH; i++) {
-                System.out.print(String.format("%4.4f ms ", (double) turnCostMap.get(name).get(i)
-                                                            / (double) TURN_COUNT));
+                System.out.print(String.format("%4.4fms, ", (double) turnCostMap.get(name).get(i)
+                                                            / (double) TURN_COUNT / 1000000.0));
             }
             System.out.println();
         }
     }
 
     private void runTurn(BenchmarkCaseData caseData) {
+        List<BenchmarkRunner> runnerList = new ArrayList<BenchmarkRunner>() {
+            {
+                add(new JExpRunner());
+                add(new JExpNoInlineRunner());
+                add(new AviatorRunner());
+                add(new MvelRunner());
+            }
+        };
+
         for (BenchmarkRunner runner : runnerList) {
             runner.compile(caseData);
         }
@@ -78,8 +80,8 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
             });
 
             for (int i = 0; i < TURN_LENGTH; i++) {
-                long ms = runner.run(caseData);
-                turnCost.set(i, ms + turnCost.get(i));
+                long ns = runner.run(caseData);
+                turnCost.set(i, ns + turnCost.get(i));
             }
         }
     }
@@ -114,11 +116,15 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
 
         // return micro second
         public long run(BenchmarkCaseData caseData) {
-            long start = System.nanoTime();
-            innerRun(caseData.env);
-            long end = System.nanoTime();
+            long sum = 0;
 
-            return (end - start) / 1000;
+            for (int i = 0; i < 30000; i++) {
+                long start = System.nanoTime();
+                innerRun(caseData.env);
+                sum += System.nanoTime() - start;
+            }
+
+            return sum;
         }
 
         protected abstract String getExpression(BenchmarkCaseData caseData);
@@ -126,6 +132,25 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
         protected abstract T innerCompile(String expression);
 
         protected abstract Object innerRun(Object env);
+    }
+
+    protected static class JExpNoInlineRunner extends BenchmarkRunner<JExpExecutable> {
+        @Override
+        protected String getExpression(BenchmarkCaseData caseData) {
+            return caseData.jexpExpression;
+        }
+
+        @Override
+        protected JExpExecutable innerCompile(String expression) {
+            CompileOption option = new CompileOption();
+            option.inlineFunction = false;
+            return JExp.compile(expression, option);
+        }
+
+        @Override
+        protected Object innerRun(Object env) {
+            return compiledStub.execute(env);
+        }
     }
 
     protected static class JExpRunner extends BenchmarkRunner<JExpExecutable> {
