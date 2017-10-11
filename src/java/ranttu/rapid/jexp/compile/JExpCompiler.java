@@ -15,10 +15,10 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
  */
 public class JExpCompiler implements Opcodes {
     /** the compile option */
-    private final CompileOption    option;
+    private final CompileOption option;
 
     /** the name count */
-    private static long            nameCount       = 0;
+    private static long         nameCount = 0;
 
     public JExpCompiler() {
         this.option = new CompileOption();
@@ -44,6 +44,7 @@ public class JExpCompiler implements Opcodes {
 
         // generate byte codes
         compilingContext.className = nextName();
+        compilingContext.classInternalName = compilingContext.className.replace('.', '/');
         new GeneratePass().apply(ast, compilingContext);
 
         return compilingContext.compiledStub;

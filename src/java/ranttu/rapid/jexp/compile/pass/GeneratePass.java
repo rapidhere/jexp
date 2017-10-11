@@ -8,8 +8,10 @@ import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
+import ranttu.rapid.jexp.compile.IdentifierTree;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
-import ranttu.rapid.jexp.compile.JExpClassLoader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
+import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.compile.JExpExecutable;
 import ranttu.rapid.jexp.compile.JExpMutableExpression;
 import ranttu.rapid.jexp.compile.parse.TokenType;
@@ -23,6 +25,9 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.runtime.accesor.Accessor;
+import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
+import ranttu.rapid.jexp.runtime.accesor.MapAccessor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
@@ -30,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getDescriptor;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
@@ -59,18 +65,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         this.context.inlinedLocalVarCount = 2;
 
         // prepare class
-        visitClass(context.className.replace('.', '/'));
+        visitClass();
 
-        // prepare identifier values
-        prepareIdentifiers();
-
-        if (root.isConstant) {
-            mv.visitLdcInsn(root.constantValue);
-        } else {
-            // visit the method
-            visit(root);
-            mathOpValConvert(root);
-        }
+        // visit the method
+        visit(root);
+        mathOpValConvert(root);
 
         // return
         mv.visitInsn(ARETURN);
@@ -88,8 +87,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         $.printClass(context.className, byteCodes);
 
         try {
-            context.compiledStub = JExpClassLoader.define(context.className, byteCodes)
-                .newInstance();
+            Class<JExpExecutable> klass = JExpClassLoader.define(context.className, byteCodes);
+            context.compiledStub = klass.newInstance();
         } catch (Exception e) {
             throw new JExpCompilingException("error when instance compiled class", e);
         }
@@ -102,38 +101,43 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         visit(astNode);
     }
 
-    private void prepareIdentifiers() {
-        // store all identifier values that is greater than 1
-        for (String id : context.identifierCountMap.keySet()) {
-            if (context.identifierCountMap.get(id) <= 1) {
-                continue;
+    private void visitClass() {
+        if (context.option.useAccessor) {
+            // build identifier tree
+            for (String id : context.identifierCountMap.keySet()) {
+                context.identifierTree.add(id);
             }
-
-            // put prop value on stack
-            putIdentifierValue(id);
-
-            // get store index
-            int varIndex = context.inlinedLocalVarCount;
-            context.inlinedLocalVarCount++;
-            context.identifierInlineVarMap.put(id, varIndex);
-
-            // store
-            mv.visitVarInsn(ASTORE, varIndex);
         }
-    }
 
-    private void visitClass(String name) {
         if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_16)) {
-            cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, name, null,
+            cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, context.classInternalName, null,
                 getInternalName(Object.class),
                 new String[] { getInternalName(JExpExecutable.class) });
-            cw.visitSource("<jexp-gen>", null);
+            cw.visitSource("<jexp-expression>", null);
 
             // construct method
             mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
             mv.visitCode();
             mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V", false);
+
+            // put accessor init
+            if (context.option.useAccessor) {
+                context.identifierTree.visit(idInfo -> {
+                    // add a field to the impl
+                    cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, idInfo.accessorSlot,
+                        getDescriptor(Accessor.class), null, null);
+
+                    // add field init
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETSTATIC, getInternalName(MapAccessor.class), "ACCESSOR",
+                        getDescriptor(MapAccessor.class));
+                    mv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
+                        getDescriptor(Accessor.class));
+                });
+            }
+
+            // return
             mv.visitInsn(RETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -144,6 +148,24 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitParameter("this", 0);
             mv.visitParameter("context", 0);
             mv.visitCode();
+
+            // store all identifier values that is greater than 1
+            for (String id : context.identifierCountMap.keySet()) {
+                if (context.identifierCountMap.get(id) <= 1) {
+                    continue;
+                }
+
+                // put prop value on stack
+                putProperty(id);
+
+                // get store index
+                int varIndex = context.inlinedLocalVarCount;
+                context.inlinedLocalVarCount++;
+                context.identifierInlineVarMap.put(id, varIndex);
+
+                // store
+                mv.visitVarInsn(ASTORE, varIndex);
+            }
         } else {
             throw new JExpCompilingException("unknown java version"
                                              + context.option.targetJavaVersion);
@@ -172,7 +194,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             if (context.identifierCountMap.get(exp.getId()) > 1) {
                 mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(exp.getId()));
             } else {
-                putIdentifierValue(exp.getId());
+                putProperty(exp.getId());
             }
         }
     }
@@ -270,21 +292,67 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         mv.visitVarInsn(ALOAD, 1);
     }
 
-    private void putIdentifierValue(String name) {
-        // load it on stack
-        AstNode arg = new LoadContextExpression();
-        for (String id : name.split("\\.")) {
-            List<AstNode> args = new ArrayList<>();
-            args.add(arg);
-            args.add(PrimaryExpression.ofString(id));
-            arg = new FunctionExpression("lang.get_prop", args);
+    private void putProperty(String idPath) {
+        // use accessor
+        if (context.option.useAccessor) {
+            // put root context
+            mv.visitVarInsn(ALOAD, 1);
+            // access through path
+            context.identifierTree.visitPath(idPath, idInfo -> {
+                // load accessor
+                // current stack: top -> [ object, accessor, object ]
+                mv.visitInsn(DUP);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, context.classInternalName, idInfo.accessorSlot,
+                    getDescriptor(Accessor.class));
+                mv.visitInsn(SWAP);
+                Label successLabel = new Label();
 
-            //noinspection ConstantConditions
-            ((FunctionExpression) arg).functionInfo = JExpFunctionFactory.getInfo("lang.get_prop")
-                .get();
+                // call isSatisfied
+                // current stack: top -> [ object ]
+                mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "isSatisfied",
+                    "(Ljava/lang/Object;)Z", true);
+                mv.visitJumpInsn(IFNE, successLabel);
+
+                // failed, change accessor
+                mv.visitInsn(DUP); // [ object, object ]
+                mv.visitMethodInsn(INVOKESTATIC, getInternalName(AccessorFactory.class),
+                    "getAccessor",
+                    getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false); // [ accessor, object ]
+                mv.visitVarInsn(ALOAD, 0); //  [ this, accessor, object ]
+                mv.visitInsn(SWAP); //  [ accessor, this, object ]
+                mv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
+                    getDescriptor(Accessor.class)); // [ object ]
+
+                // then, call get method
+                mv.visitLabel(successLabel);
+                mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { getInternalName(Object.class) });
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETFIELD, context.classInternalName, idInfo.accessorSlot,
+                    getDescriptor(Accessor.class));
+                mv.visitInsn(SWAP);
+                mv.visitLdcInsn(idInfo.identifier);
+                mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
+                    "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;", true);
+            });
         }
+        // use lang.get_prop
+        else {
+            AstNode ctx = new LoadContextExpression();
+            for (String id : IdentifierTree.splitIdPath(idPath)) {
+                List<AstNode> args = new ArrayList<>();
+                args.add(ctx);
+                args.add(PrimaryExpression.ofString(id));
 
-        visit(arg);
+                ctx = new FunctionExpression("lang.get_prop", args);
+
+                //noinspection ConstantConditions
+                ((FunctionExpression) ctx).functionInfo = JExpFunctionFactory.getInfo(
+                    "lang.get_prop").get();
+            }
+
+            visit(ctx);
+        }
     }
 
     private void mathOpValConvert(AstNode exp) {
