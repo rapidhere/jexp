@@ -4,9 +4,6 @@ import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpCompiler;
 import ranttu.rapid.jexp.compile.JExpExecutable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * The jExp facade
  * @author rapidhere@gmail.com
@@ -55,10 +52,16 @@ final public class JExp {
     // ~~~
     // only for common test usage
     public static void main(String args[]) {
-        Map<String, Object> ctx = new HashMap<>();
-        ctx.put("a", 1);
-        ctx.put("b", 123);
-        Object o = eval("a + b", ctx);
-        System.out.println(o);
+        // option
+        CompileOption option = new CompileOption();
+        option.inlineFunction = false;
+        option.useAccessor = true;
+
+        // context
+        Object ctx = new JExpTestContext();
+
+        // execute
+        JExpExecutable expression = compile("a - b * b", option);
+        System.out.println(expression.execute(ctx));
     }
 }

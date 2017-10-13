@@ -5,12 +5,8 @@ package ranttu.rapid.jexp;
  */
 @SuppressWarnings("all")
 class TmpTest {
-    public Inteface a$0;
-
-    TmpTest() {
+    public int test(String a) {
+        int t = a.hashCode();
+        throw new NoSuchFieldError(a);
     }
-}
-
-interface Inteface {
-
 }
