@@ -78,7 +78,7 @@ abstract public class JExpTestBase extends TestNG {
                     continue;
                 }
 
-                PropertyUtils.setProperty(result, key, raw.get(key));
+                PropertyUtils.setProperty(result, key, innerFillObject(raw.get(key)));
             }
             return result;
         }
