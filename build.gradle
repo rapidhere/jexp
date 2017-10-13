@@ -13,6 +13,7 @@ repositories {
 dependencies {
     compile 'de.jflex:jflex:1.6.1'
     compile 'commons-io:commons-io:2.5'
+    compile 'commons-beanutils:commons-beanutils:1.9.3'
 
     testCompile 'org.testng:testng:6.11'
     testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'

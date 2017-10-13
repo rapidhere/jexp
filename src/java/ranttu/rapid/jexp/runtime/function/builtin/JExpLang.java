@@ -4,9 +4,9 @@
  */
 package ranttu.rapid.jexp.runtime.function.builtin;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -21,10 +21,13 @@ final public class JExpLang {
         if (o instanceof Map) {
             return ((Map) o).get(name);
         } else {
-            Field f = o.getClass().getField(name);
-            f.setAccessible(true);
-            return f.get(o);
+            return PropertyUtils.getProperty(o, name);
         }
+    }
+
+    @JExpFunction(name = "lang.equals")
+    public static Object equals(Object a, Object b) {
+        return a.equals(b);
     }
 
     // ~~~ math

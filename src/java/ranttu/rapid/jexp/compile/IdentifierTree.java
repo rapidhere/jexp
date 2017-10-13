@@ -20,27 +20,26 @@ public class IdentifierTree {
     public void add(String identifierPath) {
         IdentifierNode current = root;
         for (String id : splitIdPath(identifierPath)) {
+            IdentifierNode parent = current;
             current = current.children.computeIfAbsent(id, key -> {
                 IdentifierNode newNode = new IdentifierNode();
                 newNode.identifier = id;
                 newNode.accessorSlot = nextSlot();
+                newNode.root = false;
+
+                if (parent == root) {
+                    newNode.path = id;
+                } else {
+                    newNode.path = parent.path + "." + id;
+                }
+
                 return newNode;
             });
         }
     }
 
     public void visit(TreeVisitor tv) {
-        for (IdentifierNode child : root.children.values()) {
-            child.visit(tv);
-        }
-    }
-
-    public void visitPath(String idPath, TreeVisitor tv) {
-        IdentifierNode current = root;
-        for (String id : splitIdPath(idPath)) {
-            current = current.children.get(id);
-            tv.visit(current);
-        }
+        root.visit(tv);
     }
 
     private String nextSlot() {
@@ -58,12 +57,20 @@ public class IdentifierTree {
 
         public Map<String, IdentifierNode> children = new HashMap<>();
 
+        public boolean                     root     = true;
+
+        public String                      path;
+
         private void visit(TreeVisitor tv) {
             tv.visit(this);
 
             for (IdentifierNode child : children.values()) {
                 child.visit(tv);
             }
+        }
+
+        public boolean isLeaf() {
+            return children.size() == 0;
         }
     }
 

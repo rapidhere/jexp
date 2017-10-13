@@ -33,3 +33,28 @@
 - desc: double zero
   exp: 0.0
   res: 0.0
+
+- desc: simple mapped var
+  exp: a + b * c.c - d
+  ctx:
+    a: 12
+    b: 123
+    c:
+      c: 23
+    d: -10
+  res: 2851
+
+- desc: simple typed var
+  exp: a + b * c
+  ctx:
+    class: 'ranttu.rapid.jexp.data.SimpleContext'
+    a: 12
+    b: 123
+    c: 23
+  res: 2841
+
+- desc: long typed var
+  exp: o.o.o.o.o.o.a + o.o.o.o.o.o.o.b * o.o.o.o.o.o.o.o.c
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: -749746734

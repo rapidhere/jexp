@@ -43,13 +43,13 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
         }
 
         for (String name : turnCostMap.keySet()) {
-            System.out.print(name + " ===========\n");
+            System.out.print(String.format("%-17s ============\n",  name));
 
             for (int i = 0; i < TURN_LENGTH; i++) {
-                System.out.print(String.format("%4.4fms, ", (double) turnCostMap.get(name).get(i)
+                System.out.print(String.format("%10.4fms, ", (double) turnCostMap.get(name).get(i)
                                                             / (double) TURN_COUNT / 1000000.0));
             }
-            System.out.println();
+            System.out.println("\n");
         }
     }
 
@@ -58,7 +58,6 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
             {
                 add(new JExpRunner());
                 add(new JExpNoInlineRunner());
-                add(new JExpNoAccessorRunner());
                 add(new AviatorRunner());
                 add(new MvelRunner());
             }
@@ -133,26 +132,6 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
         protected abstract T innerCompile(String expression);
 
         protected abstract Object innerRun(Object env);
-    }
-
-    protected static class JExpNoAccessorRunner extends BenchmarkRunner<JExpExecutable> {
-        @Override
-        protected String getExpression(BenchmarkCaseData caseData) {
-            return caseData.jexpExpression;
-        }
-
-        @Override
-        protected JExpExecutable innerCompile(String expression) {
-            CompileOption option = new CompileOption();
-            option.inlineFunction = false;
-            option.useAccessor = false;
-            return JExp.compile(expression, option);
-        }
-
-        @Override
-        protected Object innerRun(Object env) {
-            return compiledStub.execute(env);
-        }
     }
 
     protected static class JExpNoInlineRunner extends BenchmarkRunner<JExpExecutable> {
@@ -231,6 +210,10 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         List<BenchmarkCaseData> data = mapper.readValue(getTestResource(), mapper.getTypeFactory()
             .constructCollectionType(List.class, BenchmarkCaseData.class));
+
+        for (BenchmarkCaseData benchmarkCaseData : data) {
+            benchmarkCaseData.env = fillObject(benchmarkCaseData.env);
+        }
 
         Iterator<BenchmarkCaseData> iter = data.iterator();
 

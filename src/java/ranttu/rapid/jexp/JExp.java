@@ -55,13 +55,12 @@ final public class JExp {
         // option
         CompileOption option = new CompileOption();
         option.inlineFunction = false;
-        option.useAccessor = true;
 
         // context
         Object ctx = new JExpTestContext();
 
         // execute
-        JExpExecutable expression = compile("a - b * b", option);
+        JExpExecutable expression = compile("lang.equals(a, \"1\")", option);
         System.out.println(expression.execute(ctx));
     }
 }

@@ -18,6 +18,4 @@ public class CompileOption {
     public String              targetJavaVersion    = JAVA_VERSION_16;
 
     public boolean             inlineFunction       = true;
-
-    public boolean             useAccessor          = true;
 }
