@@ -18,7 +18,6 @@ import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
-import ranttu.rapid.jexp.compile.parse.ast.LoadContextExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
@@ -120,20 +119,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V", false);
 
             // put accessor init
-            context.identifierTree.visit(idInfo -> {
-                if (!idInfo.root) {
-                    // add a field to the impl
-                cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, idInfo.accessorSlot,
-                    getDescriptor(Accessor.class), null, null);
-
-                // add field init
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
-                    getDescriptor(DummyAccessor.class));
-                mv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
-                    getDescriptor(Accessor.class));
-            }
-        })  ;
+            context.identifierTree.visit(this::initAccessor);
 
             // return
             mv.visitInsn(RETURN);
@@ -151,6 +137,10 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             context.identifierTree.visit(idNode -> {
                 //~~~ put
                 if (idNode.root) {
+                    if (idNode.children.size() == 0) {
+                        return;
+                    }
+
                     mv.visitVarInsn(ALOAD, 1);
                 } else {
                     invokeAccessor(idNode);
@@ -173,6 +163,21 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         } else {
             throw new JExpCompilingException("unknown java version"
                                              + context.option.targetJavaVersion);
+        }
+    }
+
+    private void initAccessor(IdentifierTree.IdentifierNode idInfo) {
+        if (!idInfo.root) {
+            // add a field to the impl
+            cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, idInfo.accessorSlot,
+                getDescriptor(Accessor.class), null, null);
+
+            // add field init
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
+                getDescriptor(DummyAccessor.class));
+            mv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
+                getDescriptor(Accessor.class));
         }
     }
 
@@ -326,11 +331,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     protected void visit(FunctionExpression func) {
         applyFunction(func.functionInfo, func.parameters);
-    }
-
-    @Override
-    protected void visit(LoadContextExpression exp) {
-        mv.visitVarInsn(ALOAD, 1);
     }
 
     private void mathOpValConvert(AstNode exp) {

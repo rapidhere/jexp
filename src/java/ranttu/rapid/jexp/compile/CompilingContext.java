@@ -27,5 +27,5 @@ public class CompilingContext {
 
     public IdentifierTree       identifierTree         = new IdentifierTree();
 
-    public JExpExpression compiledStub;
+    public JExpExpression       compiledStub;
 }

@@ -7,7 +7,6 @@ package ranttu.rapid.jexp.compile;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
-import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -17,9 +16,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * the visitor working on the bytecode
@@ -54,8 +51,6 @@ public class JExpByteCodeTransformer implements Opcodes {
 
     private Label                 endLabel             = new Label();
 
-    private Map<Integer, Integer> localVarIndexMapping = new HashMap<>();
-
     private void transform() {
         cr = new ClassReader(functionInfo.byteCodes);
 
@@ -69,17 +64,6 @@ public class JExpByteCodeTransformer implements Opcodes {
 
     private void accept(MethodVisitor mv) {
         cr.accept(new InnerClassVisitor(mv), ClassReader.SKIP_DEBUG);
-    }
-
-    private int getInlineVarIndex(int rawIndex) {
-        localVarIndexMapping.computeIfAbsent(rawIndex, integer -> {
-            int inlineIndex = context.inlinedLocalVarCount;
-            context.inlinedLocalVarCount ++;
-
-            return inlineIndex;
-        });
-
-        return localVarIndexMapping.get(rawIndex);
     }
 
     /**
@@ -112,22 +96,20 @@ public class JExpByteCodeTransformer implements Opcodes {
         public TransformPass() {
             super(ASM5);
 
-            // generate multiple used arguments first
-            for (int rawFuncParIdx = 0; rawFuncParIdx < parameters.size(); rawFuncParIdx++) {
-                // used <= 1, ignored
-                if (functionInfo.localVarUsedMap.getOrDefault(rawFuncParIdx, 0) <= 1) {
-                    continue;
-                }
-
-                // load_ctx, do not store
-                if (parameters.get(rawFuncParIdx).is(AstType.LOAD_CTX_EXP)) {
-                    continue;
-                }
-
+            // put all parameters on stack, and store to local
+            for (AstNode parameter : parameters) {
                 // visit and put on stack
-                pass.visitOnStack(parameters.get(rawFuncParIdx));
-                // store
-                cmv.visitVarInsn(ASTORE, getInlineVarIndex(rawFuncParIdx));
+                pass.visitOnStack(parameter);
+            }
+
+            // store in a reversed order
+            for (int i = parameters.size() - 1; i >= 0; i--) {
+                AstNode astNode = parameters.get(i);
+                if (TypeUtil.isInt(astNode.valueType)) {
+                    cmv.visitVarInsn(ISTORE, i + context.inlinedLocalVarCount);
+                } else {
+                    cmv.visitVarInsn(ASTORE, i + context.inlinedLocalVarCount);
+                }
             }
         }
 
@@ -159,46 +141,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
         @Override
         public void visitVarInsn(int opcode, int var) {
-            switch (opcode) {
-                case ILOAD:
-                case LLOAD:
-                case FLOAD:
-                case DLOAD:
-                case ALOAD:
-                    // this is a variable in parameter
-                    if (var < parameters.size()) {
-                        AstNode parameterNode = parameters.get(var);
-
-                        // LoadContext, just pass through
-                        if (parameterNode.is(AstType.LOAD_CTX_EXP)) {
-                            cmv.visitVarInsn(ALOAD, 1);
-                        }
-                        // i.e., multiply used argument, just load from stored
-                        else if (functionInfo.localVarUsedMap.getOrDefault(var, 0) > 1) {
-                            cmv.visitVarInsn(ALOAD, getInlineVarIndex(var));
-                        }
-                        // single-usage parameter
-                        else {
-                            // first, put the variable on the stack
-                            pass.visitOnStack(parameters.get(var));
-                        }
-                    }
-                    // local variables, don't rewrite `this` and `context`
-                    else {
-                        cmv.visitVarInsn(opcode, getInlineVarIndex(var));
-                    }
-                    break;
-                default:
-                    // other is store
-                    // this is a variable in parameter
-                    if (var < parameters.size()) {
-                        $.opNotSupport(functionInfo, opcode);
-                    }
-                    // local variables, don't rewrite `this` and `context`
-                    else {
-                        cmv.visitVarInsn(opcode, getInlineVarIndex(var));
-                    }
-            }
+            cmv.visitVarInsn(opcode, var + context.inlinedLocalVarCount);
         }
 
         @Override
@@ -238,7 +181,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
         @Override
         public void visitIincInsn(int var, int increment) {
-            cmv.visitIincInsn(getInlineVarIndex(var), increment);
+            cmv.visitIincInsn(var + context.inlinedLocalVarCount, increment);
         }
 
         @Override

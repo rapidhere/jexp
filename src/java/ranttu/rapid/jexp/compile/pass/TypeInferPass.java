@@ -11,7 +11,6 @@ import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
-import ranttu.rapid.jexp.compile.parse.ast.LoadContextExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnknownFunction;
@@ -165,10 +164,5 @@ public class TypeInferPass extends NoReturnPass {
         for (AstNode astNode : func.parameters) {
             visit(astNode);
         }
-    }
-
-    @Override
-    protected void visit(LoadContextExpression exp) {
-        $.shouldNotReach();
     }
 }

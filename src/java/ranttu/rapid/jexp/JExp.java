@@ -54,13 +54,13 @@ final public class JExp {
     public static void main(String args[]) {
         // option
         CompileOption option = new CompileOption();
-        option.inlineFunction = false;
+        option.inlineFunction = true;
 
         // context
         Object ctx = new JExpTestContext();
 
         // execute
-        JExpExpression expression = compile("lang.equals(o.o.o.o.o.o.a, \"1\")", option);
+        JExpExpression expression = compile("lang.equals(\"1\", \"1\")", option);
         System.out.println(expression.execute(ctx));
     }
 }
