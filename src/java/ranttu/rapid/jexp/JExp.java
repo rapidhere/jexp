@@ -2,7 +2,7 @@ package ranttu.rapid.jexp;
 
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpCompiler;
-import ranttu.rapid.jexp.compile.JExpExecutable;
+import ranttu.rapid.jexp.compile.JExpExpression;
 
 /**
  * The jExp facade
@@ -21,7 +21,7 @@ final public class JExp {
      * @return            the eval result
      */
     public static <T> T eval(String expression, Object context) {
-        JExpExecutable executable = compile(expression);
+        JExpExpression executable = compile(expression);
 
         @SuppressWarnings("unchecked")
         T result = (T) executable.execute(context);
@@ -33,7 +33,7 @@ final public class JExp {
      * @param expression  the expression to compile
      * @return            the compiled stub
      */
-    public static JExpExecutable compile(String expression) {
+    public static JExpExpression compile(String expression) {
         JExpCompiler compiler = new JExpCompiler();
         return compiler.compile(expression);
     }
@@ -44,7 +44,7 @@ final public class JExp {
      * @param compileOption compiling options
      * @return            the compiled stub
      */
-    public static JExpExecutable compile(String expression, CompileOption compileOption) {
+    public static JExpExpression compile(String expression, CompileOption compileOption) {
         JExpCompiler compiler = new JExpCompiler(compileOption);
         return compiler.compile(expression);
     }
@@ -60,7 +60,7 @@ final public class JExp {
         Object ctx = new JExpTestContext();
 
         // execute
-        JExpExecutable expression = compile("lang.equals(o.o.o.o.o.o.a, \"1\")", option);
+        JExpExpression expression = compile("lang.equals(o.o.o.o.o.o.a, \"1\")", option);
         System.out.println(expression.execute(ctx));
     }
 }

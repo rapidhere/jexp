@@ -33,7 +33,7 @@ public class JExpCompiler {
      * @return                  compiled expression
      * @throws JExpCompilingException   compile failed exception info
      */
-    public JExpExecutable compile(String expression) throws JExpCompilingException {
+    public JExpExpression compile(String expression) throws JExpCompilingException {
         AstNode ast = JExpParser.parse(expression);
         CompilingContext compilingContext = new CompilingContext();
         compilingContext.option = option;

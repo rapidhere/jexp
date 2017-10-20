@@ -12,7 +12,7 @@ import ranttu.rapid.jexp.compile.IdentifierTree;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
-import ranttu.rapid.jexp.compile.JExpExecutable;
+import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
@@ -28,7 +28,6 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.accesor.Accessor;
 import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
 import ranttu.rapid.jexp.runtime.accesor.DummyAccessor;
-import ranttu.rapid.jexp.runtime.accesor.MapAccessor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
@@ -88,7 +87,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         $.printClass(context.className, byteCodes);
 
         try {
-            Class<JExpExecutable> klass = JExpClassLoader.define(context.className, byteCodes);
+            Class<JExpExpression> klass = JExpClassLoader.define(context.className, byteCodes);
             context.compiledStub = klass.newInstance();
         } catch (Exception e) {
             throw new JExpCompilingException("error when instance compiled class", e);
@@ -111,7 +110,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_16)) {
             cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, context.classInternalName, null,
                 getInternalName(Object.class),
-                new String[] { getInternalName(JExpExecutable.class) });
+                new String[] { getInternalName(JExpExpression.class) });
             cw.visitSource("<jexp-expression>", null);
 
             // construct method

@@ -13,7 +13,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
 import ranttu.rapid.jexp.compile.CompileOption;
-import ranttu.rapid.jexp.compile.JExpExecutable;
+import ranttu.rapid.jexp.compile.JExpExpression;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -134,14 +134,14 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
         protected abstract Object innerRun(Object env);
     }
 
-    protected static class JExpNoInlineRunner extends BenchmarkRunner<JExpExecutable> {
+    protected static class JExpNoInlineRunner extends BenchmarkRunner<JExpExpression> {
         @Override
         protected String getExpression(BenchmarkCaseData caseData) {
             return caseData.jexpExpression;
         }
 
         @Override
-        protected JExpExecutable innerCompile(String expression) {
+        protected JExpExpression innerCompile(String expression) {
             CompileOption option = new CompileOption();
             option.inlineFunction = false;
             return JExp.compile(expression, option);
@@ -153,14 +153,14 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
         }
     }
 
-    protected static class JExpRunner extends BenchmarkRunner<JExpExecutable> {
+    protected static class JExpRunner extends BenchmarkRunner<JExpExpression> {
         @Override
         protected String getExpression(BenchmarkCaseData caseData) {
             return caseData.jexpExpression;
         }
 
         @Override
-        protected JExpExecutable innerCompile(String expression) {
+        protected JExpExpression innerCompile(String expression) {
             return JExp.compile(expression);
         }
 
