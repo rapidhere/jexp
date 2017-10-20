@@ -60,7 +60,7 @@ final public class JExp {
         Object ctx = new JExpTestContext();
 
         // execute
-        JExpExecutable expression = compile("lang.equals(a, \"1\")", option);
+        JExpExecutable expression = compile("lang.equals(o.o.o.o.o.o.a, \"1\")", option);
         System.out.println(expression.execute(ctx));
     }
 }

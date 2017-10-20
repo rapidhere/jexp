@@ -7,37 +7,16 @@ package ranttu.rapid.jexp.runtime.accesor;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.exception.JExpRuntimeException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ACC_SUPER;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ALOAD;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ARETURN;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ATHROW;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.CHECKCAST;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.DUP;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.F_SAME;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.IFEQ;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.INSTANCEOF;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.INVOKESPECIAL;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.IRETURN;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.NEW;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.RETURN;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.V1_6;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
@@ -48,30 +27,51 @@ import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
  * @author rapid
  * @version $Id: AccessorFactory.java, v 0.1 2017年10月03日 4:40 PM rapid Exp $
  */
-final public class AccessorFactory {
+final public class AccessorFactory implements Opcodes {
     private AccessorFactory() {
     }
 
     @SuppressWarnings("unused")
-    public static Accessor getAccessor(Object o) {
-        return theFactory.get(o.getClass());
+    public static Accessor getAccessor(Object o, String key) {
+        return theFactory.get(o, key);
     }
 
     //~~~ impl
 
-    private static final AccessorFactory theFactory    = new AccessorFactory();
+    private static final AccessorFactory    theFactory          = new AccessorFactory();
 
-    private Map<Class, Accessor>         accessorStore = new WeakHashMap<>();
+    private Map<String, Accessor>           accessorStore       = new HashMap<>();
 
-    private static int                   accessorCount = 0;
+    private Map<Class, Map<String, Method>> accessorMethodCache = new WeakHashMap<>();
 
-    private Accessor get(Class c) {
-        return accessorStore.computeIfAbsent(c, this::generateAccessor);
+    private static int                      accessorCount       = 0;
+
+    private Accessor get(Object o, String key) {
+        if (o == null) {
+            return null;
+        }
+
+        Class klass = o.getClass();
+        String storedKey = klass.getName() + "#" + key;
+
+        return accessorStore.computeIfAbsent(storedKey, s -> {
+            if (o instanceof Map) {
+                return MapAccessor.of(key);
+            } else {
+                return generateAccessor(klass, key);
+            }
+        });
     }
 
-    private Accessor generateAccessor(Class klass) {
+    private Accessor generateAccessor(Class klass, String key) {
+        // get accessors
+        Method accessorMethod = getAccessorMethod(klass, key);
+        if (accessorMethod == null) {
+            return DummyAccessor.ACCESSOR;
+        }
+
         // use klass name, so they have same package access privilege
-        String className = getAccessorName(klass);
+        String className = getAccessorName(klass, key);
         String classInternalName = className.replace(".", "/");
 
         // start define
@@ -101,91 +101,15 @@ final public class AccessorFactory {
         mv.visitEnd();
 
         // get method
-        mv = cw
-            .visitMethod(
-                ACC_PUBLIC,
-                "get",
-                getMethodDescriptor(getType(Object.class), getType(Object.class),
-                    getType(String.class)), null, null);
+        mv = cw.visitMethod(ACC_PUBLIC, "get",
+            getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
         mv.visitCode();
 
-        // get accessors
-        Map<String, Method> accessorMethods = collectAccessorMethod(klass);
-        Map<Integer, List<String>> accessorHashCodes = calculateHashCode(accessorMethods);
-
-        // prepare hashCodes
-        int[] hashCodes = getHashCodesArray(accessorHashCodes.keySet());
-
-        // prepare labels
-        Label[] switchLabels = new Label[accessorHashCodes.size()];
-        for (int i = 0; i < switchLabels.length; i++) {
-            switchLabels[i] = new Label();
-        }
-        Label defaultLabel = new Label();
-
-        // switch-case string hash
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "hashCode", "()I", false);
-        mv.visitLookupSwitchInsn(defaultLabel, hashCodes, switchLabels);
-
-        // start case visit
-        for (int i = 0; i < switchLabels.length; i++) {
-            int hashCode = hashCodes[i];
-            Label label = switchLabels[i];
-
-            mv.visitLabel(label);
-            mv.visitFrame(F_SAME, 0, null, 0, null);
-
-            // current if label
-            Label currentEqualLabel = null;
-
-            // if-else chain
-            List<String> propertyNames = accessorHashCodes.get(hashCode);
-            for (int j = 0; j < propertyNames.size(); j++) {
-                String propertyName = propertyNames.get(j);
-
-                if (currentEqualLabel != null) {
-                    mv.visitLabel(currentEqualLabel);
-                    mv.visitFrame(F_SAME, 0, null, 0, null);
-                    continue;
-                }
-
-                // if name equals ?
-                mv.visitLdcInsn(propertyName);
-                mv.visitVarInsn(ALOAD, 2);
-                mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "equals",
-                    getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
-
-                // for last property, just goto default(failed) label
-                if (j == propertyNames.size() - 1) {
-                    mv.visitJumpInsn(IFEQ, defaultLabel);
-                }
-                // else, jump to next equal label
-                else {
-                    currentEqualLabel = new Label();
-                    mv.visitJumpInsn(IFEQ, currentEqualLabel);
-                }
-
-                // current access statement
-                mv.visitVarInsn(ALOAD, 1);
-                mv.visitTypeInsn(CHECKCAST, getInternalName(klass));
-                Method am = accessorMethods.get(propertyName);
-                mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(klass), am.getName(),
-                    getMethodDescriptor(am), false);
-                mv.visitInsn(ARETURN);
-            }
-        }
-
-        // visit default label, throw new NoSuchFieldError
-        mv.visitLabel(defaultLabel);
-        mv.visitFrame(F_SAME, 0, null, 0, null);
-
-        mv.visitTypeInsn(NEW, getInternalName(NoSuchFieldError.class));
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitMethodInsn(INVOKESPECIAL, getInternalName(NoSuchFieldError.class), "<init>",
-            "(Ljava/lang/String;)V", false);
-        mv.visitInsn(ATHROW);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitTypeInsn(CHECKCAST, getInternalName(klass));
+        mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(klass), accessorMethod.getName(),
+            getMethodDescriptor(accessorMethod), false);
+        mv.visitInsn(ARETURN);
 
         // end get method
         mv.visitMaxs(0, 0);
@@ -203,6 +127,10 @@ final public class AccessorFactory {
         } catch (Throwable e) {
             throw new JExpRuntimeException("failed to generate accessor class!", e);
         }
+    }
+
+    private Method getAccessorMethod(Class klass, String key) {
+        return accessorMethodCache.computeIfAbsent(klass, this::collectAccessorMethod).get(key);
     }
 
     private Map<String, Method> collectAccessorMethod(Class klass) {
@@ -233,30 +161,7 @@ final public class AccessorFactory {
         return res;
     }
 
-    private String getAccessorName(Class klass) {
-        return klass.getName() + "$Accessor$" + accessorCount++;
-    }
-
-    private Map<Integer, List<String>> calculateHashCode(Map<String, Method> accessorMethods) {
-        Map<Integer, List<String>> res = new HashMap<>();
-
-        for (String propertyName : accessorMethods.keySet()) {
-            res.putIfAbsent(propertyName.hashCode(), new ArrayList<>());
-            res.get(propertyName.hashCode()).add(propertyName);
-        }
-
-        return res;
-    }
-
-    private int[] getHashCodesArray(Set<Integer> hashCodeSet) {
-        int res[] = new int[hashCodeSet.size()];
-        int i = 0;
-        for (int hash : hashCodeSet) {
-            res[i] = hash;
-            i++;
-        }
-
-        Arrays.sort(res);
-        return res;
+    private String getAccessorName(Class klass, String key) {
+        return klass.getName() + "$Accessor_" + key + "$" + accessorCount++;
     }
 }

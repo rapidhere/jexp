@@ -5,7 +5,6 @@ import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.compile.pass.TypeInferPass;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * the jexp compiler
@@ -13,7 +12,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
  * @author rapidhere@gmail.com
  * @version $Id: Compiler.java, v0.1 2017-07-27 7:58 PM dongwei.dq Exp $
  */
-public class JExpCompiler implements Opcodes {
+public class JExpCompiler {
     /** the compile option */
     private final CompileOption option;
 

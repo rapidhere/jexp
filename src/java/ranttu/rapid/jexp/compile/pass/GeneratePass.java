@@ -27,6 +27,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.accesor.Accessor;
 import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
+import ranttu.rapid.jexp.runtime.accesor.DummyAccessor;
 import ranttu.rapid.jexp.runtime.accesor.MapAccessor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
@@ -121,19 +122,19 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             // put accessor init
             context.identifierTree.visit(idInfo -> {
-                if (! idInfo.root) {
+                if (!idInfo.root) {
                     // add a field to the impl
-                    cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, idInfo.accessorSlot,
-                            getDescriptor(Accessor.class), null, null);
+                cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, idInfo.accessorSlot,
+                    getDescriptor(Accessor.class), null, null);
 
-                    // add field init
-                    mv.visitVarInsn(ALOAD, 0);
-                    mv.visitFieldInsn(GETSTATIC, getInternalName(MapAccessor.class), "ACCESSOR",
-                            getDescriptor(MapAccessor.class));
-                    mv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
-                            getDescriptor(Accessor.class));
-                }
-            });
+                // add field init
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
+                    getDescriptor(DummyAccessor.class));
+                mv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
+                    getDescriptor(Accessor.class));
+            }
+        })  ;
 
             // return
             mv.visitInsn(RETURN);
@@ -194,8 +195,13 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
         // failed, change accessor
         mv.visitInsn(DUP); // [ object, object ]
-        mv.visitMethodInsn(INVOKESTATIC, getInternalName(AccessorFactory.class), "getAccessor",
-            getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false); // [ accessor, object ]
+        mv.visitLdcInsn(idNode.identifier);
+        mv.visitMethodInsn(
+            INVOKESTATIC,
+            getInternalName(AccessorFactory.class),
+            "getAccessor",
+            getMethodDescriptor(getType(Accessor.class), getType(Object.class),
+                getType(String.class)), false); // [ accessor, object ]
         mv.visitVarInsn(ALOAD, 0); //  [ this, accessor, object ]
         mv.visitInsn(SWAP); //  [ accessor, this, object ]
         mv.visitFieldInsn(PUTFIELD, context.classInternalName, idNode.accessorSlot,
@@ -208,9 +214,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         mv.visitFieldInsn(GETFIELD, context.classInternalName, idNode.accessorSlot,
             getDescriptor(Accessor.class));
         mv.visitInsn(SWAP);
-        mv.visitLdcInsn(idNode.identifier);
         mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
-            "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;", true);
+            "(Ljava/lang/Object;)Ljava/lang/Object;", true);
     }
 
     @Override

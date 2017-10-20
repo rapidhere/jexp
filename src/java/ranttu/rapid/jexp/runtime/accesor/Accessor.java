@@ -14,5 +14,5 @@ public interface Accessor {
     boolean isSatisfied(Object o);
 
     @SuppressWarnings("unused")
-    Object get(Object o, String key);
+    Object get(Object o);
 }
