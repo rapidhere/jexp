@@ -19,7 +19,7 @@ final public class JExpLang {
     // invoke
     @JExpFunction(name = "lang.invoke")
     public static Object invoke(Object o, String methodName, Object... args) throws Throwable {
-        return MethodUtils.invokeExactMethod(o, methodName, args);
+        return MethodUtils.invokeMethod(o, methodName, args);
     }
 
     // getter
