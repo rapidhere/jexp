@@ -14,11 +14,13 @@ import java.util.List;
  */
 @Type(AstType.CALL_EXP)
 public class FunctionExpression extends AstNode {
-    final public String        functionName;
+    public String        functionName;
 
     final public List<AstNode> parameters;
 
     public FunctionInfo        functionInfo;
+
+    public String              callerIdentifier;
 
     public FunctionExpression(String functionName, List<AstNode> parameters) {
         this.functionName = functionName;

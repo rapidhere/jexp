@@ -46,13 +46,17 @@ public class TypeInferPass extends NoReturnPass {
             case IDENTIFIER:
                 primary.valueType = Type.getType(Object.class);
                 primary.isConstant = false;
-                int cnt = context.identifierCountMap.getOrDefault(primary.getId(), 0);
-                cnt ++;
-                context.identifierCountMap.put(primary.getId(), cnt);
+                updateIdCount(primary.getId());
                 return;
             default:
                 $.notSupport(t.type);
         }
+    }
+
+    private void updateIdCount(String id) {
+        int cnt = context.identifierCountMap.getOrDefault(id, 0);
+        cnt++;
+        context.identifierCountMap.put(id, cnt);
     }
 
     @SuppressWarnings("Duplicates")
@@ -149,16 +153,28 @@ public class TypeInferPass extends NoReturnPass {
         // get function info
         Optional<FunctionInfo> infoOptional = JExpFunctionFactory.getInfo(func.functionName);
 
-        if (!infoOptional.isPresent()) {
-            throw new UnknownFunction(func.functionName);
+        if (infoOptional.isPresent()) {
+            FunctionInfo info = infoOptional.get();
+
+            // cannot infer constant value for function expressions now
+            func.functionInfo = info;
+            func.isConstant = false;
+            func.valueType = Type.getType(info.method.getReturnType());
+
+        } else {
+            func.functionInfo = null;
+
+            String callStr = func.functionName;
+            int lastDot = callStr.lastIndexOf('.');
+            if (lastDot == -1) {
+                throw new UnknownFunction(func.functionName);
+            }
+
+            func.functionName = callStr.substring(lastDot + 1);
+            func.callerIdentifier = callStr.substring(0, lastDot);
+            updateIdCount(func.callerIdentifier);
+            func.valueType = Type.getType(Object.class);
         }
-
-        FunctionInfo info = infoOptional.get();
-
-        // cannot infer constant value for function expressions now
-        func.functionInfo = info;
-        func.isConstant = false;
-        func.valueType = Type.getType(info.method.getReturnType());
 
         // visit all parameters
         for (AstNode astNode : func.parameters) {

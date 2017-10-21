@@ -29,6 +29,7 @@ import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
 import ranttu.rapid.jexp.runtime.accesor.DummyAccessor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -330,7 +331,32 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(FunctionExpression func) {
-        applyFunction(func.functionInfo, func.parameters);
+        // that is, a static call of inner methods
+        if (func.functionInfo != null) {
+            applyFunction(func.functionInfo, func.parameters);
+        } else {
+            // put identifier on stack
+            mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(func.callerIdentifier));
+            // function name
+            mv.visitLdcInsn(func.functionName);
+            // arguments
+            mv.visitLdcInsn(func.parameters.size());
+            mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+            for (int i = 0; i < func.parameters.size(); i++) {
+                AstNode par = func.parameters.get(i);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn(i);
+                visit(par);
+                mv.visitInsn(AASTORE);
+            }
+            // call
+            mv.visitMethodInsn(
+                INVOKESTATIC,
+                getInternalName(JExpLang.class),
+                "invoke",
+                getMethodDescriptor(getType(Object.class), getType(Object.class),
+                    getType(String.class), getType(Object[].class)), false);
+        }
     }
 
     private void mathOpValConvert(AstNode exp) {

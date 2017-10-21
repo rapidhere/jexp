@@ -4,6 +4,7 @@
  */
 package ranttu.rapid.jexp.runtime.function.builtin;
 
+import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
@@ -15,6 +16,12 @@ import java.util.Map;
  * @version $Id: JExpLang.java, v0.1 2017-08-31 8:45 PM dongwei.dq Exp $
  */
 final public class JExpLang {
+    // invoke
+    @JExpFunction(name = "lang.invoke")
+    public static Object invoke(Object o, String methodName, Object... args) throws Throwable {
+        return MethodUtils.invokeExactMethod(o, methodName, args);
+    }
+
     // getter
     @JExpFunction(name = "lang.get_prop")
     public static Object getProperty(Object o, String name) throws Throwable {
