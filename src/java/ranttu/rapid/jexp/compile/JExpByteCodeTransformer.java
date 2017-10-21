@@ -37,19 +37,19 @@ public class JExpByteCodeTransformer implements Opcodes {
     }
 
     //~~~ impl
-    private FunctionInfo          functionInfo;
+    private FunctionInfo     functionInfo;
 
-    private List<AstNode>         parameters;
+    private List<AstNode>    parameters;
 
-    private ClassReader           cr;
+    private ClassReader      cr;
 
-    private MethodVisitor         cmv;
+    private MethodVisitor    cmv;
 
-    private GeneratePass          pass;
+    private GeneratePass     pass;
 
-    private CompilingContext      context;
+    private CompilingContext context;
 
-    private Label                 endLabel             = new Label();
+    private Label            endLabel = new Label();
 
     private void transform() {
         cr = new ClassReader(functionInfo.byteCodes);
@@ -57,9 +57,11 @@ public class JExpByteCodeTransformer implements Opcodes {
         accept(new TransformPass());
 
         // put the end label
-        cmv.visitLabel(endLabel);
-        cmv.visitFrame(F_SAME1, 0, null, 1,
-            new Object[] { TypeUtil.getFrameDesc(functionInfo.retType) });
+        if (functionInfo.returnInsnCount > 1) {
+            cmv.visitLabel(endLabel);
+            cmv.visitFrame(F_SAME1, 0, null, 1,
+                    new Object[]{TypeUtil.getFrameDesc(functionInfo.method.getReturnType())});
+        }
     }
 
     private void accept(MethodVisitor mv) {
@@ -81,7 +83,7 @@ public class JExpByteCodeTransformer implements Opcodes {
         public MethodVisitor visitMethod(int access, String name, String desc, String signature,
                                          String[] exceptions) {
 
-            if (name.equals(functionInfo.javaName)) {
+            if (name.equals(functionInfo.method.getName())) {
                 return mv;
             }
 
@@ -126,7 +128,12 @@ public class JExpByteCodeTransformer implements Opcodes {
                 case FRETURN:
                 case DRETURN:
                 case ARETURN:
-                    cmv.visitJumpInsn(GOTO, endLabel);
+                    //noinspection StatementWithEmptyBody
+                    if (functionInfo.returnInsnCount > 1) {
+                        cmv.visitJumpInsn(GOTO, endLabel);
+                    } else {
+                        // do nothing
+                    }
                     break;
                 // ~~~ other instructions, pass through
                 default:

@@ -65,6 +65,19 @@ class FunctionInfoCollector {
             // init
             info.localVarCount = 0;
             info.localVarUsedMap = new HashMap<>();
+            info.returnInsnCount = 0;
+        }
+
+        @Override
+        public void visitInsn(int opcode) {
+            switch (opcode) {
+                case IRETURN:
+                case LRETURN:
+                case FRETURN:
+                case DRETURN:
+                case ARETURN:
+                    info.returnInsnCount ++;
+            }
         }
 
         @Override

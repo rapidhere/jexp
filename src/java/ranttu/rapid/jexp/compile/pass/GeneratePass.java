@@ -368,7 +368,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             // call
             mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
-                info.javaName, Type.getMethodDescriptor(info.method), false);
+                info.method.getName(), Type.getMethodDescriptor(info.method), false);
         }
     }
 }

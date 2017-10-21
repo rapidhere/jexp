@@ -158,7 +158,7 @@ public class TypeInferPass extends NoReturnPass {
         // cannot infer constant value for function expressions now
         func.functionInfo = info;
         func.isConstant = false;
-        func.valueType = Type.getType(info.retType);
+        func.valueType = Type.getType(info.method.getReturnType());
 
         // visit all parameters
         for (AstNode astNode : func.parameters) {

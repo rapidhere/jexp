@@ -11,11 +11,11 @@ package ranttu.rapid.jexp;
  */
 public class JExpTestContext {
     public Object getA() {
-        return "1";
+        return 10;
     }
 
     public Object getB() {
-        return 5;
+        return -20;
     }
 
     public Object getO() {

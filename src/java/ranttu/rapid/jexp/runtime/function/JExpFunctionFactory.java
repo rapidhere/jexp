@@ -68,8 +68,6 @@ final public class JExpFunctionFactory {
                 FunctionInfo info = new FunctionInfo();
                 info.byteCodes = classBytes;
                 info.name = name;
-                info.retType = m.getReturnType();
-                info.javaName = m.getName();
                 info.inline = ann.inline();
                 info.method = m;
 

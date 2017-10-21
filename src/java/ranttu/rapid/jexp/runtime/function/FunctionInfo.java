@@ -13,11 +13,8 @@ import java.util.Map;
  * @version $Id: FunctionInfo.java, v0.1 2017-08-03 3:04 PM dongwei.dq Exp $
  */
 public class FunctionInfo {
+    // basic function info
     public String                name;
-
-    public String                javaName;
-
-    public Class                 retType;
 
     public boolean               inline;
 
@@ -31,4 +28,7 @@ public class FunctionInfo {
 
     // the number of the local variable loaded
     public Map<Integer, Integer> localVarUsedMap;
+
+    // the number of return instruction
+    public int                   returnInsnCount;
 }
