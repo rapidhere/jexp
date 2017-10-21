@@ -27,7 +27,7 @@ import java.util.Map;
  * @author rapid
  * @version $Id: JExpBenchmarkBase.java, v 0.1 2017年10月01日 10:25 AM rapid Exp $
  */
-abstract public class JExpBenchmarkBase extends JExpTestBase {
+abstract public class JExpBenchmarkBase {
     private static final int        TURN_LENGTH = 10;
 
     private static final int        TURN_COUNT  = 20;
@@ -43,11 +43,11 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
         }
 
         for (String name : turnCostMap.keySet()) {
-            System.out.print(String.format("%-17s ============\n",  name));
+            System.out.print(String.format("%-17s ============\n", name));
 
             for (int i = 0; i < TURN_LENGTH; i++) {
                 System.out.print(String.format("%10.4fms, ", (double) turnCostMap.get(name).get(i)
-                                                            / (double) TURN_COUNT / 1000000.0));
+                                                             / (double) TURN_COUNT / 1000000.0));
             }
             System.out.println("\n");
         }
@@ -208,11 +208,11 @@ abstract public class JExpBenchmarkBase extends JExpTestBase {
     @DataProvider(name = "load-from-benchmark-yaml")
     public Iterator<Object[]> loadFromBenchmarkYaml() throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        List<BenchmarkCaseData> data = mapper.readValue(getTestResource(), mapper.getTypeFactory()
-            .constructCollectionType(List.class, BenchmarkCaseData.class));
+        List<BenchmarkCaseData> data = mapper.readValue(TestUtil.getTestResource(getClass()),
+            mapper.getTypeFactory().constructCollectionType(List.class, BenchmarkCaseData.class));
 
         for (BenchmarkCaseData benchmarkCaseData : data) {
-            benchmarkCaseData.env = fillObject(benchmarkCaseData.env);
+            benchmarkCaseData.env = TestUtil.fillObject(benchmarkCaseData.env);
         }
 
         Iterator<BenchmarkCaseData> iter = data.iterator();
