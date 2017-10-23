@@ -40,8 +40,10 @@ final public class JExpLang {
     // ~~~ math
     @JExpFunction(name = "math.add")
     public static Object add(Object a, Object b) {
-        if (a instanceof String || b instanceof String) {
-            return String.valueOf(a) + String.valueOf(b);
+        if (a instanceof String) {
+            return (String) a + b;
+        } else if (b instanceof String) {
+            return a + (String) b;
         } else {
             Number numA = (Number) a, numB = (Number) b;
 

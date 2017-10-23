@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.Expression;
+import com.googlecode.aviator.Options;
 import org.mvel2.MVEL;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -178,6 +179,7 @@ abstract public class JExpBenchmarkBase {
 
         @Override
         protected Expression innerCompile(String expression) {
+            AviatorEvaluator.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.COMPILE);
             return AviatorEvaluator.compile(expression);
         }
 

@@ -40,3 +40,19 @@
   env:
     a: 10
     b: 20
+
+- description: string connection
+  jexpExpression: a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + "。"
+  aviatorExpression: a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + "。"
+  mvelExpression: a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + "。"
+  env:
+    a: "hello"
+    b: "world"
+
+- description: string connection 2
+  jexpExpression: a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b
+  aviatorExpression: a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b
+  mvelExpression: a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b
+  env:
+    a: "hello"
+    b: "world"

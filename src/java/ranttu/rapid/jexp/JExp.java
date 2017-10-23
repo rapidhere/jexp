@@ -54,13 +54,13 @@ final public class JExp {
     public static void main(String args[]) {
         // option
         CompileOption option = new CompileOption();
-        option.inlineFunction = true;
+        option.inlineFunction = false;
 
         // context
         Object ctx = new JExpTestContext();
 
         // execute
-        JExpExpression expression = compile("a.equals(b)", option);
+        JExpExpression expression = compile("a + \" \" + b + \", \" + a + \" \" + b + \", \" + a + \" \" + b + \", \" + a + \" \" + b + \", \" + a + \" \" + b + \"。\"", option);
         System.out.println(expression.execute(ctx));
     }
 }
