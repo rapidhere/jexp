@@ -41,9 +41,13 @@ final public class JExpLang {
     @JExpFunction(name = "math.add")
     public static Object add(Object a, Object b) {
         if (a instanceof String) {
-            return (String) a + b;
+            return new StringBuilder((String) a).append(b);
+        } else if (a instanceof StringBuilder) {
+            return ((StringBuilder) a).append(b);
         } else if (b instanceof String) {
-            return a + (String) b;
+            return new StringBuilder(String.valueOf(a)).append((String) b);
+        } else if (b instanceof StringBuilder) {
+            return ((StringBuilder) b).insert(0, a);
         } else {
             Number numA = (Number) a, numB = (Number) b;
 

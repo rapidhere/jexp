@@ -78,6 +78,10 @@ final public class TypeUtil {
         }
     }
 
+    public static boolean isType(Type t, Class c) {
+        return t.getClassName().equals(c.getName());
+    }
+
     public static Object getFrameDesc(Class c) {
         Type t = Type.getType(c);
         switch (t.getSort()) {

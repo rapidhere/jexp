@@ -56,3 +56,12 @@
   env:
     a: "hello"
     b: "world"
+
+- description: string connection 3
+  jexpExpression:  c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)
+  aviatorExpression: c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)
+  mvelExpression: c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)
+  env:
+    a: "hello"
+    b: "world"
+    c: 10

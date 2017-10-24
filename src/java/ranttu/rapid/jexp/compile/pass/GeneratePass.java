@@ -250,7 +250,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @SuppressWarnings("Duplicates")
     protected void visit(BinaryExpression exp) {
         // for Object(runtime)
-        if (exp.valueType.getClassName().equals(Object.class.getName())) {
+        if (TypeUtil.isType(exp.valueType, Object.class)) {
             // build arguments
             List<AstNode> args = new ArrayList<>();
             args.add(exp.left);
@@ -369,6 +369,15 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         } else if (exp.valueType == Type.BOOLEAN_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
                 "(Z)Ljava/lang/Boolean;", false);
+        } else if (TypeUtil.isType(exp.valueType, Object.class)) {
+            mv.visitInsn(DUP);
+            Label l = new Label();
+            mv.visitTypeInsn(INSTANCEOF, getInternalName(StringBuilder.class));
+            mv.visitJumpInsn(IFEQ, l);
+            mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "toString",
+                getMethodDescriptor(getType(String.class)), false);
+            mv.visitLabel(l);
+            mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { TypeUtil.getFrameDesc(Object.class) });
         }
     }
 
