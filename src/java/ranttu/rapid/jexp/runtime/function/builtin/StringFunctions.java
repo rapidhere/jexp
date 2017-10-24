@@ -6,8 +6,6 @@ package ranttu.rapid.jexp.runtime.function.builtin;
 
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
-import java.util.Date;
-
 /**
  * string function helpers
  *
@@ -20,8 +18,9 @@ public class StringFunctions {
         return s == null || s.length() == 0;
     }
 
+    // TODO: @dongwei.dq, return int
     @JExpFunction(name = "string.length")
-    public static int length(String s) {
+    public static Object length(String s) {
         return s.length();
     }
 }

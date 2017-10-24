@@ -12,7 +12,6 @@ import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
-import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
@@ -66,16 +65,8 @@ public class TypeInferPass extends NoReturnPass {
         visit(exp.right);
 
         //~~~ infer ret type
-        // Object
-        if (exp.left.valueType.getClassName().equals(Object.class.getName())
-            || exp.right.valueType.getClassName().equals(Object.class.getName())) {
-            exp.valueType = Type.getType(Object.class);
-            return;
-        }
-        // string
-        else if (exp.op.is(TokenType.PLUS)
-                 && (TypeUtil.isString(exp.left.valueType) || TypeUtil
-                     .isString(exp.right.valueType))) {
+        if (exp.op.is(TokenType.PLUS)
+            && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
             exp.valueType = Type.getType(String.class);
         }
         // number
@@ -85,14 +76,16 @@ public class TypeInferPass extends NoReturnPass {
                 $.notSupport("unknown binary op: " + exp.op);
             }
 
+            // TODO: @dongwei.dq, refine for wrapper types
             if (!TypeUtil.isNumber(exp.left.valueType) || !TypeUtil.isNumber(exp.right.valueType)) {
-                throw new JExpCompilingException("must be number value!");
-            }
-
-            if (TypeUtil.isFloat(exp.left.valueType) || TypeUtil.isFloat(exp.right.valueType)) {
-                exp.valueType = Type.DOUBLE_TYPE;
+                // i.e., determine at runtime
+                exp.valueType = Type.getType(Object.class);
             } else {
-                exp.valueType = Type.INT_TYPE;
+                if (TypeUtil.isFloat(exp.left.valueType) || TypeUtil.isFloat(exp.right.valueType)) {
+                    exp.valueType = Type.DOUBLE_TYPE;
+                } else {
+                    exp.valueType = Type.INT_TYPE;
+                }
             }
         }
 

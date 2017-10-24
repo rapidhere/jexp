@@ -60,4 +60,8 @@ final public class $ {
     public static <T> T shouldNotReach() {
         throw new AssertionError();
     }
+
+    public static <T> T shouldNotReach(String msg) {
+        throw new AssertionError(msg);
+    }
 }

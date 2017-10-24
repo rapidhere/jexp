@@ -27,5 +27,9 @@ public class CompilingContext {
 
     public IdentifierTree       identifierTree         = new IdentifierTree();
 
+    public int                  constantCount          = 0;
+
+    public Map<Object, String>  constantSlots          = new HashMap<>();
+
     public JExpExpression       compiledStub;
 }

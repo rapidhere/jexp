@@ -60,7 +60,7 @@ public class JExpByteCodeTransformer implements Opcodes {
         if (functionInfo.returnInsnCount > 1) {
             cmv.visitLabel(endLabel);
             cmv.visitFrame(F_SAME1, 0, null, 1,
-                    new Object[]{TypeUtil.getFrameDesc(functionInfo.method.getReturnType())});
+                new Object[] { TypeUtil.getFrameDesc(functionInfo.method.getReturnType()) });
         }
     }
 
@@ -106,12 +106,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
             // store in a reversed order
             for (int i = parameters.size() - 1; i >= 0; i--) {
-                AstNode astNode = parameters.get(i);
-                if (TypeUtil.isInt(astNode.valueType)) {
-                    cmv.visitVarInsn(ISTORE, i + context.inlinedLocalVarCount);
-                } else {
-                    cmv.visitVarInsn(ASTORE, i + context.inlinedLocalVarCount);
-                }
+                cmv.visitVarInsn(ASTORE, i + context.inlinedLocalVarCount);
             }
         }
 

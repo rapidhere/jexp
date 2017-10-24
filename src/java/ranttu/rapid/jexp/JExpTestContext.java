@@ -19,7 +19,7 @@ public class JExpTestContext {
     }
 
     public Object getC() {
-        return -1;
+        return 20;
     }
 
     public Object getO() {

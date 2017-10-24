@@ -17,6 +17,10 @@ public @interface JExpFunction {
     /** the name (identifier) of the function */
     String name() default "";
 
-    /** whether this function is inlinable, default is true */
-    boolean inline() default true;
+    /**
+     *  whether this function is inlinable, default is false
+     *
+     *  NOTE: this feature is still under experiment, and is not quite useful
+     */
+    boolean inline() default false;
 }

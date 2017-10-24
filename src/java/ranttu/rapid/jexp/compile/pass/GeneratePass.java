@@ -50,6 +50,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     private MethodVisitor mv;
 
+    private MethodVisitor conMv;
+
     public GeneratePass() {
         this.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
@@ -67,16 +69,21 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // prepare class
         visitClass();
 
-        // visit the method
+        // visit execute method
         visit(root);
-        mathOpValConvert(root);
 
-        // return
+        // end of execute method
+        mathOpValConvert(mv, root.valueType);
         mv.visitInsn(ARETURN);
-
-        // end
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+
+        // end of constructure
+        conMv.visitInsn(RETURN);
+        conMv.visitMaxs(0, 0);
+        conMv.visitEnd();
+
+        // end of all visit
         cw.visitEnd();
 
         // generate
@@ -101,6 +108,10 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         visit(astNode);
     }
 
+    private String nextConstantSlot() {
+        return "constant$" + context.constantCount++;
+    }
+
     private void visitClass() {
         // build identifier tree
         for (String id : context.identifierCountMap.keySet()) {
@@ -114,18 +125,14 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             cw.visitSource("<jexp-expression>", null);
 
             // construct method
-            mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-            mv.visitCode();
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V", false);
+            conMv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+            conMv.visitCode();
+            conMv.visitVarInsn(ALOAD, 0);
+            conMv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V",
+                false);
 
             // put accessor init
             context.identifierTree.visit(this::initAccessor);
-
-            // return
-            mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
 
             // `execute` method
             mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
@@ -174,10 +181,10 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 getDescriptor(Accessor.class), null, null);
 
             // add field init
-            mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
+            conMv.visitVarInsn(ALOAD, 0);
+            conMv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
                 getDescriptor(DummyAccessor.class));
-            mv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
+            conMv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
                 getDescriptor(Accessor.class));
         }
     }
@@ -225,13 +232,47 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(AstNode astNode) {
-        // constant short cut
-        if (astNode.isConstant) {
-            mv.visitLdcInsn(astNode.constantValue);
+        // pass through
+        if (!astNode.isConstant) {
+            super.visit(astNode);
             return;
         }
-        // pass through
-        super.visit(astNode);
+
+        // load constant
+        Object val = astNode.constantValue;
+
+        // string, directly load
+        if (val instanceof String) {
+            mv.visitLdcInsn(astNode.constantValue);
+        }
+        // integer, double, store in slot
+        else if (val instanceof Integer || val instanceof Double || val instanceof Boolean) {
+            String slot = context.constantSlots.computeIfAbsent(val, v -> {
+                String newSlot = nextConstantSlot();
+
+                // field
+                cw.visitField(ACC_SYNTHETIC + ACC_PRIVATE, newSlot, getDescriptor(val.getClass()), null,
+                        null);
+
+                // field init
+                conMv.visitVarInsn(ALOAD, 0);
+                conMv.visitLdcInsn(val);
+                mathOpValConvert(conMv, TypeUtil.getPrimitive(val.getClass()));
+                conMv.visitFieldInsn(PUTFIELD, context.classInternalName, newSlot,
+                        getDescriptor(val.getClass()));
+
+                return newSlot;
+            });
+
+            // get field
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitFieldInsn(GETFIELD, context.classInternalName, slot,
+                getDescriptor(val.getClass()));
+        }
+        // unknown constant
+        else {
+            $.shouldNotReach(val + ": " + val.getClass());
+        }
     }
 
     @Override
@@ -359,17 +400,17 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
     }
 
-    private void mathOpValConvert(AstNode exp) {
-        if (TypeUtil.isInt(exp.valueType)) {
+    private void mathOpValConvert(MethodVisitor mv, Type valueType) {
+        if (TypeUtil.isInt(valueType)) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
                 "(I)Ljava/lang/Integer;", false);
-        } else if (TypeUtil.isFloat(exp.valueType)) {
+        } else if (TypeUtil.isFloat(valueType)) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
                 "(D)Ljava/lang/Double;", false);
-        } else if (exp.valueType == Type.BOOLEAN_TYPE) {
+        } else if (valueType == Type.BOOLEAN_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
                 "(Z)Ljava/lang/Boolean;", false);
-        } else if (TypeUtil.isType(exp.valueType, Object.class)) {
+        } else if (TypeUtil.isType(valueType, Object.class)) {
             mv.visitInsn(DUP);
             Label l = new Label();
             mv.visitTypeInsn(INSTANCEOF, getInternalName(StringBuilder.class));

@@ -32,6 +32,30 @@ final public class TypeUtil {
         return t.getSort() == Type.INT;
     }
 
+    public static Type getPrimitive(Class c) {
+        if (c == Integer.class) {
+            return Type.INT_TYPE;
+        } else if (c == Boolean.class) {
+            return Type.BOOLEAN_TYPE;
+        } else if (c == Byte.class) {
+            return Type.BYTE_TYPE;
+        } else if (c == Short.class) {
+            return Type.SHORT_TYPE;
+        } else if (c == Long.class) {
+            return Type.LONG_TYPE;
+        } else if (c == Character.class) {
+            return Type.CHAR_TYPE;
+        } else if (c == Float.class) {
+            return Type.FLOAT_TYPE;
+        } else if (c == Double.class) {
+            return Type.DOUBLE_TYPE;
+        } else if (c == Void.class) {
+            return Type.VOID_TYPE;
+        } else {
+            return null;
+        }
+    }
+
     public static Type getWrapper(Type t) {
         switch (t.getSort()) {
             case Type.INT:

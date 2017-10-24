@@ -60,7 +60,7 @@ final public class JExp {
         Object ctx = new JExpTestContext();
 
         // execute
-        JExpExpression expression = compile("c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)", option);
+        JExpExpression expression = compile("1 + c + \"a\" + 1", option);
         Object result = expression.execute(ctx);
         System.out.println(result);
     }
