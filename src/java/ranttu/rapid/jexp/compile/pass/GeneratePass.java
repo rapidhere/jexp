@@ -290,33 +290,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     @SuppressWarnings("Duplicates")
     protected void visit(BinaryExpression exp) {
-        // for Object(runtime)
-        if (TypeUtil.isType(exp.valueType, Object.class)) {
-            // build arguments
-            List<AstNode> args = new ArrayList<>();
-            args.add(exp.left);
-            args.add(exp.right);
-
-            switch (exp.op.type) {
-                case PLUS:
-                    applyFunction("math.add", args);
-                    break;
-                case SUBTRACT:
-                    applyFunction("math.sub", args);
-                    break;
-                case MULTIPLY:
-                    applyFunction("math.mul", args);
-                    break;
-                case DIVIDE:
-                    applyFunction("math.div", args);
-                    break;
-                case MODULAR:
-                    applyFunction("math.mod", args);
-                    break;
-            }
-        }
         // for float type
-        else if (TypeUtil.isFloat(exp.valueType)) {
+        if (TypeUtil.isFloat(exp.valueType)) {
             visit(exp.left);
             if (TypeUtil.isInt(exp.left.valueType)) {
                 mv.visitInsn(I2D);
@@ -365,6 +340,31 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                     break;
                 case MODULAR:
                     mv.visitInsn(IREM);
+                    break;
+            }
+        }
+        // for any runtime types
+        else {
+            // build arguments
+            List<AstNode> args = new ArrayList<>();
+            args.add(exp.left);
+            args.add(exp.right);
+
+            switch (exp.op.type) {
+                case PLUS:
+                    applyFunction("math.add", args);
+                    break;
+                case SUBTRACT:
+                    applyFunction("math.sub", args);
+                    break;
+                case MULTIPLY:
+                    applyFunction("math.mul", args);
+                    break;
+                case DIVIDE:
+                    applyFunction("math.div", args);
+                    break;
+                case MODULAR:
+                    applyFunction("math.mod", args);
                     break;
             }
         }

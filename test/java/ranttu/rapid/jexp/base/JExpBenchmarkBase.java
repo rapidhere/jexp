@@ -13,7 +13,6 @@ import org.mvel2.MVEL;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
-import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpExpression;
 
 import java.io.IOException;
@@ -58,7 +57,6 @@ abstract public class JExpBenchmarkBase {
         List<BenchmarkRunner> runnerList = new ArrayList<BenchmarkRunner>() {
             {
                 add(new JExpRunner());
-                add(new JExpNoInlineRunner());
                 add(new AviatorRunner());
                 add(new MvelRunner());
             }
@@ -135,25 +133,6 @@ abstract public class JExpBenchmarkBase {
         protected abstract Object innerRun(Object env);
     }
 
-    protected static class JExpNoInlineRunner extends BenchmarkRunner<JExpExpression> {
-        @Override
-        protected String getExpression(BenchmarkCaseData caseData) {
-            return caseData.jexpExpression;
-        }
-
-        @Override
-        protected JExpExpression innerCompile(String expression) {
-            CompileOption option = new CompileOption();
-            option.inlineFunction = false;
-            return JExp.compile(expression, option);
-        }
-
-        @Override
-        protected Object innerRun(Object env) {
-            return compiledStub.execute(env);
-        }
-    }
-
     protected static class JExpRunner extends BenchmarkRunner<JExpExpression> {
         @Override
         protected String getExpression(BenchmarkCaseData caseData) {
@@ -179,7 +158,7 @@ abstract public class JExpBenchmarkBase {
 
         @Override
         protected Expression innerCompile(String expression) {
-            AviatorEvaluator.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.COMPILE);
+            AviatorEvaluator.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
             return AviatorEvaluator.compile(expression);
         }
 
