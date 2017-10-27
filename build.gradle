@@ -8,6 +8,9 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
 }
 
 dependencies {
@@ -23,6 +26,7 @@ dependencies {
     /** for benchmark */
     testCompile 'com.googlecode.aviator:aviator:3.1.0'
     testCompile 'org.mvel:mvel2:2.3.2.Final'
+    testCompile 'com.github.lfkdsk:Just-Evaluator:v1.0'
 }
 
 buildscript {

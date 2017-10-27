@@ -9,6 +9,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import com.lfkdsk.justel.JustEL;
+import com.lfkdsk.justel.context.JustContext;
+import com.lfkdsk.justel.context.JustMapContext;
 import org.mvel2.MVEL;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -64,6 +67,7 @@ abstract public class JExpBenchmarkBase {
 
         for (BenchmarkRunner runner : runnerList) {
             runner.compile(caseData);
+            runner.prepare(caseData.env);
         }
 
         Collections.shuffle(runnerList);
@@ -92,6 +96,8 @@ abstract public class JExpBenchmarkBase {
 
         public String mvelExpression;
 
+        public String justelExpression;
+
         public Object env;
 
         public String description;
@@ -111,6 +117,10 @@ abstract public class JExpBenchmarkBase {
 
         public String getName() {
             return getClass().getSimpleName();
+        }
+
+        public void prepare(Object env) {
+
         }
 
         // return micro second
@@ -133,6 +143,41 @@ abstract public class JExpBenchmarkBase {
         protected abstract Object innerRun(Object env);
     }
 
+    @SuppressWarnings("unused")
+    protected static class JustELRunner extends BenchmarkRunner<com.lfkdsk.justel.eval.Expression> {
+
+        JustContext ctx;
+
+        @Override
+        protected String getExpression(BenchmarkCaseData caseData) {
+            return caseData.justelExpression;
+        }
+
+        @Override
+        protected com.lfkdsk.justel.eval.Expression innerCompile(String expression) {
+            ctx = new JustMapContext();
+            return JustEL.runExpr(expression);
+        }
+
+        @Override
+        public void prepare(Object env) {
+            @SuppressWarnings("unchecked")
+            Map<String, ?> m = (Map<String, ?>) env;
+
+            if (env != null) {
+                for (String key : m.keySet()) {
+                    ctx.put(key, m.get(key));
+                }
+            }
+        }
+
+        @Override
+        protected Object innerRun(Object env) {
+            return compiledStub.eval(ctx);
+        }
+    }
+
+    @SuppressWarnings("unused")
     protected static class JExpRunner extends BenchmarkRunner<JExpExpression> {
         @Override
         protected String getExpression(BenchmarkCaseData caseData) {

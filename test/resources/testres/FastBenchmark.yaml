@@ -4,14 +4,13 @@
   mvelExpression: (((1000.0+100*99-(600-3*15)/(((68.0-9)-3)*2-100)+10023%7*71)))
 
 - description: simple mapped var
-  jexpExpression: a + b * c.c - d
-  aviatorExpression: a + b * c.c - d
-  mvelExpression: a + b * c.c - d
+  jexpExpression: a + b * c - d
+  aviatorExpression: a + b * c - d
+  mvelExpression: a + b * c - d
   env:
     a: 12
     b: 123
-    c:
-      c: 23
+    c: 23
     d: -10
 
 - description: simple typed var
@@ -37,6 +36,7 @@
   jexpExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   aviatorExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   mvelExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
+  justelExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   env:
     a: 10
     b: 20
