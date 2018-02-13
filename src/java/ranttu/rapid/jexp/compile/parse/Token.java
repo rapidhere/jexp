@@ -1,11 +1,14 @@
 package ranttu.rapid.jexp.compile.parse;
 
+import lombok.ToString;
+
 /**
  * the lexer token
  *
  * @author rapidhere@gmail.com
  * @version $Id: Token.java, v0.1 2017-07-28 2:04 PM dongwei.dq Exp $
  */
+@ToString
 public class Token {
     public final TokenType    type;
 

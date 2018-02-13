@@ -28,28 +28,34 @@ public enum TokenType {
     COMMA,
 
     /** math */
-    PLUS(0),
+    DOT(10, true),
 
-    SUBTRACT(0),
+    PLUS(11, true),
 
-    MULTIPLY(1),
+    SUBTRACT(11, true),
 
-    DIVIDE(1),
+    MULTIPLY(12, true),
 
-    MODULAR(1),
+    DIVIDE(12, true),
+
+    MODULAR(12, true),
 
     /** fake */
-    FAKE(Integer.MIN_VALUE)
+    FAKE(Integer.MIN_VALUE, false)
 
     ;
 
-    public int priority;
+    public int     priority;
+
+    public boolean binaryOp;
 
     TokenType() {
         priority = -100;
+        binaryOp = false;
     }
 
-    TokenType(int i) {
+    TokenType(int i, boolean binaryOp) {
         priority = i;
+        this.binaryOp = binaryOp;
     }
 }

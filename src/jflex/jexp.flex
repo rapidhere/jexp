@@ -41,7 +41,7 @@ OctIntegerLiteral = 0[0-9]+
 
 <YYINITIAL> {
   /* identifiers */
-  [a-zA-Z\_][a-zA-Z0-9\_]*(\.[a-zA-Z\_][a-zA-Z0-9\_]*)*   { return token(TokenType.IDENTIFIER, yytext()); }
+  [a-zA-Z\_][a-zA-Z0-9\_]*       { return token(TokenType.IDENTIFIER, yytext()); }
 
   /* literals */
   (0 | [1-9][0-9]*)\.[0-9]+      { return token(TokenType.FLOAT, Double.valueOf(yytext())); }
@@ -60,6 +60,7 @@ OctIntegerLiteral = 0[0-9]+
   "("                            { return token(TokenType.LEFT_PARENTHESIS, yytext()); }
   ")"                            { return token(TokenType.RIGHT_PARENTHESIS, yytext()); }
   ","                            { return token(TokenType.COMMA, yytext()); }
+  "."                            { return token(TokenType.DOT, yytext()); }
 
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }

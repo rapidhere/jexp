@@ -1,19 +1,35 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "de.jflex:jflex:1.6.1"
+    }
+}
+
+plugins {
+    id 'net.ltgt.apt' version '0.10'
+}
+
 group 'ranttu.rapid.jexp'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
 }
 
 dependencies {
+    compileOnly 'org.projectlombok:lombok:1.16.20'
+
+    apt "org.projectlombok:lombok:1.16.20"
+
     compile 'de.jflex:jflex:1.6.1'
     compile 'commons-io:commons-io:2.5'
     compile 'commons-beanutils:commons-beanutils:1.9.3'
@@ -27,16 +43,6 @@ dependencies {
     testCompile 'com.googlecode.aviator:aviator:3.1.0'
     testCompile 'org.mvel:mvel2:2.3.2.Final'
     testCompile 'com.github.lfkdsk:Just-Evaluator:v1.0'
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath "de.jflex:jflex:1.6.1"
-    }
 }
 
 test {

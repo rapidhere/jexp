@@ -1,6 +1,6 @@
 package ranttu.rapid.jexp.compile.parse;
 
-import ranttu.rapid.jexp.common.$;
+import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
@@ -54,9 +54,7 @@ public class JExpParser {
         while (true) {
             Token t = peekOrNull();
             // not a math oper, break
-            if (t == null
-                || $.notIn(t.type, TokenType.PLUS, TokenType.SUBTRACT, TokenType.DIVIDE,
-                    TokenType.MULTIPLY, TokenType.MODULAR)) {
+            if (t == null || !t.type.binaryOp) {
                 break;
             }
             // eat the token
@@ -83,7 +81,7 @@ public class JExpParser {
     }
 
     private AstNode parseUnary() {
-        Token t = peek();
+        var t = peek();
         if (t.is(TokenType.LEFT_PARENTHESIS)) {
             next();
             AstNode exp = parseBinary();
@@ -96,8 +94,8 @@ public class JExpParser {
     }
 
     private AstNode parseFunction() {
-        PrimaryExpression id = parsePrimary();
-        Token nextToken = peekOrNull();
+        var id = parsePrimary();
+        var nextToken = peekOrNull();
 
         if (id.token.is(TokenType.IDENTIFIER) && nextToken != null
             && nextToken.is(TokenType.LEFT_PARENTHESIS)) {
@@ -113,7 +111,7 @@ public class JExpParser {
     private List<AstNode> parseParameters() {
         List<AstNode> pars = new ArrayList<>();
 
-        Token t = peek();
+        var t = peek();
         // meet ')', break
         if (t.is(TokenType.RIGHT_PARENTHESIS)) {
             next();
@@ -133,13 +131,13 @@ public class JExpParser {
     }
 
     private PrimaryExpression parsePrimary() {
-        Token t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.FLOAT);
+        var t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.FLOAT);
         return new PrimaryExpression(t);
     }
 
     private Token peek() {
         try {
-            Token t = _peek();
+            var t = _peek();
             if (t == null) {
                 throw new UnexpectedEOF();
             }
@@ -161,13 +159,13 @@ public class JExpParser {
 
     private Token nextOrNull(TokenType... types) {
         try {
-            Token t = _next();
+            var t = _next();
             if (t == null) {
                 return null;
             }
 
             if (types.length != 0) {
-                for (TokenType type : types) {
+                for (var type : types) {
                     if (t.is(type)) {
                         return t;
                     }
@@ -182,7 +180,7 @@ public class JExpParser {
     }
 
     private Token next(TokenType... types) {
-        Token t = nextOrNull(types);
+        var t = nextOrNull(types);
         if (t == null) {
             throw new UnexpectedEOF();
         }
