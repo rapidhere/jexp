@@ -132,7 +132,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 false);
 
             // put accessor init
-            context.identifierTree.visit(this::initAccessor);
+            // FIXME:
+            // context.identifierTree.visit(this::initAccessor);
 
             // `execute` method
             mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
@@ -142,32 +143,33 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitCode();
 
             // store all identifier values on stack
-            context.identifierTree.visit(idNode -> {
-                //~~~ put
-                if (idNode.root) {
-                    if (idNode.children.size() == 0) {
-                        return;
-                    }
-
-                    mv.visitVarInsn(ALOAD, 1);
-                } else {
-                    invokeAccessor(idNode);
-                }
-
-                //~~~ store
-                if (idNode.isLeaf()) {
-                    // get store index
-                    int varIndex = context.inlinedLocalVarCount;
-                    context.inlinedLocalVarCount++;
-                    context.identifierInlineVarMap.put(idNode.path, varIndex);
-
-                    mv.visitVarInsn(ASTORE, varIndex);
-                } else {
-                    for (int i = 0; i < idNode.children.size() - 1; i++) {
-                        mv.visitInsn(DUP);
-                    }
-                }
-            });
+            // FIXME:
+            //            context.identifierTree.visit(idNode -> {
+            //                //~~~ put
+            //                if (idNode.root) {
+            //                    if (idNode.children.size() == 0) {
+            //                        return;
+            //                    }
+            //
+            //                    mv.visitVarInsn(ALOAD, 1);
+            //                } else {
+            //                    invokeAccessor(idNode);
+            //                }
+            //
+            //                //~~~ store
+            //                if (idNode.isLeaf()) {
+            //                    // get store index
+            //                    int varIndex = context.inlinedLocalVarCount;
+            //                    context.inlinedLocalVarCount++;
+            //                    context.identifierInlineVarMap.put(idNode.path, varIndex);
+            //
+            //                    mv.visitVarInsn(ASTORE, varIndex);
+            //                } else {
+            //                    for (int i = 0; i < idNode.children.size() - 1; i++) {
+            //                        mv.visitInsn(DUP);
+            //                    }
+            //                }
+            //            });
         } else {
             throw new JExpCompilingException("unknown java version"
                                              + context.option.targetJavaVersion);
@@ -251,15 +253,15 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 String newSlot = nextConstantSlot();
 
                 // field
-                cw.visitField(ACC_SYNTHETIC + ACC_PRIVATE, newSlot, getDescriptor(val.getClass()), null,
-                        null);
+                cw.visitField(ACC_SYNTHETIC + ACC_PRIVATE, newSlot, getDescriptor(val.getClass()),
+                    null, null);
 
                 // field init
                 conMv.visitVarInsn(ALOAD, 0);
                 conMv.visitLdcInsn(val);
                 mathOpValConvert(conMv, TypeUtil.getPrimitive(val.getClass()));
                 conMv.visitFieldInsn(PUTFIELD, context.classInternalName, newSlot,
-                        getDescriptor(val.getClass()));
+                    getDescriptor(val.getClass()));
 
                 return newSlot;
             });
@@ -290,6 +292,33 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     @SuppressWarnings("Duplicates")
     protected void visit(BinaryExpression exp) {
+        // for dot op
+        if (exp.op.is(TokenType.DOT)) {
+            // get owner
+            visit(exp.left);
+
+            // get accessor
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(
+                INVOKESTATIC,
+                getInternalName(AccessorFactory.class),
+                "getAccessor",
+                getMethodDescriptor(getType(Accessor.class), getType(Object.class),
+                    getType(String.class)), false); // [owner, accessor]
+
+            // swap
+            mv.visitInsn(SWAP); // [accessor, owner]
+
+            // put property
+            visit(exp.right);
+
+            // get property
+            mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
+                "(Ljava/lang/Object;)Ljava/lang/Object;", true);
+
+            return;
+        }
+
         // for float type
         if (TypeUtil.isFloat(exp.valueType)) {
             visit(exp.left);

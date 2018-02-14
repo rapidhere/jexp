@@ -65,7 +65,12 @@ public class TypeInferPass extends NoReturnPass {
         visit(exp.right);
 
         //~~~ infer ret type
-        if (exp.op.is(TokenType.PLUS)
+        // for dot
+        if (exp.op.is(TokenType.DOT)) {
+            exp.valueType = Type.getType(Object.class);
+        }
+        // for String
+        else if (exp.op.is(TokenType.PLUS)
             && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
             exp.valueType = Type.getType(String.class);
         }
