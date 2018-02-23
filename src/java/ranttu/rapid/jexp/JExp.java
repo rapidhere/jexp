@@ -1,5 +1,6 @@
 package ranttu.rapid.jexp;
 
+import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpCompiler;
 import ranttu.rapid.jexp.compile.JExpExpression;
@@ -21,10 +22,10 @@ final public class JExp {
      * @return            the eval result
      */
     public static <T> T eval(String expression, Object context) {
-        JExpExpression executable = compile(expression);
+        var executable = compile(expression);
 
         @SuppressWarnings("unchecked")
-        T result = (T) executable.execute(context);
+        var result = (T) executable.execute(context);
         return result;
     }
 
@@ -34,7 +35,7 @@ final public class JExp {
      * @return            the compiled stub
      */
     public static JExpExpression compile(String expression) {
-        JExpCompiler compiler = new JExpCompiler();
+        var compiler = new JExpCompiler();
         return compiler.compile(expression);
     }
 
@@ -45,7 +46,7 @@ final public class JExp {
      * @return            the compiled stub
      */
     public static JExpExpression compile(String expression, CompileOption compileOption) {
-        JExpCompiler compiler = new JExpCompiler(compileOption);
+        var compiler = new JExpCompiler(compileOption);
         return compiler.compile(expression);
     }
 
@@ -53,15 +54,15 @@ final public class JExp {
     // only for common test usage
     public static void main(String args[]) {
         // option
-        CompileOption option = new CompileOption();
+        var option = new CompileOption();
         option.inlineFunction = false;
 
         // context
-        Object ctx = new JExpTestContext();
+        var ctx = new JExpTestContext();
 
         // execute
-        JExpExpression expression = compile("1 + c + \"a\" + 1", option);
-        Object result = expression.execute(ctx);
+        var expression = compile("1 + c + \"a\" + 1", option);
+        var result = expression.execute(ctx);
         System.out.println(result);
     }
 }

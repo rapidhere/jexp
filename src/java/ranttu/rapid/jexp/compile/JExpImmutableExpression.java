@@ -4,6 +4,7 @@
  */
 package ranttu.rapid.jexp.compile;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +33,6 @@ public class JExpImmutableExpression implements JExpExpression {
 
     @Override
     public Set<String> getVariableNames() {
-        return new HashSet<>();
+        return Collections.emptySet();
     }
 }

@@ -36,7 +36,6 @@
   jexpExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   aviatorExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   mvelExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
-  justelExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   env:
     a: 10
     b: 20
