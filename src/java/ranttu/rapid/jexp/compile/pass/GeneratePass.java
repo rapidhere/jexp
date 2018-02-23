@@ -10,6 +10,7 @@ import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.IdentifierTree;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.compile.JExpExpression;
@@ -285,7 +286,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         if (exp.token.is(TokenType.IDENTIFIER)) {
-            mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(exp.getId()));
+            mv.visitVarInsn(ALOAD, 1);
+            accessMember(exp);
         }
     }
 
@@ -295,27 +297,16 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // for dot op
         if (exp.op.is(TokenType.DOT)) {
             // get owner
-            visit(exp.left);
+            // if exp.left is a primary expression, get it from context
+            if (exp.left.is(AstType.PRIMARY_EXP)) {
+                mv.visitVarInsn(ALOAD, 1);
+                accessMember(exp.left);
+            } else {
+                visit(exp.left);
+            }
 
-            // get accessor
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(
-                INVOKESTATIC,
-                getInternalName(AccessorFactory.class),
-                "getAccessor",
-                getMethodDescriptor(getType(Accessor.class), getType(Object.class),
-                    getType(String.class)), false); // [owner, accessor]
-
-            // swap
-            mv.visitInsn(SWAP); // [accessor, owner]
-
-            // put property
-            visit(exp.right);
-
-            // get property
-            mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
-                "(Ljava/lang/Object;)Ljava/lang/Object;", true);
-
+            // get member
+            accessMember(exp.right);
             return;
         }
 
@@ -427,6 +418,31 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 getMethodDescriptor(getType(Object.class), getType(Object.class),
                     getType(String.class), getType(Object[].class)), false);
         }
+    }
+
+    private void accessMember(AstNode propExp) {
+        // get accessor
+        mv.visitInsn(DUP);
+        // put property
+        if (propExp.is(AstType.PRIMARY_EXP)) {
+            mv.visitLdcInsn(propExp.constantValue);
+        } else {
+            visit(propExp);
+        }
+
+        mv.visitMethodInsn(
+            INVOKESTATIC,
+            getInternalName(AccessorFactory.class),
+            "getAccessor",
+            getMethodDescriptor(getType(Accessor.class), getType(Object.class),
+                getType(String.class)), false); // [owner, accessor]
+
+        // swap
+        mv.visitInsn(SWAP); // [accessor, owner]
+
+        // get property
+        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
+            "(Ljava/lang/Object;)Ljava/lang/Object;", true);
     }
 
     private void mathOpValConvert(MethodVisitor mv, Type valueType) {

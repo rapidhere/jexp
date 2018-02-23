@@ -44,6 +44,7 @@ public class TypeInferPass extends NoReturnPass {
                 return;
             case IDENTIFIER:
                 primary.valueType = Type.getType(Object.class);
+                primary.constantValue = t.getString();
                 primary.isConstant = false;
                 updateIdCount(primary.getId());
                 return;

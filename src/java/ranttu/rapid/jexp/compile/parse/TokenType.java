@@ -28,7 +28,7 @@ public enum TokenType {
     COMMA,
 
     /** math */
-    DOT(10, true),
+    DOT(100, true),
 
     PLUS(11, true),
 

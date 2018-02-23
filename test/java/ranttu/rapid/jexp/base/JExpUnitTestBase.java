@@ -5,6 +5,7 @@
 package ranttu.rapid.jexp.base;
 
 import org.testng.AssertJUnit;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
 
@@ -16,6 +17,10 @@ import ranttu.rapid.jexp.JExp;
 public class JExpUnitTestBase extends JExpTestBase {
     @Test(dataProvider = "load-from-yaml")
     public void testExpression(CaseData caseData) {
+        if (caseData.skip) {
+            throw new SkipException("skipped by case data mark");
+        }
+
         Object res = JExp.eval(caseData.exp, caseData.ctx);
         AssertJUnit.assertEquals(caseData.res, res);
     }
