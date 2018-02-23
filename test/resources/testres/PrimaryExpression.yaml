@@ -58,3 +58,19 @@
   ctx:
     class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
   res: -749746734
+
+- desc: dynamic type access
+  exp: o["some" + "Val"]
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: '233'
+
+- desc: dynamic map access
+  exp: a + b * c["ccc"] - d
+  ctx:
+    a: 12
+    b: 123
+    c:
+      ccc: 23
+    d: -10
+  res: 2851

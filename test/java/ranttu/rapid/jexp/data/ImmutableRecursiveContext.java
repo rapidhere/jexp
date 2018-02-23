@@ -25,4 +25,8 @@ public class ImmutableRecursiveContext {
     public Object getO() {
         return this;
     }
+
+    public Object getSomeVal() {
+        return "233";
+    }
 }

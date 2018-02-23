@@ -28,7 +28,7 @@ public class TypeUtil {
     }
 
     public boolean isInt(Type t) {
-        return t.getSort() == Type.INT;
+        return t == Type.INT_TYPE;
     }
 
     public Type getPrimitive(Class c) {

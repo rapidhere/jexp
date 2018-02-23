@@ -170,6 +170,8 @@ public class TypeInferPass extends NoReturnPass {
 
     @Override
     protected void visit(MemberExpression member) {
+        visit(member.owner);
+        visit(member.propertyName);
         member.isConstant = false;
         member.valueType = Type.getType(Object.class);
     }
