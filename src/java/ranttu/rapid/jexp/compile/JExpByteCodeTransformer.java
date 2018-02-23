@@ -103,11 +103,6 @@ public class JExpByteCodeTransformer implements Opcodes {
                 // visit and put on stack
                 pass.visitOnStack(parameter);
             }
-
-            // store in a reversed order
-            for (int i = parameters.size() - 1; i >= 0; i--) {
-                cmv.visitVarInsn(ASTORE, i + context.inlinedLocalVarCount);
-            }
         }
 
         @Override
@@ -143,7 +138,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
         @Override
         public void visitVarInsn(int opcode, int var) {
-            cmv.visitVarInsn(opcode, var + context.inlinedLocalVarCount);
+            cmv.visitVarInsn(opcode, var);
         }
 
         @Override
@@ -183,7 +178,7 @@ public class JExpByteCodeTransformer implements Opcodes {
 
         @Override
         public void visitIincInsn(int var, int increment) {
-            cmv.visitIincInsn(var + context.inlinedLocalVarCount, increment);
+            cmv.visitIincInsn(var, increment);
         }
 
         @Override

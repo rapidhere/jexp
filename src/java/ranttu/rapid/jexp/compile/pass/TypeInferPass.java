@@ -45,17 +45,10 @@ public class TypeInferPass extends NoReturnPass {
             case IDENTIFIER:
                 primary.valueType = Type.getType(Object.class);
                 primary.isConstant = false;
-                updateIdCount(primary.getId());
                 return;
             default:
                 $.notSupport(t.type);
         }
-    }
-
-    private void updateIdCount(String id) {
-        int cnt = context.identifierCountMap.getOrDefault(id, 0);
-        cnt++;
-        context.identifierCountMap.put(id, cnt);
     }
 
     @SuppressWarnings("Duplicates")

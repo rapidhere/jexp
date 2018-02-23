@@ -19,14 +19,6 @@ public class CompilingContext {
 
     public String               classInternalName;
 
-    public int                  inlinedLocalVarCount   = 0;
-
-    public Map<String, Integer> identifierCountMap     = new HashMap<>();
-
-    public Map<String, Integer> identifierInlineVarMap = new HashMap<>();
-
-    public IdentifierTree       identifierTree         = new IdentifierTree();
-
     public int                  constantCount          = 0;
 
     public Map<Object, String>  constantSlots          = new HashMap<>();

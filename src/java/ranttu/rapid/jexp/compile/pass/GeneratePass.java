@@ -66,7 +66,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         this.context = context;
-        this.context.inlinedLocalVarCount = 2;
 
         // prepare class
         visitClass();
@@ -115,11 +114,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void visitClass() {
-        // build identifier tree
-        for (String id : context.identifierCountMap.keySet()) {
-            context.identifierTree.add(id);
-        }
-
         if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_16)) {
             cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, context.classInternalName, null,
                 getInternalName(Object.class),
@@ -381,27 +375,29 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         if (func.functionInfo != null) {
             applyFunction(func.functionInfo, func.parameters);
         } else {
-            // put identifier on stack
-            mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(func.callerIdentifier));
-            // function name
-            mv.visitLdcInsn(func.functionInfo.name);
-            // arguments
-            mv.visitLdcInsn(func.parameters.size());
-            mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-            for (int i = 0; i < func.parameters.size(); i++) {
-                AstNode par = func.parameters.get(i);
-                mv.visitInsn(DUP);
-                mv.visitLdcInsn(i);
-                visit(par);
-                mv.visitInsn(AASTORE);
-            }
-            // call
-            mv.visitMethodInsn(
-                INVOKESTATIC,
-                getInternalName(JExpLang.class),
-                "invoke",
-                getMethodDescriptor(getType(Object.class), getType(Object.class),
-                    getType(String.class), getType(Object[].class)), false);
+            $.notSupport(func);
+            // FIXME
+            //            // put identifier on stack
+            //            mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(func.callerIdentifier));
+            //            // function name
+            //            mv.visitLdcInsn(func.functionInfo.name);
+            //            // arguments
+            //            mv.visitLdcInsn(func.parameters.size());
+            //            mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+            //            for (int i = 0; i < func.parameters.size(); i++) {
+            //                AstNode par = func.parameters.get(i);
+            //                mv.visitInsn(DUP);
+            //                mv.visitLdcInsn(i);
+            //                visit(par);
+            //                mv.visitInsn(AASTORE);
+            //            }
+            //            // call
+            //            mv.visitMethodInsn(
+            //                INVOKESTATIC,
+            //                getInternalName(JExpLang.class),
+            //                "invoke",
+            //                getMethodDescriptor(getType(Object.class), getType(Object.class),
+            //                    getType(String.class), getType(Object[].class)), false);
         }
     }
 
@@ -426,7 +422,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // put property
         if (propExp.is(AstType.PRIMARY_EXP)) {
             PrimaryExpression primaryExpression = (PrimaryExpression) propExp;
-            if(primaryExpression.token.is(TokenType.IDENTIFIER)) {
+            if (primaryExpression.token.is(TokenType.IDENTIFIER)) {
                 mv.visitLdcInsn(primaryExpression.getId());
             } else {
                 mv.visitLdcInsn(primaryExpression.constantValue);
