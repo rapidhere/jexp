@@ -5,33 +5,33 @@
 package ranttu.rapid.jexp.compile.pass;
 
 import ranttu.rapid.jexp.common.$;
+import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.IdentifierTree;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
-import ranttu.rapid.jexp.compile.parse.ast.AstType;
-import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
-import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.runtime.accesor.Accessor;
 import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
 import ranttu.rapid.jexp.runtime.accesor.DummyAccessor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
-import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +79,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        // end of constructure
+        // end of construct
         conMv.visitInsn(RETURN);
         conMv.visitMaxs(0, 0);
         conMv.visitEnd();
@@ -403,17 +403,33 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(MemberExpression exp) {
-        // get owner
-        if (exp.owner.is(AstType.PRIMARY_EXP)
-            && ((PrimaryExpression) exp.owner).token.is(TokenType.IDENTIFIER)) {
-            mv.visitVarInsn(ALOAD, 1);
-            accessMember(exp.owner);
-        } else {
-            visit(exp.owner);
-        }
+        // for static member expression
+        if (exp.isStatic) {
+            // put head
+            visit(exp.accessLink.get(0));
 
-        // get member
-        accessMember(exp.propertyName);
+            // put tails
+            for (int i = 1; i < exp.accessLink.size(); i++) {
+                accessMember(exp.accessLink.get(i));
+            }
+        }
+        // for dynamic member expression
+        else {
+            // get owner
+            if (AstUtil.isIdentifier(exp.owner)) {
+                loadIdentifier(exp.owner);
+            } else {
+                visit(exp.owner);
+            }
+
+            // get member
+            accessMember(exp.propertyName);
+        }
+    }
+
+    private void loadIdentifier(AstNode astNode) {
+        mv.visitVarInsn(ALOAD, 1);
+        accessMember(astNode);
     }
 
     private void accessMember(AstNode propExp) {

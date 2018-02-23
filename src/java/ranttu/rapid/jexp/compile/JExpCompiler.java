@@ -3,7 +3,7 @@ package ranttu.rapid.jexp.compile;
 import ranttu.rapid.jexp.compile.parse.JExpParser;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
-import ranttu.rapid.jexp.compile.pass.TypeInferPass;
+import ranttu.rapid.jexp.compile.pass.PreparePass;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 
 /**
@@ -39,7 +39,7 @@ public class JExpCompiler {
         compilingContext.option = option;
 
         // infer the types first
-        new TypeInferPass().apply(ast, compilingContext);
+        new PreparePass().apply(ast, compilingContext);
 
         // generate byte codes
         compilingContext.className = nextName();

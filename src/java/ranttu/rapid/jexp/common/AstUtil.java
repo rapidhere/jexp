@@ -27,4 +27,17 @@ public class AstUtil {
 
         return ((PrimaryExpression) astNode).getId();
     }
+
+    public String asConstantString(AstNode astNode) {
+        Object o;
+        if (astNode.isConstant) {
+            o = astNode.constantValue;
+        } else if (isIdentifier(astNode)) {
+            o = asId(astNode);
+        } else {
+            return $.shouldNotReach();
+        }
+
+        return String.valueOf(o);
+    }
 }

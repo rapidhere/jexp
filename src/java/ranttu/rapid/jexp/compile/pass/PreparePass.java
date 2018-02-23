@@ -10,6 +10,7 @@ import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
@@ -20,10 +21,16 @@ import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
 /**
+ * do some prepare jobs
+ * include:
+ *      type inferring
+ *      member expression folding
+ *      constant folding
+ *
  * @author dongwei.dq
  * @version $Id: TypeInferPass.java, v0.1 2017-08-24 6:06 PM dongwei.dq Exp $
  */
-public class TypeInferPass extends NoReturnPass {
+public class PreparePass extends NoReturnPass {
     @Override
     protected void visit(PrimaryExpression primary) {
         primary.isConstant = true;
@@ -43,6 +50,7 @@ public class TypeInferPass extends NoReturnPass {
                 primary.constantValue = t.getDouble();
                 return;
             case IDENTIFIER:
+                // this is: a direct identifier load
                 primary.valueType = Type.getType(Object.class);
                 primary.isConstant = false;
                 return;
@@ -58,12 +66,8 @@ public class TypeInferPass extends NoReturnPass {
         visit(exp.right);
 
         //~~~ infer ret type
-        // for dot
-        if (exp.op.is(TokenType.DOT)) {
-            exp.valueType = Type.getType(Object.class);
-        }
         // for String
-        else if (exp.op.is(TokenType.PLUS)
+        if (exp.op.is(TokenType.PLUS)
                  && (TypeUtil.isString(exp.left.valueType) || TypeUtil
                      .isString(exp.right.valueType))) {
             exp.valueType = Type.getType(String.class);
@@ -172,6 +176,28 @@ public class TypeInferPass extends NoReturnPass {
     protected void visit(MemberExpression member) {
         visit(member.owner);
         visit(member.propertyName);
+
+        // member expression fold
+        if (member.propertyName.isConstant || AstUtil.isIdentifier(member.propertyName)) {
+            // basic type: owner is constant or identifier
+            if (member.owner.isConstant || AstUtil.isIdentifier(member.owner)) {
+                member.makeStatic(member.owner);
+            }
+            // or owner is static
+            else if (member.owner.is(AstType.MEMBER_EXP)) {
+                MemberExpression owner = (MemberExpression) member.owner;
+                if (owner.isStatic) {
+                    member.makeStatic(owner);
+                }
+            }
+
+            // add access link
+            if (member.isStatic) {
+                member.accessLink.add(member.propertyName);
+            }
+        }
+
+        // currently member expression is always not a constant
         member.isConstant = false;
         member.valueType = Type.getType(Object.class);
     }
