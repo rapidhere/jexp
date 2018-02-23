@@ -1,5 +1,6 @@
 package ranttu.rapid.jexp.common;
 
+import lombok.experimental.UtilityClass;
 import ranttu.rapid.jexp.exception.FunctionOpcodeNotSupportedYet;
 import ranttu.rapid.jexp.exception.UnsupportedYet;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
@@ -14,16 +15,15 @@ import java.io.PrintWriter;
  * @author rapidhere@gmail.com
  * @version $Id: $.java, v0.1 2017-07-27 7:56 PM dongwei.dq Exp $
  */
-final public class $ {
-    private $() {
-    }
+@UtilityClass
+public class $ {
 
     /**
      * print the class from byte code
      * @param className  the name of the class
      * @param bytes      the bytes
      */
-    public static void printClass(String className, byte[] bytes) {
+    public void printClass(String className, byte[] bytes) {
         if (Boolean.valueOf(System.getProperty("jexp.printBC"))) {
             System.out.println("========Class: " + className);
             ClassReader reader = new ClassReader(bytes);
@@ -34,7 +34,7 @@ final public class $ {
 
     // ~~~ common helpers
     @SafeVarargs
-    public static <T> boolean in(T o, T... toCheck) {
+    public <T> boolean in(T o, T... toCheck) {
         for (T c : toCheck) {
             if (o.equals(c)) {
                 return true;
@@ -45,23 +45,29 @@ final public class $ {
     }
 
     @SafeVarargs
-    public static <T> boolean notIn(T o, T... toCheck) {
+    public <T> boolean notIn(T o, T... toCheck) {
         return !in(o, toCheck);
     }
 
-    public static <T> T notSupport(Object s) {
+    public <T> T notSupport(Object s) {
         throw new UnsupportedYet(s.toString());
     }
 
-    public static <T> T opNotSupport(FunctionInfo info, int op) {
+    public <T> T opNotSupport(FunctionInfo info, int op) {
         throw new FunctionOpcodeNotSupportedYet(info.name, op);
     }
 
-    public static <T> T shouldNotReach() {
+    public <T> T shouldNotReach() {
         throw new AssertionError();
     }
 
-    public static <T> T shouldNotReach(String msg) {
+    public <T> T shouldNotReach(String msg) {
         throw new AssertionError(msg);
+    }
+
+    public void should(boolean exp) {
+        if (!exp) {
+            throw new AssertionError();
+        }
     }
 }

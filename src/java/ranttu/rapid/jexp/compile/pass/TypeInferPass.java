@@ -4,20 +4,20 @@
  */
 package ranttu.rapid.jexp.compile.pass;
 
+import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
+import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.TypeUtil;
-import ranttu.rapid.jexp.compile.parse.Token;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
-
-import java.util.Optional;
 
 /**
  * @author dongwei.dq
@@ -27,7 +27,7 @@ public class TypeInferPass extends NoReturnPass {
     @Override
     protected void visit(PrimaryExpression primary) {
         primary.isConstant = true;
-        Token t = primary.token;
+        var t = primary.token;
 
         switch (t.type) {
             case STRING:
@@ -44,7 +44,6 @@ public class TypeInferPass extends NoReturnPass {
                 return;
             case IDENTIFIER:
                 primary.valueType = Type.getType(Object.class);
-                primary.constantValue = t.getString();
                 primary.isConstant = false;
                 updateIdCount(primary.getId());
                 return;
@@ -72,7 +71,8 @@ public class TypeInferPass extends NoReturnPass {
         }
         // for String
         else if (exp.op.is(TokenType.PLUS)
-            && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
+                 && (TypeUtil.isString(exp.left.valueType) || TypeUtil
+                     .isString(exp.right.valueType))) {
             exp.valueType = Type.getType(String.class);
         }
         // number
@@ -149,35 +149,35 @@ public class TypeInferPass extends NoReturnPass {
 
     @Override
     protected void visit(FunctionExpression func) {
-        // get function info
-        Optional<FunctionInfo> infoOptional = JExpFunctionFactory.getInfo(func.functionName);
+        if (AstUtil.isIdentifier(func.caller)) {
+            var functionName = AstUtil.asId(func.caller);
 
-        if (infoOptional.isPresent()) {
-            FunctionInfo info = infoOptional.get();
+            // get function info
+            var infoOptional = JExpFunctionFactory.getInfo(functionName);
 
-            // cannot infer constant value for function expressions now
-            func.functionInfo = info;
-            func.isConstant = false;
-            func.valueType = Type.getType(info.method.getReturnType());
+            if (infoOptional.isPresent()) {
+                FunctionInfo info = infoOptional.get();
 
-        } else {
-            func.functionInfo = null;
-
-            String callStr = func.functionName;
-            int lastDot = callStr.lastIndexOf('.');
-            if (lastDot == -1) {
-                throw new UnknownFunction(func.functionName);
+                // cannot infer constant value for function expressions now
+                func.functionInfo = info;
+                func.isConstant = false;
+                func.valueType = Type.getType(info.method.getReturnType());
+            } else {
+                throw new UnknownFunction(functionName);
             }
 
-            func.functionName = callStr.substring(lastDot + 1);
-            func.callerIdentifier = callStr.substring(0, lastDot);
-            updateIdCount(func.callerIdentifier);
-            func.valueType = Type.getType(Object.class);
+            // visit all parameters
+            for (AstNode astNode : func.parameters) {
+                visit(astNode);
+            }
+        } else {
+            $.notSupport(func.caller);
         }
+    }
 
-        // visit all parameters
-        for (AstNode astNode : func.parameters) {
-            visit(astNode);
-        }
+    @Override
+    protected void visit(MemberExpression member) {
+        member.isConstant = false;
+        member.valueType = Type.getType(Object.class);
     }
 }

@@ -61,6 +61,8 @@ OctIntegerLiteral = 0[0-9]+
   ")"                            { return token(TokenType.RIGHT_PARENTHESIS, yytext()); }
   ","                            { return token(TokenType.COMMA, yytext()); }
   "."                            { return token(TokenType.DOT, yytext()); }
+  "["                            { return token(TokenType.LEFT_BRACKET, yytext()); }
+  "]"                            { return token(TokenType.RIGHT_BRACKET, yytext()); }
 
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }

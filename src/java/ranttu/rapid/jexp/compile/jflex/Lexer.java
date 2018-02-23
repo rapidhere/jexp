@@ -42,8 +42,8 @@ public class Lexer {
   private static final String ZZ_CMAP_PACKED = 
     "\11\0\1\2\1\1\1\0\1\2\1\1\22\0\1\2\1\0\1\10"+
     "\2\0\1\15\2\0\1\16\1\17\1\13\1\11\1\20\1\12\1\7"+
-    "\1\14\1\3\11\4\7\0\27\6\1\5\2\6\1\0\1\21\2\0"+
-    "\1\6\1\0\23\6\1\22\3\6\1\5\2\6\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uff95\0";
+    "\1\14\1\3\11\4\7\0\27\6\1\5\2\6\1\21\1\23\1\22"+
+    "\1\0\1\6\1\0\23\6\1\24\3\6\1\5\2\6\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uffff\0\uff95\0";
 
   /** 
    * Translates characters to character classes
@@ -58,10 +58,11 @@ public class Lexer {
   private static final String ZZ_ACTION_PACKED_0 =
     "\2\0\1\1\1\2\2\3\1\4\1\5\1\6\1\7"+
     "\1\10\1\11\1\12\1\13\1\14\1\15\1\16\1\17"+
-    "\1\20\1\21\1\22\2\0\1\23\1\24\1\25\1\26";
+    "\1\20\1\21\1\22\1\23\1\24\2\0\1\25\1\26"+
+    "\1\27\1\30";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[27];
+    int [] result = new int[29];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -86,13 +87,13 @@ public class Lexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\23\0\46\0\46\0\71\0\114\0\137\0\46"+
-    "\0\46\0\46\0\46\0\46\0\46\0\46\0\46\0\46"+
-    "\0\46\0\162\0\46\0\205\0\230\0\253\0\276\0\46"+
-    "\0\46\0\253\0\276";
+    "\0\0\0\25\0\52\0\52\0\77\0\124\0\151\0\52"+
+    "\0\52\0\52\0\52\0\52\0\52\0\52\0\52\0\52"+
+    "\0\52\0\52\0\52\0\176\0\52\0\223\0\250\0\275"+
+    "\0\322\0\52\0\52\0\275\0\322";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[27];
+    int [] result = new int[29];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -116,15 +117,16 @@ public class Lexer {
 
   private static final String ZZ_TRANS_PACKED_0 =
     "\2\3\1\4\1\5\1\6\2\7\1\10\1\11\1\12"+
-    "\1\13\1\14\1\15\1\16\1\17\1\20\1\21\1\3"+
-    "\1\7\1\22\1\3\6\22\1\23\10\22\1\24\1\22"+
-    "\26\0\2\25\1\26\1\0\1\27\16\0\2\6\2\0"+
-    "\1\27\16\0\4\7\13\0\1\7\1\22\1\0\6\22"+
-    "\1\0\10\22\1\0\1\22\10\0\1\30\11\0\1\31"+
-    "\3\0\2\25\21\0\2\32\21\0\2\33\16\0";
+    "\1\13\1\14\1\15\1\16\1\17\1\20\1\21\1\22"+
+    "\1\23\1\3\1\7\1\24\1\3\6\24\1\25\12\24"+
+    "\1\26\1\24\30\0\2\27\1\30\1\0\1\31\20\0"+
+    "\2\6\2\0\1\31\20\0\4\7\15\0\1\7\1\24"+
+    "\1\0\6\24\1\0\12\24\1\0\1\24\10\0\1\32"+
+    "\13\0\1\33\3\0\2\27\23\0\2\34\23\0\2\35"+
+    "\20\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[209];
+    int [] result = new int[231];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -162,11 +164,11 @@ public class Lexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\2\0\2\11\3\1\12\11\1\1\1\11\2\1\2\0"+
+    "\2\0\2\11\3\1\14\11\1\1\1\11\2\1\2\0"+
     "\2\11\2\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[27];
+    int [] result = new int[29];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -269,7 +271,7 @@ public class Lexer {
     char [] map = new char[0x110000];
     int i = 0;  /* index in packed string  */
     int j = 0;  /* index in unpacked array */
-    while (i < 108) {
+    while (i < 110) {
       int  count = packed.charAt(i++);
       char value = packed.charAt(i++);
       do map[j++] = value; while (--count > 0);
@@ -623,92 +625,100 @@ public class Lexer {
             { throw new Error("unexpected character at line "
                                             + yyline + ", column " + yycolumn + ": " + yytext());
             }
-          case 23: break;
+          case 25: break;
           case 2: 
             { /* ignore */
             }
-          case 24: break;
+          case 26: break;
           case 3: 
             { return token(TokenType.INTEGER, Integer.valueOf(yytext()));
             }
-          case 25: break;
+          case 27: break;
           case 4: 
             { return token(TokenType.IDENTIFIER, yytext());
             }
-          case 26: break;
+          case 28: break;
           case 5: 
             { return token(TokenType.DOT, yytext());
             }
-          case 27: break;
+          case 29: break;
           case 6: 
             { string.setLength(0); yybegin(STRING);
             }
-          case 28: break;
+          case 30: break;
           case 7: 
             { return token(TokenType.PLUS, yytext());
             }
-          case 29: break;
+          case 31: break;
           case 8: 
             { return token(TokenType.SUBTRACT, yytext());
             }
-          case 30: break;
+          case 32: break;
           case 9: 
             { return token(TokenType.MULTIPLY, yytext());
             }
-          case 31: break;
+          case 33: break;
           case 10: 
             { return token(TokenType.DIVIDE, yytext());
             }
-          case 32: break;
+          case 34: break;
           case 11: 
             { return token(TokenType.MODULAR, yytext());
             }
-          case 33: break;
+          case 35: break;
           case 12: 
             { return token(TokenType.LEFT_PARENTHESIS, yytext());
             }
-          case 34: break;
+          case 36: break;
           case 13: 
             { return token(TokenType.RIGHT_PARENTHESIS, yytext());
             }
-          case 35: break;
+          case 37: break;
           case 14: 
             { return token(TokenType.COMMA, yytext());
             }
-          case 36: break;
+          case 38: break;
           case 15: 
+            { return token(TokenType.LEFT_BRACKET, yytext());
+            }
+          case 39: break;
+          case 16: 
+            { return token(TokenType.RIGHT_BRACKET, yytext());
+            }
+          case 40: break;
+          case 17: 
             { string.append( yytext() );
             }
-          case 37: break;
-          case 16: 
+          case 41: break;
+          case 18: 
             { yybegin(YYINITIAL);
                                    return token(TokenType.STRING, string.toString());
             }
-          case 38: break;
-          case 17: 
+          case 42: break;
+          case 19: 
             { string.append('\\');
             }
-          case 39: break;
-          case 18: 
+          case 43: break;
+          case 20: 
             { return token(TokenType.INTEGER, Integer.parseInt(yytext(), 8));
             }
-          case 40: break;
-          case 19: 
+          case 44: break;
+          case 21: 
             { string.append('\"');
             }
-          case 41: break;
-          case 20: 
+          case 45: break;
+          case 22: 
             { string.append('\t');
             }
-          case 42: break;
-          case 21: 
+          case 46: break;
+          case 23: 
             { return token(TokenType.INTEGER, Integer.parseInt(yytext().substring(2), 16));
             }
-          case 43: break;
-          case 22: 
+          case 47: break;
+          case 24: 
             { return token(TokenType.FLOAT, Double.valueOf(yytext()));
             }
-          case 44: break;
+          case 48: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }

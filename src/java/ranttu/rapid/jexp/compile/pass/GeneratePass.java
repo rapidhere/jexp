@@ -11,6 +11,7 @@ import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.IdentifierTree;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
+import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.compile.JExpExpression;
@@ -294,22 +295,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     @SuppressWarnings("Duplicates")
     protected void visit(BinaryExpression exp) {
-        // for dot op
-        if (exp.op.is(TokenType.DOT)) {
-            // get owner
-            // if exp.left is a primary expression, get it from context
-            if (exp.left.is(AstType.PRIMARY_EXP)) {
-                mv.visitVarInsn(ALOAD, 1);
-                accessMember(exp.left);
-            } else {
-                visit(exp.left);
-            }
-
-            // get member
-            accessMember(exp.right);
-            return;
-        }
-
         // for float type
         if (TypeUtil.isFloat(exp.valueType)) {
             visit(exp.left);
@@ -399,7 +384,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             // put identifier on stack
             mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(func.callerIdentifier));
             // function name
-            mv.visitLdcInsn(func.functionName);
+            mv.visitLdcInsn(func.functionInfo.name);
             // arguments
             mv.visitLdcInsn(func.parameters.size());
             mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
@@ -420,12 +405,32 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
     }
 
+    @Override
+    protected void visit(MemberExpression exp) {
+        // get owner
+        if (exp.owner.is(AstType.PRIMARY_EXP)
+            && ((PrimaryExpression) exp.owner).token.is(TokenType.IDENTIFIER)) {
+            mv.visitVarInsn(ALOAD, 1);
+            accessMember(exp.owner);
+        } else {
+            visit(exp.owner);
+        }
+
+        // get member
+        accessMember(exp.propertyName);
+    }
+
     private void accessMember(AstNode propExp) {
         // get accessor
         mv.visitInsn(DUP);
         // put property
         if (propExp.is(AstType.PRIMARY_EXP)) {
-            mv.visitLdcInsn(propExp.constantValue);
+            PrimaryExpression primaryExpression = (PrimaryExpression) propExp;
+            if(primaryExpression.token.is(TokenType.IDENTIFIER)) {
+                mv.visitLdcInsn(primaryExpression.getId());
+            } else {
+                mv.visitLdcInsn(primaryExpression.constantValue);
+            }
         } else {
             visit(propExp);
         }

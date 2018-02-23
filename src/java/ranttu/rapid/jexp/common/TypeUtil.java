@@ -4,6 +4,7 @@
  */
 package ranttu.rapid.jexp.common;
 
+import lombok.experimental.UtilityClass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
@@ -12,27 +13,25 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
  * @author dongwei.dq
  * @version $Id: Type.java, v0.1 2017-08-24 11:48 AM dongwei.dq Exp $
  */
-final public class TypeUtil {
-    private TypeUtil() {
-    }
-
-    public static boolean isString(Type t) {
+@UtilityClass
+public class TypeUtil {
+    public boolean isString(Type t) {
         return !isPrimitive(t) && "java/lang/String".equals(t.getInternalName());
     }
 
-    public static boolean isFloat(Type t) {
+    public boolean isFloat(Type t) {
         return t == Type.DOUBLE_TYPE;
     }
 
-    public static boolean isNumber(Type t) {
+    public boolean isNumber(Type t) {
         return $.in(t.getSort(), Type.INT, Type.DOUBLE);
     }
 
-    public static boolean isInt(Type t) {
+    public boolean isInt(Type t) {
         return t.getSort() == Type.INT;
     }
 
-    public static Type getPrimitive(Class c) {
+    public Type getPrimitive(Class c) {
         if (c == Integer.class) {
             return Type.INT_TYPE;
         } else if (c == Boolean.class) {
@@ -56,7 +55,7 @@ final public class TypeUtil {
         }
     }
 
-    public static Type getWrapper(Type t) {
+    public Type getWrapper(Type t) {
         switch (t.getSort()) {
             case Type.INT:
                 return Type.getType(Integer.class);
@@ -81,11 +80,11 @@ final public class TypeUtil {
         }
     }
 
-    public static boolean isPrimitive(Class c) {
+    public boolean isPrimitive(Class c) {
         return isPrimitive(Type.getType(c));
     }
 
-    public static boolean isPrimitive(Type t) {
+    public boolean isPrimitive(Type t) {
         switch (t.getSort()) {
             case Type.INT:
             case Type.BOOLEAN:
@@ -102,11 +101,11 @@ final public class TypeUtil {
         }
     }
 
-    public static boolean isType(Type t, Class c) {
+    public boolean isType(Type t, Class c) {
         return t.getClassName().equals(c.getName());
     }
 
-    public static Object getFrameDesc(Class c) {
+    public Object getFrameDesc(Class c) {
         Type t = Type.getType(c);
         switch (t.getSort()) {
             case Type.BOOLEAN:

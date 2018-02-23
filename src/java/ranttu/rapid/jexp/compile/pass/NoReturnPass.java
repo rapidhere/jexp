@@ -9,6 +9,7 @@ import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 
 /**
@@ -35,6 +36,9 @@ public abstract class NoReturnPass implements Pass {
             case CALL_EXP:
                 visit((FunctionExpression) astNode);
                 break;
+            case MEMBER_EXP:
+                visit((MemberExpression) astNode);
+                break;
             default:
                 $.notSupport(astNode.type);
         }
@@ -45,4 +49,6 @@ public abstract class NoReturnPass implements Pass {
     protected abstract void visit(BinaryExpression exp);
 
     protected abstract void visit(FunctionExpression exp);
+
+    protected abstract void visit(MemberExpression exp);
 }

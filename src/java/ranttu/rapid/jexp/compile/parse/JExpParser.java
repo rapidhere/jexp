@@ -5,6 +5,7 @@ import ranttu.rapid.jexp.compile.jflex.Lexer;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnexpectedEOF;
@@ -19,6 +20,46 @@ import java.util.Stack;
 
 /**
  * the parser
+ *
+ * EXP |=
+ *      BINARY_EXP
+ *      UNARY_EXP
+ *      MEMBER_EXP
+ *      FUNCTION_EXP
+ *      PRIMARY_EXP
+ *
+ * BINARY_EXP |=
+ *      UNARY_EXP + UNARY_EXP
+ *      UNARY_EXP - UNARY_EXP
+ *      UNARY_EXP * UNARY_EXP
+ *      UNARY_EXP / UNARY_EXP
+ *      UNARY_EXP % UNARY_EXP
+ *
+ * UNARY_EXP |=
+ *      MEMBER_EXP
+ *      FUNCTION_EXP
+ *      PRIMARY_EXP
+ *      (EXP)
+ *
+ * MEMBER_EXP |=
+ *      UNARY_EXP.IDENTIFIER
+ *      UNARY_EXP[EXP]
+ *
+ * FUNCTION_EXP |=
+ *      UNARY_EXP(ARGUMENT_LIST)
+ *
+ * ARGUMENT_LIST |=
+ *      EXP
+ *      ARGUMENT_LIST, EXP
+ *
+ * PRIMARY_EXP |=
+ *      INTEGER
+ *      FLOAT
+ *      STRING
+ *      IDENTIFIER
+ *
+ *
+ *
  * @author rapidhere@gmail.com
  * @version $Id: JExpParser.java, v0.1 2017-07-28 2:58 PM dongwei.dq Exp $
  */
@@ -80,31 +121,74 @@ public class JExpParser {
         }
     }
 
+    /**
+     *  unary-class expressions are made with those basic elements:
+     *
+     *  PRIMARY_EXP
+     *  (EXP)
+     *  `.`
+     *  `[...]`
+     *  `(...)`
+     *
+     */
     private AstNode parseUnary() {
+        var exp = parseUnaryClassElement();
+        while (true) {
+            var t = peekOrNull();
+
+            // EOF, end of parse
+            if (t == null) {
+                break;
+            }
+
+            // static member expression
+            if (t.is(TokenType.DOT)) {
+                next();
+                var identifier = parsePrimary();
+                if (!identifier.token.is(TokenType.IDENTIFIER)) {
+                    throw new UnexpectedToken(identifier.token);
+                }
+
+                exp = new MemberExpression(exp, identifier);
+            }
+            // dynamic member expression
+            else if (t.is(TokenType.LEFT_BRACKET)) {
+                next();
+                exp = new MemberExpression(exp, parse());
+                next(TokenType.RIGHT_BRACKET);
+            }
+            // function expression
+            else if (t.is(TokenType.LEFT_PARENTHESIS)) {
+                next();
+                exp = new FunctionExpression(exp, parseParameters());
+            }
+            // or, parse is end
+            else {
+                break;
+            }
+        }
+
+        return exp;
+    }
+
+    /**
+     * the element of unary-class expressions, can be:
+     *
+     * (EXP)
+     * PRIMARY_EXP
+     */
+    private AstNode parseUnaryClassElement() {
         var t = peek();
+
         if (t.is(TokenType.LEFT_PARENTHESIS)) {
+            // eat up `(`
             next();
-            AstNode exp = parseBinary();
-            // eat the right parenthesis
+            var exp = parse();
+            // eat up `)`
             next(TokenType.RIGHT_PARENTHESIS);
             return exp;
         } else {
-            return parseFunction();
-        }
-    }
-
-    private AstNode parseFunction() {
-        var id = parsePrimary();
-        var nextToken = peekOrNull();
-
-        if (id.token.is(TokenType.IDENTIFIER) && nextToken != null
-            && nextToken.is(TokenType.LEFT_PARENTHESIS)) {
-            // eat up `(`
-            next();
-
-            return new FunctionExpression(id.token.getString(), parseParameters());
-        } else {
-            return id;
+            return parsePrimary();
         }
     }
 
