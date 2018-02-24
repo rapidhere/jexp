@@ -84,6 +84,17 @@ public class JExpParser {
     }
 
     private AstNode parse() {
+        AstNode ret = parseExp();
+
+        Token t = nextOrNull();
+        if (t != null) {
+            throw new UnexpectedToken(t);
+        }
+
+        return ret;
+    }
+
+    private AstNode parseExp() {
         return parseBinary();
     }
 
@@ -154,7 +165,7 @@ public class JExpParser {
             // dynamic member expression
             else if (t.is(TokenType.LEFT_BRACKET)) {
                 next();
-                exp = new MemberExpression(exp, parse());
+                exp = new MemberExpression(exp, parseExp());
                 next(TokenType.RIGHT_BRACKET);
             }
             // function expression
@@ -183,7 +194,7 @@ public class JExpParser {
         if (t.is(TokenType.LEFT_PARENTHESIS)) {
             // eat up `(`
             next();
-            var exp = parse();
+            var exp = parseExp();
             // eat up `)`
             next(TokenType.RIGHT_PARENTHESIS);
             return exp;
@@ -203,7 +214,7 @@ public class JExpParser {
         }
 
         while (true) {
-            pars.add(parse());
+            pars.add(parseExp());
 
             t = next(TokenType.RIGHT_PARENTHESIS, TokenType.COMMA);
             if (t.is(TokenType.RIGHT_PARENTHESIS)) {
