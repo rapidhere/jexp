@@ -25,7 +25,7 @@ public class AstUtil {
     public String asId(AstNode astNode) {
         $.should(isIdentifier(astNode));
 
-        return ((PrimaryExpression) astNode).getId();
+        return ((PrimaryExpression) astNode).token.getString();
     }
 
     public String asConstantString(AstNode astNode) {

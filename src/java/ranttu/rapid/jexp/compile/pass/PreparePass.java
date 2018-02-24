@@ -8,13 +8,14 @@ import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.TypeUtil;
+import ranttu.rapid.jexp.compile.AccessTree;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
-import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
@@ -26,11 +27,17 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
  *      type inferring
  *      member expression folding
  *      constant folding
+ *      build identifier tree
  *
  * @author dongwei.dq
  * @version $Id: TypeInferPass.java, v0.1 2017-08-24 6:06 PM dongwei.dq Exp $
  */
 public class PreparePass extends NoReturnPass {
+    @Override
+    protected void prepare() {
+        context.accessTree = new AccessTree();
+    }
+
     @Override
     protected void visit(PrimaryExpression primary) {
         primary.isConstant = true;
@@ -50,9 +57,13 @@ public class PreparePass extends NoReturnPass {
                 primary.constantValue = t.getDouble();
                 return;
             case IDENTIFIER:
-                // this is: a direct identifier load
+                // i.e. a direct identifier load
                 primary.valueType = Type.getType(Object.class);
                 primary.isConstant = false;
+
+                // build id tree
+                primary.isStatic = true;
+                context.accessTree.addToRoot(primary, AstUtil.asId(primary));
                 return;
             default:
                 $.notSupport(t.type);
@@ -68,8 +79,7 @@ public class PreparePass extends NoReturnPass {
         //~~~ infer ret type
         // for String
         if (exp.op.is(TokenType.PLUS)
-                 && (TypeUtil.isString(exp.left.valueType) || TypeUtil
-                     .isString(exp.right.valueType))) {
+            && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
             exp.valueType = Type.getType(String.class);
         }
         // number
@@ -175,25 +185,20 @@ public class PreparePass extends NoReturnPass {
     @Override
     protected void visit(MemberExpression member) {
         visit(member.owner);
-        visit(member.propertyName);
+
+        // don't visit identifier
+        if (! AstUtil.isIdentifier(member.propertyName)) {
+            visit(member.propertyName);
+        }
 
         // member expression fold
-        if (member.propertyName.isConstant || AstUtil.isIdentifier(member.propertyName)) {
-            // basic type: owner is constant or identifier
-            if (member.owner.isConstant || AstUtil.isIdentifier(member.owner)) {
-                member.makeStatic(member.owner);
-            }
-            // or owner is static
-            else if (member.owner.is(AstType.MEMBER_EXP)) {
-                MemberExpression owner = (MemberExpression) member.owner;
-                if (owner.isStatic) {
-                    member.makeStatic(owner);
-                }
-            }
+        if ((member.propertyName.isConstant || AstUtil.isIdentifier(member.propertyName))
+            && member.owner instanceof PropertyAccessNode) {
+            PropertyAccessNode owner = (PropertyAccessNode) member.owner;
 
-            // add access link
-            if (member.isStatic) {
-                member.accessLink.add(member.propertyName);
+            if (owner.isStatic) {
+                member.isStatic = true;
+                context.accessTree.add(owner.accessNode, member, AstUtil.asConstantString(member.propertyName));
             }
         }
 

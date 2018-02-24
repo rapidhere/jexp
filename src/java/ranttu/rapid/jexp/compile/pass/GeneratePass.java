@@ -7,9 +7,9 @@ package ranttu.rapid.jexp.compile.pass;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.TypeUtil;
+import ranttu.rapid.jexp.compile.AccessTree;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
-import ranttu.rapid.jexp.compile.IdentifierTree;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
@@ -20,6 +20,7 @@ import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
@@ -48,10 +49,13 @@ import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
  * @version $Id: GeneratePass.java, v0.1 2017-08-24 10:16 PM dongwei.dq Exp $
  */
 public class GeneratePass extends NoReturnPass implements Opcodes {
+    /** class writer */
     private ClassWriter   cw;
 
+    /** execute method visitor */
     private MethodVisitor mv;
 
+    /** constructor method visitor */
     private MethodVisitor conMv;
 
     public GeneratePass() {
@@ -66,9 +70,14 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         this.context = context;
+        // reserved 2
+        this.context.variableCount = 2;
 
         // prepare class
         visitClass();
+
+        // prepare access tree
+        prepareAccessTree();
 
         // visit execute method
         visit(root);
@@ -113,6 +122,37 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         return "constant$" + context.constantCount++;
     }
 
+    private void prepareAccessTree() {
+        context.accessTree.visit(idNode -> {
+            // prepare accessor
+            initAccessorIfNeed(idNode);
+
+            // for root node, load context on stack
+            if (idNode.isRoot) {
+                // for a empty tree, do nothing
+                if (! idNode.children.isEmpty()) {
+                    loadContext();
+                }
+            }
+            // invoke the accessor to get the property
+            else {
+                invokeAccessor(idNode);
+            }
+
+            // dup for each child
+            int dupSize = idNode.children.size() + (idNode.isAccessPoint ? 1 : 0);
+            for(int i = 1;i < dupSize;i ++) {
+                mv.visitInsn(DUP);
+            }
+
+            // if this a access point, dup and store
+            if (idNode.isAccessPoint) {
+                idNode.variableIndex = context.nextVariableIndex();
+                mv.visitVarInsn(ASTORE, idNode.variableIndex);
+            }
+        });
+    }
+
     private void visitClass() {
         if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_16)) {
             cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, context.classInternalName, null,
@@ -127,53 +167,20 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             conMv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V",
                 false);
 
-            // put accessor init
-            // FIXME:
-            // context.identifierTree.visit(this::initAccessor);
-
             // `execute` method
             mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
                 getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
             mv.visitParameter("this", 0);
             mv.visitParameter("context", 0);
             mv.visitCode();
-
-            // store all identifier values on stack
-            // FIXME:
-            //            context.identifierTree.visit(idNode -> {
-            //                //~~~ put
-            //                if (idNode.root) {
-            //                    if (idNode.children.size() == 0) {
-            //                        return;
-            //                    }
-            //
-            //                    mv.visitVarInsn(ALOAD, 1);
-            //                } else {
-            //                    invokeAccessor(idNode);
-            //                }
-            //
-            //                //~~~ store
-            //                if (idNode.isLeaf()) {
-            //                    // get store index
-            //                    int varIndex = context.inlinedLocalVarCount;
-            //                    context.inlinedLocalVarCount++;
-            //                    context.identifierInlineVarMap.put(idNode.path, varIndex);
-            //
-            //                    mv.visitVarInsn(ASTORE, varIndex);
-            //                } else {
-            //                    for (int i = 0; i < idNode.children.size() - 1; i++) {
-            //                        mv.visitInsn(DUP);
-            //                    }
-            //                }
-            //            });
         } else {
             throw new JExpCompilingException("unknown java version"
                                              + context.option.targetJavaVersion);
         }
     }
 
-    private void initAccessor(IdentifierTree.IdentifierNode idInfo) {
-        if (!idInfo.root) {
+    private void initAccessorIfNeed(AccessTree.AccessNode idInfo) {
+        if (!idInfo.isRoot) {
             // add a field to the impl
             cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, idInfo.accessorSlot,
                 getDescriptor(Accessor.class), null, null);
@@ -187,7 +194,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
     }
 
-    private void invokeAccessor(IdentifierTree.IdentifierNode idNode) {
+    private void invokeAccessor(AccessTree.AccessNode idNode) {
         // load accessor
         // current stack: top -> [ object, accessor, object ]
         mv.visitInsn(DUP);
@@ -281,8 +288,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         if (exp.token.is(TokenType.IDENTIFIER)) {
-            mv.visitVarInsn(ALOAD, 1);
-            accessMember(exp);
+            accessOnTree(exp);
         }
     }
 
@@ -405,16 +411,12 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     protected void visit(MemberExpression exp) {
         // for static member expression
         if (exp.isStatic) {
-            // put head
-            visit(exp.accessLink.get(0));
-
-            // put tails
-            for (int i = 1; i < exp.accessLink.size(); i++) {
-                accessMember(exp.accessLink.get(i));
-            }
+            accessOnTree(exp);
         }
         // for dynamic member expression
         else {
+            $.notSupport("member exp is dynamic");
+
             // get owner
             if (AstUtil.isIdentifier(exp.owner)) {
                 loadIdentifier(exp.owner);
@@ -425,6 +427,16 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             // get member
             accessMember(exp.propertyName);
         }
+    }
+
+    /**
+     * access a property on access tree
+     */
+    private void accessOnTree(PropertyAccessNode astNode) {
+        $.should(astNode.isStatic);
+
+        AccessTree.AccessNode accessNode = astNode.accessNode;
+        mv.visitVarInsn(ALOAD, accessNode.variableIndex);
     }
 
     private void loadIdentifier(AstNode astNode) {
@@ -438,8 +450,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // put property
         if (propExp.is(AstType.PRIMARY_EXP)) {
             PrimaryExpression primaryExpression = (PrimaryExpression) propExp;
-            if (primaryExpression.token.is(TokenType.IDENTIFIER)) {
-                mv.visitLdcInsn(primaryExpression.getId());
+            if (AstUtil.isIdentifier(primaryExpression)) {
+                mv.visitLdcInsn(AstUtil.asId(primaryExpression));
             } else {
                 mv.visitLdcInsn(primaryExpression.constantValue);
             }
@@ -482,6 +494,10 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitLabel(l);
             mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { TypeUtil.getFrameDesc(Object.class) });
         }
+    }
+
+    private void loadContext() {
+        mv.visitVarInsn(ALOAD, 1);
     }
 
     // function apply util

@@ -9,14 +9,10 @@ import ranttu.rapid.jexp.compile.parse.Token;
  * @version $Id: PrimaryExpression.java, v0.1 2017-07-28 4:03 PM dongwei.dq Exp $
  */
 @Type(AstType.PRIMARY_EXP)
-public class PrimaryExpression extends AstNode {
+public class PrimaryExpression extends PropertyAccessNode {
     final public Token token;
 
     public PrimaryExpression(Token token) {
         this.token = token;
-    }
-
-    public String getId() {
-        return this.token.getString();
     }
 }

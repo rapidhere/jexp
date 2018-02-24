@@ -13,15 +13,42 @@ import java.util.Map;
  * @version $Id: CompileContext.java, v 0.1 2017年09月30日 5:59 PM rapid Exp $
  */
 public class CompilingContext {
-    public CompileOption        option;
+    //~~~ common
+    /** user specified compiling options */
+    public CompileOption       option;
 
-    public String               className;
+    /** compiling result */
+    public JExpExpression      compiledStub;
 
-    public String               classInternalName;
+    //~~~ compiling class name
+    /** the standard class name */
+    public String              className;
 
-    public int                  constantCount          = 0;
+    /** internal class name */
+    public String              classInternalName;
 
-    public Map<Object, String>  constantSlots          = new HashMap<>();
+    //~~~ compiling constants
+    /** constant slots count */
+    public int                 constantCount = 0;
 
-    public JExpExpression       compiledStub;
+    /** constant slots map */
+    public Map<Object, String> constantSlots = new HashMap<>();
+
+    //~~~ compiling variables
+    /** access tree */
+    public AccessTree          accessTree;
+
+    /** number of variables */
+    public int                 variableCount = 0;
+
+    /**
+     * get the constant slot index
+     */
+    public String getConstantSlot(Object constantObj) {
+        return constantSlots.get(constantObj);
+    }
+
+    public int nextVariableIndex() {
+        return variableCount++;
+    }
 }

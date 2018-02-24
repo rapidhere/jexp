@@ -22,7 +22,13 @@ public abstract class NoReturnPass implements Pass {
     @Override
     public void apply(AstNode astNode, CompilingContext context) {
         this.context = context;
+        prepare();
         visit(astNode);
+    }
+
+
+    protected void prepare() {
+        // default left as blank
     }
 
     protected void visit(AstNode astNode) {
