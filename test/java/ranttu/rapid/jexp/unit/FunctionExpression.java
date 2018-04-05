@@ -5,9 +5,9 @@
 package ranttu.rapid.jexp.unit;
 
 import org.testng.annotations.BeforeClass;
+
 import ranttu.rapid.jexp.base.JExpUnitTestBase;
 import ranttu.rapid.jexp.data.TestFunctions;
-import ranttu.rapid.jexp.runtime.function.JExpFunction;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
 /**
