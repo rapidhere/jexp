@@ -74,3 +74,21 @@
       ccc: 23
     d: -10
   res: 2851
+
+- desc: dynamic type access - 2
+  exp: o[a()]
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: 12312312
+
+- desc: dynamic type access - 3
+  exp: o["some" + "Val"].empty
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: false
+
+- desc: dynamic type access - 4
+  exp: a().empty
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: false

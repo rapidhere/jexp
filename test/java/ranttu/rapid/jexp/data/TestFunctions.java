@@ -11,6 +11,26 @@ import ranttu.rapid.jexp.runtime.function.JExpFunction;
  * @version $Id: TestFunctions.java, v 0.1 2017年10月25日 1:02 AM rapid Exp $
  */
 public class TestFunctions {
+    @JExpFunction(name = "a")
+    public static String a() {
+        return "a";
+    }
+
+    @JExpFunction(name = "b")
+    public static String b() {
+        return "b";
+    }
+
+    @JExpFunction(name = "c")
+    public static String c() {
+        return "c";
+    }
+
+    @JExpFunction(name = "empty")
+    public static String empty() {
+        return "";
+    }
+
     @JExpFunction(name = "one")
     public static Integer one() {
         return 1;

@@ -10,9 +10,14 @@ package ranttu.rapid.jexp.runtime.accesor;
  * @version $Id: Accessor.java, v 0.1 2017年10月03日 4:36 PM rapid Exp $
  */
 public interface Accessor {
-    @SuppressWarnings("unused")
+    /**
+     * test if the object can use the accessor
+     */
     boolean isSatisfied(Object o);
 
+    /**
+     * get the property value
+     */
     @SuppressWarnings("unused")
-    Object get(Object o);
+    Object get(Object o, String propName);
 }

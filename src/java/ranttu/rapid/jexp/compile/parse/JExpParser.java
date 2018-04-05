@@ -160,7 +160,11 @@ public class JExpParser {
                     throw new UnexpectedToken(identifier.token);
                 }
 
-                exp = new MemberExpression(exp, identifier);
+                // cast id to str
+                Token idToken = identifier.token;
+                Token strToken = new Token(TokenType.STRING, idToken.line, idToken.column, idToken.value);
+
+                exp = new MemberExpression(exp, new PrimaryExpression(strToken));
             }
             // dynamic member expression
             else if (t.is(TokenType.LEFT_BRACKET)) {

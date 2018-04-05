@@ -185,21 +185,23 @@ public class PreparePass extends NoReturnPass {
     @Override
     protected void visit(MemberExpression member) {
         visit(member.owner);
-
-        // don't visit identifier
-        if (! AstUtil.isIdentifier(member.propertyName)) {
-            visit(member.propertyName);
-        }
+        visit(member.propertyName);
 
         // member expression fold
-        if ((member.propertyName.isConstant || AstUtil.isIdentifier(member.propertyName))
-            && member.owner instanceof PropertyAccessNode) {
+        if (member.propertyName.isConstant && member.owner instanceof PropertyAccessNode) {
             PropertyAccessNode owner = (PropertyAccessNode) member.owner;
 
             if (owner.isStatic) {
                 member.isStatic = true;
-                context.accessTree.add(owner.accessNode, member, AstUtil.asConstantString(member.propertyName));
             }
+        }
+
+        if (member.owner instanceof PropertyAccessNode) {
+            PropertyAccessNode owner = (PropertyAccessNode) member.owner;
+            context.accessTree.add(owner.accessNode, member,
+                AstUtil.asConstantString(member.propertyName));
+        } else {
+            context.accessTree.addToRoot(member, AstUtil.asConstantString(member.propertyName));
         }
 
         // currently member expression is always not a constant

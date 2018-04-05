@@ -29,15 +29,10 @@ public class AstUtil {
     }
 
     public String asConstantString(AstNode astNode) {
-        Object o;
         if (astNode.isConstant) {
-            o = astNode.constantValue;
-        } else if (isIdentifier(astNode)) {
-            o = asId(astNode);
+            return String.valueOf(astNode.constantValue);
         } else {
-            return $.shouldNotReach();
+            return null;
         }
-
-        return String.valueOf(o);
     }
 }

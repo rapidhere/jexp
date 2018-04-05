@@ -19,7 +19,7 @@ final public class DummyAccessor implements Accessor {
     }
 
     @Override
-    public Object get(Object o) {
-        throw new NoSuchFieldError("no such field!");
+    public Object get(Object o, String key) {
+        return null;
     }
 }

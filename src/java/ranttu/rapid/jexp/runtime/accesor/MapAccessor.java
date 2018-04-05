@@ -11,17 +11,7 @@ import java.util.Map;
  * @version $Id: MapAccessor.java, v 0.1 2017年10月03日 10:56 PM rapid Exp $
  */
 final public class MapAccessor implements Accessor {
-    private String key;
-
-    private MapAccessor() {
-    }
-
-    public static MapAccessor of(String key) {
-        MapAccessor res = new MapAccessor();
-        res.key = key;
-
-        return res;
-    }
+    public static final MapAccessor ACCESSOR = new MapAccessor();
 
     @Override
     public boolean isSatisfied(Object o) {
@@ -29,7 +19,7 @@ final public class MapAccessor implements Accessor {
     }
 
     @Override
-    public Object get(Object o) {
+    public Object get(Object o, String key) {
         return ((Map) o).get(key);
     }
 }
