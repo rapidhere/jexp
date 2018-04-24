@@ -4,8 +4,6 @@
  */
 package ranttu.rapid.jexp.compile.pass;
 
-import java.util.Optional;
-
 import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
@@ -15,7 +13,7 @@ import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
-import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -158,42 +156,78 @@ public class PreparePass extends NoReturnPass {
     }
 
     @Override
-    protected void visit(FunctionExpression func) {
-        Optional<FunctionInfo> infoOptional;
-
+    protected void visit(CallExpression func) {
         if (AstUtil.isIdentifier(func.caller)) {
             var functionName = AstUtil.asId(func.caller);
+            var infoOptional = JExpFunctionFactory.getInfo(functionName);
 
-            // get function info
-            infoOptional = JExpFunctionFactory.getInfo(functionName);
-
-            if (!infoOptional.isPresent()) {
+            if (infoOptional.isPresent()) {
+                prepareUnboundedInvoke(func, infoOptional.get());
+            } else {
                 throw new UnknownFunction(functionName);
             }
-        } else {
-            $.should(func.caller.is(AstType.MEMBER_EXP));
+
+        } else if (!asLibInvoke(func)) {
+            prepareBoundedInvoke(func);
+        }
+    }
+
+    private boolean asLibInvoke(CallExpression func) {
+        if (func.caller.is(AstType.MEMBER_EXP)) {
             var callerMember = (MemberExpression) func.caller;
 
-            var libName = AstUtil.asId(callerMember.owner);
-            $.should(callerMember.propertyName.is(AstType.PRIMARY_EXP));
-            visit(callerMember.propertyName);
-
-            var functionName = AstUtil.asConstantString(callerMember.propertyName);
-
-            infoOptional = JExpFunctionFactory.getInfo(libName, functionName);
-
-            if (!infoOptional.isPresent()) {
-                throw new UnknownFunction(libName, functionName);
+            String libName, funcName;
+            // get lib name
+            if (AstUtil.isIdentifier(callerMember.owner)) {
+                libName = AstUtil.asId(callerMember.owner);
+            } else {
+                return false;
             }
-        }
 
+            // get func name
+            if (AstUtil.isExactString(callerMember.propertyName)) {
+                funcName = AstUtil.asExactString(callerMember.propertyName);
+            } else {
+                return false;
+            }
+
+            // get function info
+            var infoOptional = JExpFunctionFactory.getInfo(libName, funcName);
+            if (infoOptional.isPresent()) {
+                prepareUnboundedInvoke(func, infoOptional.get());
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private void prepareBoundedInvoke(CallExpression func) {
+        $.should(func.caller.is(AstType.MEMBER_EXP));
+        var callerMember = (MemberExpression) func.caller;
+
+        $.should(AstUtil.isExactString(callerMember.propertyName));
+        visit(callerMember.owner);
+
+        // TODO: this is to tricky
+        func.caller = callerMember.owner;
+
+        func.isBounded = true;
+        func.isConstant = false;
+        func.valueType = Type.getType(Object.class);
+        func.methodName = AstUtil.asConstantString(callerMember.propertyName);
+    }
+
+    private void prepareUnboundedInvoke(CallExpression func, FunctionInfo info) {
         // visit all parameters
         for (AstNode astNode : func.parameters) {
             visit(astNode);
         }
 
         // cannot infer constant value for function expressions now
-        FunctionInfo info = infoOptional.get();
+        func.isBounded = false;
         func.functionInfo = info;
         func.isConstant = false;
         func.valueType = Type.getType(info.method.getReturnType());

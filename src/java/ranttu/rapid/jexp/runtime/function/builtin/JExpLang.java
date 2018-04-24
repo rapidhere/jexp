@@ -23,6 +23,11 @@ final public class JExpLang {
         return MethodUtils.invokeMethod(o, methodName, args);
     }
 
+    @JExpFunction(lib = "lang", name = "invoke_no_args")
+    public static Object invoke(Object o, String methodName) throws Throwable {
+        return MethodUtils.invokeMethod(o, methodName, new Object[] {});
+    }
+
     // getter
     @JExpFunction(lib = "lang", name = "get_prop")
     public static Object getProperty(Object o, String name) throws Throwable {

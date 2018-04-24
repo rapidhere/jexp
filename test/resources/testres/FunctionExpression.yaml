@@ -25,3 +25,11 @@
 - desc: is_blank
   exp: 'string.is_blank(get_str(""))'
   res: false
+
+- desc: lang.invoke_no_args
+  exp: 'lang.invoke_no_args("hello world", "length")'
+  res: 11
+
+- desc: bounded invoke 1
+  exp: '"hello world".length()'
+  res: 11

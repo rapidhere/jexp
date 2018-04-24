@@ -6,7 +6,7 @@ package ranttu.rapid.jexp.compile.pass;
 
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
-import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -42,7 +42,7 @@ public class AccessTreeMarkPass extends NoReturnPass {
     }
 
     @Override
-    protected void visit(FunctionExpression exp) {
+    protected void visit(CallExpression exp) {
         // FIXME
         // visit(exp.caller);
         exp.parameters.forEach(this::visit);

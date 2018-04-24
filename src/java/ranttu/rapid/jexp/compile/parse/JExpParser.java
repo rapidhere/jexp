@@ -1,22 +1,22 @@
 package ranttu.rapid.jexp.compile.parse;
 
-import lombok.experimental.var;
-import ranttu.rapid.jexp.compile.jflex.Lexer;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
-import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
-import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
-import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
-import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
-import ranttu.rapid.jexp.exception.JExpCompilingException;
-import ranttu.rapid.jexp.exception.UnexpectedEOF;
-import ranttu.rapid.jexp.exception.UnexpectedToken;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
+import lombok.experimental.var;
+import ranttu.rapid.jexp.compile.jflex.Lexer;
+import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
+import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
+import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.exception.JExpCompilingException;
+import ranttu.rapid.jexp.exception.UnexpectedEOF;
+import ranttu.rapid.jexp.exception.UnexpectedToken;
 
 /**
  * the parser
@@ -49,7 +49,7 @@ import java.util.Stack;
  *      UNARY_EXP(ARGUMENT_LIST)
  *
  * ARGUMENT_LIST |=
- *      EXP
+ *      <NIL>
  *      ARGUMENT_LIST, EXP
  *
  * PRIMARY_EXP |=
@@ -175,7 +175,7 @@ public class JExpParser {
             // function expression
             else if (t.is(TokenType.LEFT_PARENTHESIS)) {
                 next();
-                exp = new FunctionExpression(exp, parseParameters());
+                exp = new CallExpression(exp, parseParameters());
             }
             // or, parse is end
             else {

@@ -12,8 +12,4 @@ public class UnknownFunction extends JExpCompilingException {
     public UnknownFunction(String name) {
         super("unknown function: " + name);
     }
-
-    public UnknownFunction(String libName, String name) {
-        super("unknown function: " + libName + "." + name);
-    }
 }

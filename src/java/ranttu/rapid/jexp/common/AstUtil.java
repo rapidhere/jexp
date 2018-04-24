@@ -28,6 +28,17 @@ public class AstUtil {
         return ((PrimaryExpression) astNode).token.getString();
     }
 
+    public boolean isExactString(AstNode astNode) {
+        return astNode.is(AstType.PRIMARY_EXP)
+               && ((PrimaryExpression) astNode).token.is(TokenType.STRING);
+    }
+
+    public String asExactString(AstNode astNode) {
+        $.should(isExactString(astNode));
+
+        return ((PrimaryExpression) astNode).token.getString();
+    }
+
     public String asConstantString(AstNode astNode) {
         if (astNode.isConstant) {
             return String.valueOf(astNode.constantValue);

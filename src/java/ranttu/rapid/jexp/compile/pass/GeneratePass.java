@@ -24,7 +24,7 @@ import ranttu.rapid.jexp.compile.JExpImmutableExpression;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
-import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
+import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -376,9 +376,9 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     @Override
-    protected void visit(FunctionExpression func) {
+    protected void visit(CallExpression func) {
         // that is, a static call of inner methods
-        if (func.functionInfo != null) {
+        if (! func.isBounded) {
             applyFunction(func.functionInfo, func.parameters);
         } else {
             $.notSupport(func);
