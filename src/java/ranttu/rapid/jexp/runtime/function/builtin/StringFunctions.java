@@ -13,13 +13,13 @@ import ranttu.rapid.jexp.runtime.function.JExpFunction;
  * @version $Id: StringFunctions.java, v0.1 2017-08-03 1:55 PM dongwei.dq Exp $
  */
 public class StringFunctions {
-    @JExpFunction(name = "string.is_blank")
+    @JExpFunction(lib = "string", name = "is_blank")
     public static boolean isBlank(String s) {
         return s == null || s.length() == 0;
     }
 
     // TODO: @dongwei.dq, return int
-    @JExpFunction(name = "string.length")
+    @JExpFunction(lib = "string", name = "length")
     public static Object length(String s) {
         return s.length();
     }

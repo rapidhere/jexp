@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.compile.pass;
 
+import java.util.Optional;
+
 import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
@@ -11,6 +13,7 @@ import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.AccessTree;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.FunctionExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
@@ -156,30 +159,44 @@ public class PreparePass extends NoReturnPass {
 
     @Override
     protected void visit(FunctionExpression func) {
+        Optional<FunctionInfo> infoOptional;
+
         if (AstUtil.isIdentifier(func.caller)) {
             var functionName = AstUtil.asId(func.caller);
 
             // get function info
-            var infoOptional = JExpFunctionFactory.getInfo(functionName);
+            infoOptional = JExpFunctionFactory.getInfo(functionName);
 
-            if (infoOptional.isPresent()) {
-                FunctionInfo info = infoOptional.get();
-
-                // cannot infer constant value for function expressions now
-                func.functionInfo = info;
-                func.isConstant = false;
-                func.valueType = Type.getType(info.method.getReturnType());
-            } else {
+            if (!infoOptional.isPresent()) {
                 throw new UnknownFunction(functionName);
             }
-
-            // visit all parameters
-            for (AstNode astNode : func.parameters) {
-                visit(astNode);
-            }
         } else {
-            $.notSupport(func.caller);
+            $.should(func.caller.is(AstType.MEMBER_EXP));
+            var callerMember = (MemberExpression) func.caller;
+
+            var libName = AstUtil.asId(callerMember.owner);
+            $.should(callerMember.propertyName.is(AstType.PRIMARY_EXP));
+            visit(callerMember.propertyName);
+
+            var functionName = AstUtil.asConstantString(callerMember.propertyName);
+
+            infoOptional = JExpFunctionFactory.getInfo(libName, functionName);
+
+            if (!infoOptional.isPresent()) {
+                throw new UnknownFunction(libName, functionName);
+            }
         }
+
+        // visit all parameters
+        for (AstNode astNode : func.parameters) {
+            visit(astNode);
+        }
+
+        // cannot infer constant value for function expressions now
+        FunctionInfo info = infoOptional.get();
+        func.functionInfo = info;
+        func.isConstant = false;
+        func.valueType = Type.getType(info.method.getReturnType());
     }
 
     @Override

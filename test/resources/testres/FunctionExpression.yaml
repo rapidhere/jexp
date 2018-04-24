@@ -21,9 +21,7 @@
 - desc: len
   exp: 'sum(string.length(get_str("rapid")), sum(1, 2, 3), two())'
   res: 27
-  skip: true
 
 - desc: is_blank
   exp: 'string.is_blank(get_str(""))'
   res: false
-  skip: true

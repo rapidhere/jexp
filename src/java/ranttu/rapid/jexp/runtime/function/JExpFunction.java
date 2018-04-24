@@ -17,6 +17,9 @@ public @interface JExpFunction {
     /** the name (identifier) of the function */
     String name() default "";
 
+    /** the lib of this function belong to */
+    String lib() default "";
+
     /**
      *  whether this function is inlinable, default is false
      *

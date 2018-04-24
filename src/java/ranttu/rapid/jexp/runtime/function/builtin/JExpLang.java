@@ -4,11 +4,12 @@
  */
 package ranttu.rapid.jexp.runtime.function.builtin;
 
+import java.util.Map;
+
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
-import java.util.Map;
+import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
 /**
  * jexp basement function supports
@@ -17,13 +18,13 @@ import java.util.Map;
  */
 final public class JExpLang {
     // invoke
-    @JExpFunction(name = "lang.invoke")
+    @JExpFunction(lib = "lang", name = "invoke")
     public static Object invoke(Object o, String methodName, Object... args) throws Throwable {
         return MethodUtils.invokeMethod(o, methodName, args);
     }
 
     // getter
-    @JExpFunction(name = "lang.get_prop")
+    @JExpFunction(lib = "lang", name = "get_prop")
     public static Object getProperty(Object o, String name) throws Throwable {
         if (o instanceof Map) {
             return ((Map) o).get(name);
@@ -32,13 +33,13 @@ final public class JExpLang {
         }
     }
 
-    @JExpFunction(name = "lang.equals")
+    @JExpFunction(lib = "lang", name = "equals")
     public static Object equals(Object a, Object b) {
         return a.equals(b);
     }
 
     // ~~~ math
-    @JExpFunction(name = "math.add")
+    @JExpFunction(lib = "math", name = "add")
     public static Object add(Object a, Object b) {
         if (a instanceof String) {
             return new StringBuilder((String) a).append(b);
@@ -59,7 +60,7 @@ final public class JExpLang {
         }
     }
 
-    @JExpFunction(name = "math.sub")
+    @JExpFunction(lib = "math", name = "sub")
     public static Object sub(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 
@@ -70,7 +71,7 @@ final public class JExpLang {
         }
     }
 
-    @JExpFunction(name = "math.mul")
+    @JExpFunction(lib = "math", name = "mul")
     public static Object mul(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 
@@ -81,7 +82,7 @@ final public class JExpLang {
         }
     }
 
-    @JExpFunction(name = "math.div")
+    @JExpFunction(lib = "math", name = "div")
     public static Object div(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 
@@ -92,7 +93,7 @@ final public class JExpLang {
         }
     }
 
-    @JExpFunction(name = "math.mod")
+    @JExpFunction(lib = "math", name = "mod")
     public static Object mod(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;
 

@@ -4,6 +4,15 @@
  */
 package ranttu.rapid.jexp.compile.pass;
 
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getDescriptor;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.AccessTree;
@@ -31,15 +40,6 @@ import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
 import ranttu.rapid.jexp.runtime.accesor.DummyAccessor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getDescriptor;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
 
 /**
  * the pass that generate byte codes
@@ -357,19 +357,19 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             switch (exp.op.type) {
                 case PLUS:
-                    applyFunction("math.add", args);
+                    applyFunction("math", "add", args);
                     break;
                 case SUBTRACT:
-                    applyFunction("math.sub", args);
+                    applyFunction("math", "sub", args);
                     break;
                 case MULTIPLY:
-                    applyFunction("math.mul", args);
+                    applyFunction("math", "mul", args);
                     break;
                 case DIVIDE:
-                    applyFunction("math.div", args);
+                    applyFunction("math", "div", args);
                     break;
                 case MODULAR:
-                    applyFunction("math.mod", args);
+                    applyFunction("math", "mod", args);
                     break;
             }
         }
@@ -462,8 +462,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     // function apply util
-    private void applyFunction(String functionName, List<AstNode> args) {
-        Optional<FunctionInfo> info = JExpFunctionFactory.getInfo(functionName);
+    private void applyFunction(String lib, String functionName, List<AstNode> args) {
+        Optional<FunctionInfo> info = JExpFunctionFactory.getInfo(lib, functionName);
         if (!info.isPresent()) {
             throw new JExpCompilingException("function name not found: " + functionName);
         }

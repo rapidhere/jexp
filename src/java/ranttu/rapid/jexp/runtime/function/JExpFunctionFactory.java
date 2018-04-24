@@ -1,18 +1,20 @@
 package ranttu.rapid.jexp.runtime.function;
 
-import org.apache.commons.io.IOUtils;
-import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
-import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
-import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
-import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import lombok.experimental.var;
+
+import org.apache.commons.io.IOUtils;
+
+import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
+import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
+import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
 
 /**
  * the function factory of jExp
@@ -23,8 +25,10 @@ final public class JExpFunctionFactory {
     private JExpFunctionFactory() {
     }
 
-    // function function name -> function info
-    private static Map<String, FunctionInfo> infos = new HashMap<>();
+    // function function lib -> name -> function info
+    private final static Map<String, Map<String, FunctionInfo>> infos            = new HashMap<>();
+
+    private final static String                                 DEFAULT_LIB_NAME = "$DEFAULT";
 
     // builtin register
     static {
@@ -36,23 +40,29 @@ final public class JExpFunctionFactory {
     /**
      * register a new function class
      */
-    public static void register(Class<?> callClass) throws JExpFunctionLoadException {
+    public synchronized static void register(Class<?> callClass) throws JExpFunctionLoadException {
         // load class bytes
-        byte[] classBytes = loadClassByteCode(callClass);
+        var classBytes = loadClassByteCode(callClass);
 
         // for debug
         // $.printClass(callClass.getSimpleName(), classBytes);
 
-        Map<String, FunctionInfo> infoCollectMap = new HashMap<>();
+        var infoCollectMap = new HashMap<String, FunctionInfo>();
 
         // filter methods
         for (Method m : callClass.getMethods()) {
             if (m.isAnnotationPresent(JExpFunction.class)) {
                 JExpFunction ann = m.getAnnotation(JExpFunction.class);
                 // get name
-                String name = ann.name();
+                var name = ann.name();
                 if (name.length() == 0) {
                     name = m.getName();
+                }
+
+                // get lib
+                var lib = ann.lib();
+                if (lib.length() == 0) {
+                    lib = DEFAULT_LIB_NAME;
                 }
 
                 // modifier check
@@ -61,17 +71,20 @@ final public class JExpFunctionFactory {
                 }
 
                 // update function info
-                if (infos.containsKey(name)) {
-                    throw new JExpFunctionLoadException("function name duplicated: " + name);
+                if (infos.containsKey(lib) && infos.get(lib).containsKey(name)) {
+                    throw new JExpFunctionLoadException("function name duplicated: " + name
+                                                        + " in lib: " + lib);
                 }
 
-                FunctionInfo info = new FunctionInfo();
+                var info = new FunctionInfo();
                 info.byteCodes = classBytes;
                 info.name = name;
                 info.inline = ann.inline();
                 info.method = m;
 
-                infos.put(name, info);
+                // put into infos
+                var libMap = infos.computeIfAbsent(lib, k -> new HashMap<>());
+                libMap.put(name, info);
 
                 // for inline functions, we need to collect the compiling info
                 if (info.inline) {
@@ -88,16 +101,27 @@ final public class JExpFunctionFactory {
      * get the info of the function by name
      */
     public static Optional<FunctionInfo> getInfo(String name) {
-        return Optional.ofNullable(infos.get(name));
+        return getInfo(DEFAULT_LIB_NAME, name);
+    }
+
+    /**
+     * get the info of the function by lib-name and name
+     */
+    public static Optional<FunctionInfo> getInfo(String libName, String name) {
+        if (infos.containsKey(libName)) {
+            return Optional.ofNullable(infos.get(libName).get(name));
+        } else {
+            return Optional.empty();
+        }
     }
 
     // load class byte code from class
     private static byte[] loadClassByteCode(Class klass) {
         // get klass file path
-        String classPath = klass.getName().replace(".", "/") + ".class";
+        var classPath = klass.getName().replace(".", "/") + ".class";
 
         // load class source
-        InputStream ins = JExpFunctionFactory.class.getClassLoader().getResourceAsStream(classPath);
+        var ins = JExpFunctionFactory.class.getClassLoader().getResourceAsStream(classPath);
 
         try {
             return IOUtils.toByteArray(ins);
