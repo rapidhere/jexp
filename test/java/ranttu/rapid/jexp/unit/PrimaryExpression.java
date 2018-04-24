@@ -5,6 +5,7 @@
 package ranttu.rapid.jexp.unit;
 
 import org.testng.annotations.BeforeClass;
+
 import ranttu.rapid.jexp.base.JExpUnitTestBase;
 import ranttu.rapid.jexp.data.TestFunctions;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
@@ -16,6 +17,9 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 public class PrimaryExpression extends JExpUnitTestBase {
     @BeforeClass
     public void prepareFunctions() {
-        JExpFunctionFactory.register(TestFunctions.class);
+        try {
+            JExpFunctionFactory.register(TestFunctions.class);
+        } catch (Exception ignored) {
+        }
     }
 }

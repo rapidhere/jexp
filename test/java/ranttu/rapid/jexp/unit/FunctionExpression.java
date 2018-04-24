@@ -17,6 +17,9 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 public class FunctionExpression extends JExpUnitTestBase {
     @BeforeClass
     public void prepareFunctions() {
-        JExpFunctionFactory.register(TestFunctions.class);
+        try {
+            JExpFunctionFactory.register(TestFunctions.class);
+        } catch (Exception ignored) {
+        }
     }
 }
