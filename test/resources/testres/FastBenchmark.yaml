@@ -64,3 +64,10 @@
     a: "hello"
     b: "world"
     c: 10
+
+- description: string length
+  jexpExpression: a.length()
+  aviatorExpression: string.length(a)
+  mvelExpression: a.length()
+  env:
+    a: "some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string "
