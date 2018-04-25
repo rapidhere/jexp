@@ -123,7 +123,7 @@ final public class AccessorFactory implements Opcodes {
         if (Map.class.isAssignableFrom(klass)) {
             // load map
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitTypeInsn(CHECKCAST, getInternalName(klass));
+            mv.visitTypeInsn(CHECKCAST, getInternalName(Map.class));
 
             // load parameter
             mv.visitVarInsn(ALOAD, 2);
@@ -167,7 +167,7 @@ final public class AccessorFactory implements Opcodes {
 
         buildHashTable(mv, groupByHashCode(methodMap), (method) -> {
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitTypeInsn(CHECKCAST, getInternalName(klass));
+            mv.visitTypeInsn(CHECKCAST, getInternalName(method.getDeclaringClass()));
             var parameterTypes = method.getParameterTypes();
 
             for (int i = 0; i < parameterTypes.length; i++) {
@@ -186,7 +186,7 @@ final public class AccessorFactory implements Opcodes {
                 mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(method.getDeclaringClass()),
                     method.getName(), getMethodDescriptor(method), true);
             } else {
-                mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(klass), method.getName(),
+                mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(method.getDeclaringClass()), method.getName(),
                     getMethodDescriptor(method), false);
             }
 

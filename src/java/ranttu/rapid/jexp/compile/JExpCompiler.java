@@ -1,7 +1,7 @@
 package ranttu.rapid.jexp.compile;
 
 import ranttu.rapid.jexp.compile.parse.JExpParser;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.pass.AccessTreeMarkPass;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.compile.pass.PreparePass;
@@ -35,7 +35,7 @@ public class JExpCompiler {
      * @throws JExpCompilingException   compile failed exception info
      */
     public JExpExpression compile(String expression) throws JExpCompilingException {
-        AstNode ast = JExpParser.parse(expression);
+        ExpressionNode ast = JExpParser.parse(expression);
         CompilingContext compilingContext = new CompilingContext();
         compilingContext.option = option;
 

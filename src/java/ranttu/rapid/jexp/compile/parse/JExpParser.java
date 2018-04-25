@@ -9,9 +9,9 @@ import java.util.Stack;
 
 import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
@@ -69,7 +69,7 @@ public class JExpParser {
      * @param input  the input text
      * @return       ast
      */
-    public static AstNode parse(String input) throws JExpCompilingException {
+    public static ExpressionNode parse(String input) throws JExpCompilingException {
         return new JExpParser(new StringReader(input)).parse();
     }
 
@@ -83,8 +83,8 @@ public class JExpParser {
         this.lexer = new Lexer(input);
     }
 
-    private AstNode parse() {
-        AstNode ret = parseExp();
+    private ExpressionNode parse() {
+        ExpressionNode ret = parseExp();
 
         Token t = nextOrNull();
         if (t != null) {
@@ -94,13 +94,13 @@ public class JExpParser {
         return ret;
     }
 
-    private AstNode parseExp() {
+    private ExpressionNode parseExp() {
         return parseBinary();
     }
 
-    private AstNode parseBinary() {
+    private ExpressionNode parseBinary() {
         Stack<Token> ops = new Stack<>();
-        Stack<AstNode> exps = new Stack<>();
+        Stack<ExpressionNode> exps = new Stack<>();
         exps.push(parseUnary());
 
         while (true) {
@@ -121,10 +121,10 @@ public class JExpParser {
         return exps.pop();
     }
 
-    private void reduceStack(Stack<Token> ops, Stack<AstNode> exps, Token curOp) {
+    private void reduceStack(Stack<Token> ops, Stack<ExpressionNode> exps, Token curOp) {
         while (exps.size() > 1) {
             if (curOp.type.priority <= ops.peek().type.priority) {
-                AstNode right = exps.pop(), left = exps.pop();
+                ExpressionNode right = exps.pop(), left = exps.pop();
                 exps.push(new BinaryExpression(ops.pop(), left, right));
             } else {
                 break;
@@ -142,7 +142,7 @@ public class JExpParser {
      *  `(...)`
      *
      */
-    private AstNode parseUnary() {
+    private ExpressionNode parseUnary() {
         var exp = parseUnaryClassElement();
         while (true) {
             var t = peekOrNull();
@@ -193,7 +193,7 @@ public class JExpParser {
      * (EXP)
      * PRIMARY_EXP
      */
-    private AstNode parseUnaryClassElement() {
+    private ExpressionNode parseUnaryClassElement() {
         var t = peek();
 
         if (t.is(TokenType.LEFT_PARENTHESIS)) {
@@ -208,8 +208,8 @@ public class JExpParser {
         }
     }
 
-    private List<AstNode> parseParameters() {
-        List<AstNode> pars = new ArrayList<>();
+    private List<ExpressionNode> parseParameters() {
+        List<ExpressionNode> pars = new ArrayList<>();
 
         var t = peek();
         // meet ')', break

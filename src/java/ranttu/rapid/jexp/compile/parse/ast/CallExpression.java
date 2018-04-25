@@ -16,18 +16,21 @@ import ranttu.rapid.jexp.runtime.function.FunctionInfo;
  */
 @Type(AstType.CALL_EXP)
 @RequiredArgsConstructor
-public class CallExpression extends AstNode {
+public class CallExpression extends ExpressionNode {
     @NonNull
-    public AstNode       caller;
+    public ExpressionNode       caller;
 
     @NonNull
-    public List<AstNode> parameters;
+    public List<ExpressionNode> parameters;
 
-    public boolean       isBounded = false;
+    public boolean              isBounded = false;
 
     //~~~ unbounded invoke
-    public FunctionInfo  functionInfo;
+    public FunctionInfo         functionInfo;
 
     //~~~ bounded invoke
-    public String        methodName;
+    public String               methodName;
+
+    /** for bounded invoke, there will be a accessor slot */
+    public String               accessorSlot;
 }

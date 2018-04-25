@@ -29,26 +29,27 @@ public class CompilingContext {
 
     //~~~ compiling constants
     /** constant slots count */
-    public int                 constantCount = 0;
+    public int                 constantCount     = 0;
 
     /** constant slots map */
-    public Map<Object, String> constantSlots = new HashMap<>();
+    public Map<Object, String> constantSlots     = new HashMap<>();
 
     //~~~ compiling variables
     /** access tree */
-    public AccessTree          accessTree;
+    public PropertyTree        propertyTree;
 
     /** number of variables */
-    public int                 variableCount = 0;
+    public int                 variableCount     = 0;
 
-    /**
-     * get the constant slot index
-     */
-    public String getConstantSlot(Object constantObj) {
-        return constantSlots.get(constantObj);
-    }
+    //~~~ accessor management
+    /** accessor count */
+    public int                 accessorSlotCount = 0;
 
     public int nextVariableIndex() {
         return variableCount++;
+    }
+
+    public String nextAccessorSlot() {
+        return "accessor$" + accessorSlotCount++;
     }
 }

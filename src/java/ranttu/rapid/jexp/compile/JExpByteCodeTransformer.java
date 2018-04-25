@@ -8,7 +8,7 @@ import java.util.List;
 
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
+import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -26,7 +26,7 @@ import ranttu.rapid.jexp.runtime.function.FunctionInfo;
  */
 public class JExpByteCodeTransformer implements Opcodes {
     public static void transform(FunctionInfo functionInfo, GeneratePass pass, MethodVisitor cmv,
-                                 List<AstNode> parameters, CompilingContext context) {
+                                 List<ExpressionNode> parameters, CompilingContext context) {
         JExpByteCodeTransformer transformer = new JExpByteCodeTransformer();
         transformer.cmv = cmv;
         transformer.functionInfo = functionInfo;
@@ -40,7 +40,7 @@ public class JExpByteCodeTransformer implements Opcodes {
     //~~~ impl
     private FunctionInfo     functionInfo;
 
-    private List<AstNode>    parameters;
+    private List<ExpressionNode>    parameters;
 
     private ClassReader      cr;
 
@@ -100,7 +100,7 @@ public class JExpByteCodeTransformer implements Opcodes {
             super(ASM5);
 
             // put all parameters on stack, and store to local
-            for (AstNode parameter : parameters) {
+            for (ExpressionNode parameter : parameters) {
                 // visit and put on stack
                 pass.visitOnStack(parameter);
             }

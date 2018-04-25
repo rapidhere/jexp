@@ -8,12 +8,12 @@ import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.TypeUtil;
-import ranttu.rapid.jexp.compile.AccessTree;
+import ranttu.rapid.jexp.compile.PropertyTree;
 import ranttu.rapid.jexp.compile.parse.TokenType;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -36,7 +36,7 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 public class PreparePass extends NoReturnPass {
     @Override
     protected void prepare() {
-        context.accessTree = new AccessTree();
+        context.propertyTree = new PropertyTree(context);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class PreparePass extends NoReturnPass {
 
                 // build id tree
                 primary.isStatic = true;
-                context.accessTree.addToRoot(primary, AstUtil.asId(primary));
+                context.propertyTree.addToRoot(primary, AstUtil.asId(primary));
                 return;
             default:
                 $.notSupport(t.type);
@@ -211,18 +211,24 @@ public class PreparePass extends NoReturnPass {
         $.should(AstUtil.isExactString(callerMember.propertyName));
         visit(callerMember.owner);
 
+        // visit all parameters
+        for (ExpressionNode astNode : func.parameters) {
+            visit(astNode);
+        }
+
         // TODO: this is to tricky
         func.caller = callerMember.owner;
 
         func.isBounded = true;
+        func.accessorSlot = context.nextAccessorSlot();
         func.isConstant = false;
         func.valueType = Type.getType(Object.class);
-        func.methodName = AstUtil.asConstantString(callerMember.propertyName);
+        func.methodName = AstUtil.asExactString(callerMember.propertyName);
     }
 
     private void prepareUnboundedInvoke(CallExpression func, FunctionInfo info) {
         // visit all parameters
-        for (AstNode astNode : func.parameters) {
+        for (ExpressionNode astNode : func.parameters) {
             visit(astNode);
         }
 
@@ -249,10 +255,10 @@ public class PreparePass extends NoReturnPass {
 
         if (member.owner instanceof PropertyAccessNode) {
             PropertyAccessNode owner = (PropertyAccessNode) member.owner;
-            context.accessTree.add(owner.accessNode, member,
+            context.propertyTree.add(owner.propertyNode, member,
                 AstUtil.asConstantString(member.propertyName));
         } else {
-            context.accessTree.addToRoot(member, AstUtil.asConstantString(member.propertyName));
+            context.propertyTree.addToRoot(member, AstUtil.asConstantString(member.propertyName));
         }
 
         // currently member expression is always not a constant

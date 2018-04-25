@@ -3,18 +3,24 @@ package ranttu.rapid.jexp.compile.parse.ast;
 /**
  * a ast node
  * @author rapidhere@gmail.com
- * @version $Id: AstNode.java, v0.1 2017-07-28 2:59 PM dongwei.dq Exp $
+ * @version $Id: ExpressionNode.java, v0.1 2017-07-28 2:59 PM dongwei.dq Exp $
  */
-abstract public class AstNode {
+abstract public class ExpressionNode {
+    //~~~ common
+    /** the ast type of this expression node */
     public final AstType                                     type;
 
-    public boolean                                           isConstant;
-
-    public Object                                            constantValue;
-
+    /** the result value type of this expression */
     public ranttu.rapid.jexp.external.org.objectweb.asm.Type valueType;
 
-    public AstNode() {
+    //~~~ constant value related
+    /** is this expression node a constant value */
+    public boolean                                           isConstant;
+
+    /** only valid if isConstant is true */
+    public Object                                            constantValue;
+
+    public ExpressionNode() {
         this.type = getClass().getAnnotation(Type.class).value();
     }
 
@@ -22,7 +28,7 @@ abstract public class AstNode {
         return this.type == type;
     }
 
-    // constant value getter
+    //~~~ constant value getter
     public int getIntValue() {
         return ((Number) constantValue).intValue();
     }

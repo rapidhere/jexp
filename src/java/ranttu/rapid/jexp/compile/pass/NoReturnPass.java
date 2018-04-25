@@ -6,9 +6,9 @@ package ranttu.rapid.jexp.compile.pass;
 
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.CompilingContext;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 
@@ -20,7 +20,7 @@ public abstract class NoReturnPass implements Pass {
     protected CompilingContext context;
 
     @Override
-    public void apply(AstNode astNode, CompilingContext context) {
+    public void apply(ExpressionNode astNode, CompilingContext context) {
         this.context = context;
         prepare();
         visit(astNode);
@@ -30,7 +30,7 @@ public abstract class NoReturnPass implements Pass {
         // default left as blank
     }
 
-    protected void visit(AstNode astNode) {
+    protected void visit(ExpressionNode astNode) {
         switch (astNode.type) {
             case PRIMARY_EXP:
                 visit((PrimaryExpression) astNode);

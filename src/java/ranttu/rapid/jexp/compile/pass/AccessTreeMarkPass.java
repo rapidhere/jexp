@@ -43,8 +43,9 @@ public class AccessTreeMarkPass extends NoReturnPass {
 
     @Override
     protected void visit(CallExpression exp) {
-        // FIXME
-        // visit(exp.caller);
+        if (exp.isBounded) {
+            visit(exp.caller);
+        }
         exp.parameters.forEach(this::visit);
     }
 
@@ -52,6 +53,6 @@ public class AccessTreeMarkPass extends NoReturnPass {
      * mark a node as access point
      */
     private void markAsAccessPoint(PropertyAccessNode propertyAccessNode) {
-        propertyAccessNode.accessNode.isAccessPoint = true;
+        propertyAccessNode.propertyNode.isAccessPoint = true;
     }
 }

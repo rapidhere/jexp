@@ -6,8 +6,8 @@ package ranttu.rapid.jexp.common;
 
 import lombok.experimental.UtilityClass;
 import ranttu.rapid.jexp.compile.parse.TokenType;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
+import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 
 /**
@@ -17,29 +17,29 @@ import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
  */
 @UtilityClass
 public class AstUtil {
-    public boolean isIdentifier(AstNode astNode) {
+    public boolean isIdentifier(ExpressionNode astNode) {
         return astNode.is(AstType.PRIMARY_EXP)
                && ((PrimaryExpression) astNode).token.is(TokenType.IDENTIFIER);
     }
 
-    public String asId(AstNode astNode) {
+    public String asId(ExpressionNode astNode) {
         $.should(isIdentifier(astNode));
 
         return ((PrimaryExpression) astNode).token.getString();
     }
 
-    public boolean isExactString(AstNode astNode) {
+    public boolean isExactString(ExpressionNode astNode) {
         return astNode.is(AstType.PRIMARY_EXP)
                && ((PrimaryExpression) astNode).token.is(TokenType.STRING);
     }
 
-    public String asExactString(AstNode astNode) {
+    public String asExactString(ExpressionNode astNode) {
         $.should(isExactString(astNode));
 
         return ((PrimaryExpression) astNode).token.getString();
     }
 
-    public String asConstantString(AstNode astNode) {
+    public String asConstantString(ExpressionNode astNode) {
         if (astNode.isConstant) {
             return String.valueOf(astNode.constantValue);
         } else {

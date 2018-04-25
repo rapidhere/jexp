@@ -1,5 +1,8 @@
 package ranttu.rapid.jexp;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpCompiler;
@@ -56,13 +59,20 @@ final public class JExp {
         // option
         var option = new CompileOption();
         option.inlineFunction = false;
+        var expression = compile("obj.get(key)", option);
 
-        // context
-        var ctx = new JExpTestContext();
+        var context = new HashMap<String, Object>();
+        var map0 = new HashMap<String, String>();
+        map0.put("hello", "world");
+        context.put("obj", map0);
+        context.put("key", "hello");
+        System.out.println(expression.execute(context));
 
-        // execute
-        var expression = compile("1 + c + \"a\" + 1", option);
-        var result = expression.execute(ctx);
-        System.out.println(result);
+        var arr0 = new ArrayList<String>();
+        arr0.add("hello");
+        arr0.add("world");
+        context.put("obj", arr0);
+        context.put("key", 0);
+        System.out.println(expression.execute(context));
     }
 }

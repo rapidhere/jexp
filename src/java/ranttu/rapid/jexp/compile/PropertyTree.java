@@ -7,6 +7,7 @@ package ranttu.rapid.jexp.compile;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 
 /**
@@ -14,10 +15,11 @@ import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
  * @author rapid
  * @version $Id: AccessTree.java, v 0.1 2017年10月09日 8:41 AM rapid Exp $
  */
-public class AccessTree {
-    private AccessNode root      = new AccessNode();
+@RequiredArgsConstructor
+public class PropertyTree {
+    private PropertyNode           root = new PropertyNode();
 
-    private int        slotCount = 0;
+    final private CompilingContext compilingContext;
 
     /**
      * add to root
@@ -29,12 +31,12 @@ public class AccessTree {
     /**
      * add to parent
      */
-    public void add(AccessNode parent, PropertyAccessNode astNode, String id) {
-        astNode.accessNode = parent.children.computeIfAbsent(id, key -> {
-            AccessNode newNode = new AccessNode();
+    public void add(PropertyNode parent, PropertyAccessNode astNode, String id) {
+        astNode.propertyNode = parent.children.computeIfAbsent(id, key -> {
+            PropertyNode newNode = new PropertyNode();
             newNode.identifier = id;
-            newNode.accessorSlot = nextSlot();
             newNode.isRoot = false;
+            newNode.accessorSlot = compilingContext.nextAccessorSlot();
 
             return newNode;
         });
@@ -47,36 +49,32 @@ public class AccessTree {
         root.visit(tv);
     }
 
-    private String nextSlot() {
-        return "accessor$" + slotCount++;
-    }
-
     /**
      *  a access node
      */
-    public static class AccessNode {
-        public String                  identifier;
+    public static class PropertyNode {
+        public String                    identifier;
 
-        public String                  accessorSlot;
+        public String                    accessorSlot;
 
-        public Map<String, AccessNode> children = new HashMap<>();
+        public Map<String, PropertyNode> children = new HashMap<>();
 
-        public boolean                 isRoot   = true;
+        public boolean                   isRoot   = true;
 
-        public boolean                 isAccessPoint;
+        public boolean                   isAccessPoint;
 
-        public int                     variableIndex;
+        public int                       variableIndex;
 
         private void visit(TreeVisitor tv) {
             tv.visit(this);
 
-            for (AccessNode child : children.values()) {
+            for (PropertyNode child : children.values()) {
                 child.visit(tv);
             }
         }
     }
 
     public interface TreeVisitor {
-        void visit(AccessNode idNode);
+        void visit(PropertyNode idNode);
     }
 }

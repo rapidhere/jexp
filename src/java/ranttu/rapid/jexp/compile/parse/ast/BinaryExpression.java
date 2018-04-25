@@ -7,12 +7,12 @@ import ranttu.rapid.jexp.compile.parse.Token;
  * @version $Id: BinaryExpression.java, v0.1 2017-07-28 8:05 PM dongwei.dq Exp $
  */
 @Type(AstType.BINARY_EXP)
-public class BinaryExpression extends AstNode {
+public class BinaryExpression extends ExpressionNode {
     final public Token   op;
 
-    final public AstNode left, right;
+    final public ExpressionNode left, right;
 
-    public BinaryExpression(Token op, AstNode left, AstNode right) {
+    public BinaryExpression(Token op, ExpressionNode left, ExpressionNode right) {
         this.op = op;
         this.left = left;
         this.right = right;

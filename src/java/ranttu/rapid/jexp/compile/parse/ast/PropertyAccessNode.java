@@ -4,7 +4,7 @@
  */
 package ranttu.rapid.jexp.compile.parse.ast;
 
-import ranttu.rapid.jexp.compile.AccessTree;
+import ranttu.rapid.jexp.compile.PropertyTree;
 
 /**
  * a node that can fetch a property
@@ -12,10 +12,10 @@ import ranttu.rapid.jexp.compile.AccessTree;
  * @author rapid
  * @version $Id: PropertyAccessNode.java, v 0.1 2018年02月24日 5:56 PM rapid Exp $
  */
-public abstract class PropertyAccessNode extends AstNode {
+public abstract class PropertyAccessNode extends ExpressionNode {
     /** access node on the access tree of this ast node*/
-    public AccessTree.AccessNode accessNode;
+    public PropertyTree.PropertyNode propertyNode;
 
     /** if this is a static access? */
-    public boolean               isStatic = false;
+    public boolean                   isStatic = false;
 }

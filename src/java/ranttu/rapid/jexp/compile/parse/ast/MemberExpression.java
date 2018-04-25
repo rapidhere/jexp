@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Type(AstType.MEMBER_EXP)
 @RequiredArgsConstructor
 public class MemberExpression extends PropertyAccessNode {
-    final public AstNode owner;
+    final public ExpressionNode owner;
 
-    final public AstNode propertyName;
+    final public ExpressionNode propertyName;
 }

@@ -13,18 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
-import ranttu.rapid.jexp.compile.AccessTree;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
+import ranttu.rapid.jexp.compile.PropertyTree;
 import ranttu.rapid.jexp.compile.parse.TokenType;
-import ranttu.rapid.jexp.compile.parse.ast.AstNode;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -61,7 +62,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     @Override
-    public void apply(AstNode root, CompilingContext context) {
+    public void apply(ExpressionNode root, CompilingContext context) {
         if (root.isConstant) {
             context.compiledStub = JExpImmutableExpression.of(root.constantValue);
             return;
@@ -75,6 +76,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         visitClass();
 
         // prepare access tree
+        prepareAccessorSlot();
         prepareAccessTree();
 
         // visit execute method
@@ -112,7 +114,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     /**
      * visit and put the ast on the stack
      */
-    public void visitOnStack(AstNode astNode) {
+    public void visitOnStack(ExpressionNode astNode) {
         visit(astNode);
     }
 
@@ -120,11 +122,114 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         return "constant$" + context.constantCount++;
     }
 
-    private void prepareAccessTree() {
-        context.accessTree.visit(idNode -> {
-            // prepare accessor
-            initAccessorIfNeed(idNode);
+    private void prepareAccessorSlot() {
+        for (int i = 0; i < context.accessorSlotCount; i++) {
+            String slot = "accessor$" + i;
 
+            // add a field to the impl
+            cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, slot, getDescriptor(Accessor.class), null,
+                null);
+
+            // add field init
+            conMv.visitVarInsn(ALOAD, 0);
+            conMv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
+                getDescriptor(DummyAccessor.class));
+            conMv.visitFieldInsn(PUTFIELD, context.classInternalName, slot,
+                getDescriptor(Accessor.class));
+
+            prepareAccessorSlotFitter(slot);
+            prepareAccessorSlotGetter(slot);
+            prepareAccessorSlotInvoker(slot);
+        }
+    }
+
+    private void prepareAccessorSlotInvoker(String slot) {
+        String invokerName = slot + "Invoke";
+        var mv = cw
+            .visitMethod(
+                ACC_PRIVATE + ACC_SYNTHETIC, invokerName, getMethodDescriptor(getType(Object.class),
+                    getType(Object.class), getType(String.class), getType(Object[].class)),
+                null, null);
+
+        //~~~ fit accessor
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, slot + "Fit",
+            getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false);
+
+        //~~~ invoke
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "invoke",
+            getMethodDescriptor(getType(Object.class), getType(Object.class), getType(String.class),
+                getType(Object[].class)),
+            true);
+        mv.visitInsn(ARETURN);
+
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void prepareAccessorSlotGetter(String slot) {
+        String getterName = slot + "Get";
+        var mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, getterName, getMethodDescriptor(
+            getType(Object.class), getType(Object.class), getType(String.class)), null, null);
+
+        //~~~ fit accessor
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, slot + "Fit",
+            getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false);
+
+        //~~~ get
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
+            "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;", true);
+        mv.visitInsn(ARETURN);
+
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void prepareAccessorSlotFitter(String slot) {
+        String fitterName = slot + "Fit";
+        var mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, fitterName,
+            getMethodDescriptor(getType(Accessor.class), getType(Object.class)), null, null);
+        var successLabel = new Label();
+
+        // check isSatisfied
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, context.classInternalName, slot, getDescriptor(Accessor.class));
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "isSatisfied",
+            "(Ljava/lang/Object;)Z", true);
+        mv.visitJumpInsn(IFNE, successLabel);
+
+        // failed, change accessor
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESTATIC, getInternalName(AccessorFactory.class), "getAccessor",
+            getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false);
+        mv.visitFieldInsn(PUTFIELD, context.classInternalName, slot, getDescriptor(Accessor.class)); // [ object ]
+
+        // put accessor on stack
+        mv.visitLabel(successLabel);
+        mv.visitFrame(F_SAME, 0, null, 0, null);
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, context.classInternalName, slot, getDescriptor(Accessor.class)); // [ object, accessor ]
+
+        // return accessor
+        mv.visitInsn(ARETURN);
+
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void prepareAccessTree() {
+        context.propertyTree.visit(idNode -> {
             // for root node, load context on stack
             if (idNode.isRoot) {
                 // for a empty tree, do nothing
@@ -138,7 +243,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 if (idNode.identifier == null) {
                     return;
                 }
-                invokeAccessor(idNode.accessorSlot, () -> mv.visitLdcInsn(idNode.identifier));
+                invokeAccessorGetter(idNode.accessorSlot, () -> mv.visitLdcInsn(idNode.identifier));
             }
 
             // dup for each child
@@ -181,62 +286,42 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
     }
 
-    private void initAccessorIfNeed(AccessTree.AccessNode idInfo) {
-        if (!idInfo.isRoot) {
-            // add a field to the impl
-            cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, idInfo.accessorSlot,
-                getDescriptor(Accessor.class), null, null);
+    private void invokeAccessorInvoker(String accessorSlot, CallExpression func) {
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(SWAP);
 
-            // add field init
-            conMv.visitVarInsn(ALOAD, 0);
-            conMv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
-                getDescriptor(DummyAccessor.class));
-            conMv.visitFieldInsn(PUTFIELD, context.classInternalName, idInfo.accessorSlot,
-                getDescriptor(Accessor.class));
+        //~~~ then, call invoke method
+        // put method name
+        mv.visitLdcInsn(func.methodName); // [ accessor, object, methodName ]
+
+        // put arguments
+        mv.visitLdcInsn(func.parameters.size());
+        mv.visitTypeInsn(ANEWARRAY, getInternalName(Object.class));
+        for (int i = 0; i < func.parameters.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(i);
+            visit(func.parameters.get(i));
+            mv.visitInsn(AASTORE);
         }
+
+        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, accessorSlot + "Invoke",
+            getMethodDescriptor(getType(Object.class), getType(Object.class), getType(String.class),
+                getType(Object[].class)),
+            false);
     }
 
-    private void invokeAccessor(String accessorSlot, Runnable invokePropertyName) {
-        // put object on the stack, this will take the rest things
-
-        // load accessor
-        // current stack: top -> [ object, accessor, object ]
-        mv.visitInsn(DUP);
+    private void invokeAccessorGetter(String accessorSlot, Runnable invokePropertyName) {
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, context.classInternalName, accessorSlot,
-            getDescriptor(Accessor.class));
         mv.visitInsn(SWAP);
-        Label successLabel = new Label();
-
-        // call isSatisfied
-        // current stack: top -> [ object ]
-        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "isSatisfied",
-            "(Ljava/lang/Object;)Z", true);
-        mv.visitJumpInsn(IFNE, successLabel);
-
-        // failed, change accessor
-        mv.visitInsn(DUP); // [ object, object ]
-        mv.visitMethodInsn(INVOKESTATIC, getInternalName(AccessorFactory.class), "getAccessor",
-            getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false); // [ accessor, object ]
-        mv.visitVarInsn(ALOAD, 0); //  [ this, accessor, object ]
-        mv.visitInsn(SWAP); //  [ accessor, this, object ]
-        mv.visitFieldInsn(PUTFIELD, context.classInternalName, accessorSlot,
-            getDescriptor(Accessor.class)); // [ object ]
-
-        // then, call get method
-        mv.visitLabel(successLabel);
-        mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { getInternalName(Object.class) });
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, context.classInternalName, accessorSlot,
-            getDescriptor(Accessor.class)); // [ object, accessor ]
-        mv.visitInsn(SWAP); // [ accessor, object ]
         invokePropertyName.run();
-        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
-            "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;", true);
+        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, accessorSlot + "Get",
+            getMethodDescriptor(getType(Object.class), getType(Object.class),
+                getType(String.class)),
+            false);
     }
 
     @Override
-    protected void visit(AstNode astNode) {
+    protected void visit(ExpressionNode astNode) {
         // pass through
         if (!astNode.isConstant) {
             super.visit(astNode);
@@ -351,7 +436,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // for any runtime types
         else {
             // build arguments
-            List<AstNode> args = new ArrayList<>();
+            List<ExpressionNode> args = new ArrayList<>();
             args.add(exp.left);
             args.add(exp.right);
 
@@ -381,29 +466,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         if (!func.isBounded) {
             applyFunction(func.functionInfo, func.parameters);
         } else {
-            $.notSupport(func);
-            // FIXME
-            //            // put identifier on stack
-            //            mv.visitVarInsn(ALOAD, context.identifierInlineVarMap.get(func.callerIdentifier));
-            //            // function name
-            //            mv.visitLdcInsn(func.functionInfo.name);
-            //            // arguments
-            //            mv.visitLdcInsn(func.parameters.size());
-            //            mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-            //            for (int i = 0; i < func.parameters.size(); i++) {
-            //                AstNode par = func.parameters.get(i);
-            //                mv.visitInsn(DUP);
-            //                mv.visitLdcInsn(i);
-            //                visit(par);
-            //                mv.visitInsn(AASTORE);
-            //            }
-            //            // call
-            //            mv.visitMethodInsn(
-            //                INVOKESTATIC,
-            //                getInternalName(JExpLang.class),
-            //                "invoke",
-            //                getMethodDescriptor(getType(Object.class), getType(Object.class),
-            //                    getType(String.class), getType(Object[].class)), false);
+            // get caller on stack
+            visit(func.caller);
+
+            // call
+            invokeAccessorInvoker(func.accessorSlot, func);
         }
     }
 
@@ -416,7 +483,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // for dynamic member expression
         else {
             visit(exp.owner);
-            invokeAccessor(exp.accessNode.accessorSlot, () -> {
+            invokeAccessorGetter(exp.propertyNode.accessorSlot, () -> {
                 visit(exp.propertyName);
                 // to string
                 mv.visitMethodInsn(INVOKESTATIC, getInternalName(String.class), "valueOf",
@@ -431,8 +498,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     private void accessOnTree(PropertyAccessNode astNode) {
         $.should(astNode.isStatic);
 
-        AccessTree.AccessNode accessNode = astNode.accessNode;
-        mv.visitVarInsn(ALOAD, accessNode.variableIndex);
+        PropertyTree.PropertyNode propertyNode = astNode.propertyNode;
+        mv.visitVarInsn(ALOAD, propertyNode.variableIndex);
     }
 
     private void mathOpValConvert(MethodVisitor mv, Type valueType) {
@@ -463,7 +530,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     // function apply util
-    private void applyFunction(String lib, String functionName, List<AstNode> args) {
+    private void applyFunction(String lib, String functionName, List<ExpressionNode> args) {
         Optional<FunctionInfo> info = JExpFunctionFactory.getInfo(lib, functionName);
         if (!info.isPresent()) {
             throw new JExpCompilingException("function name not found: " + functionName);
@@ -472,13 +539,13 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         applyFunction(info.get(), args);
     }
 
-    private void applyFunction(FunctionInfo info, List<AstNode> args) {
+    private void applyFunction(FunctionInfo info, List<ExpressionNode> args) {
         if (info.inline && context.option.inlineFunction) {
             // inline the function
             JExpByteCodeTransformer.transform(info, this, mv, args, context);
         } else {
             // load stack
-            for (AstNode astNode : args) {
+            for (ExpressionNode astNode : args) {
                 visitOnStack(astNode);
             }
 

@@ -31,5 +31,28 @@
   res: 11
 
 - desc: bounded invoke 1
-  exp: '"hello world".length()'
+  exp: 'a.length()'
+  ctx:
+    a: 'hello world'
   res: 11
+
+- desc: bounded invoke 2
+  exp: 'a.get(b) + a.get(c)'
+  ctx:
+    a:
+      keyA: 123
+      keyB: 234
+    b: 'keyA'
+    c: 'keyB'
+  res: 357
+
+- desc: bounded invoke 3
+  exp: 'a.get(b)'
+  ctx:
+    a:
+      - 1
+      - 3
+      - 5
+      - 7
+    b: 2
+  res: 5
