@@ -6,6 +6,7 @@ package ranttu.rapid.jexp.runtime.accesor;
 
 /**
  * property accessor
+ *
  * @author rapid
  * @version $Id: Accessor.java, v 0.1 2017年10月03日 4:36 PM rapid Exp $
  */

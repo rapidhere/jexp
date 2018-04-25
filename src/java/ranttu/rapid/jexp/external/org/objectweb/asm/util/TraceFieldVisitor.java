@@ -38,7 +38,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 /**
  * A {@link FieldVisitor} that prints the fields it visits with a
  * {@link Printer}.
- * 
+ *
  * @author Eric Bruneton
  */
 public final class TraceFieldVisitor extends FieldVisitor {
@@ -66,7 +66,7 @@ public final class TraceFieldVisitor extends FieldVisitor {
                                                  boolean visible) {
         Printer p = this.p.visitFieldTypeAnnotation(typeRef, typePath, desc, visible);
         AnnotationVisitor av = fv == null ? null
-            : fv.visitTypeAnnotation(typeRef, typePath, desc, visible);
+                : fv.visitTypeAnnotation(typeRef, typePath, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 

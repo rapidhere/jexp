@@ -9,6 +9,7 @@ import java.util.Set;
 
 /**
  * a jexp expression that return constant value
+ *
  * @author rapid
  * @version $Id: JExpImmutableExpression.java, v 0.1 2017年10月01日 11:20 AM rapid Exp $
  */

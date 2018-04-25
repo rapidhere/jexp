@@ -39,13 +39,13 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureWriter;
 /**
  * A class responsible for remapping types and names. Subclasses can override
  * the following methods:
- * 
+ * <p>
  * <ul>
  * <li>{@link #map(String)} - map type</li>
  * <li>{@link #mapFieldName(String, String, String)} - map field name</li>
  * <li>{@link #mapMethodName(String, String, String)} - map method name</li>
  * </ul>
- * 
+ *
  * @author Eugene Kuleshov
  */
 public abstract class Remapper {
@@ -138,19 +138,17 @@ public abstract class Remapper {
         if (value instanceof Handle) {
             Handle h = (Handle) value;
             return new Handle(h.getTag(), mapType(h.getOwner()),
-                mapMethodName(h.getOwner(), h.getName(), h.getDesc()), mapMethodDesc(h.getDesc()),
-                h.isInterface());
+                    mapMethodName(h.getOwner(), h.getName(), h.getDesc()), mapMethodDesc(h.getDesc()),
+                    h.isInterface());
         }
         return value;
     }
 
     /**
-     * @param signature
-     *            signature for mapper
-     * @param typeSignature
-     *            true if signature is a FieldTypeSignature, such as the
-     *            signature parameter of the ClassVisitor.visitField or
-     *            MethodVisitor.visitLocalVariable methods
+     * @param signature     signature for mapper
+     * @param typeSignature true if signature is a FieldTypeSignature, such as the
+     *                      signature parameter of the ClassVisitor.visitField or
+     *                      MethodVisitor.visitLocalVariable methods
      * @return signature rewritten as a string
      */
     public String mapSignature(String signature, boolean typeSignature) {
@@ -182,13 +180,10 @@ public abstract class Remapper {
 
     /**
      * Map method name to the new name. Subclasses can override.
-     * 
-     * @param owner
-     *            owner of the method.
-     * @param name
-     *            name of the method.
-     * @param desc
-     *            descriptor of the method.
+     *
+     * @param owner owner of the method.
+     * @param name  name of the method.
+     * @param desc  descriptor of the method.
      * @return new name of the method
      */
     public String mapMethodName(String owner, String name, String desc) {
@@ -197,11 +192,9 @@ public abstract class Remapper {
 
     /**
      * Map invokedynamic method name to the new name. Subclasses can override.
-     * 
-     * @param name
-     *            name of the invokedynamic.
-     * @param desc
-     *            descriptor of the invokedynamic.
+     *
+     * @param name name of the invokedynamic.
+     * @param desc descriptor of the invokedynamic.
      * @return new invokdynamic name.
      */
     public String mapInvokeDynamicMethodName(String name, String desc) {
@@ -210,13 +203,10 @@ public abstract class Remapper {
 
     /**
      * Map field name to the new name. Subclasses can override.
-     * 
-     * @param owner
-     *            owner of the field.
-     * @param name
-     *            name of the field
-     * @param desc
-     *            descriptor of the field
+     *
+     * @param owner owner of the field.
+     * @param name  name of the field
+     * @param desc  descriptor of the field
      * @return new name of the field.
      */
     public String mapFieldName(String owner, String name, String desc) {
@@ -225,9 +215,8 @@ public abstract class Remapper {
 
     /**
      * Map type name to the new name. Subclasses can override.
-     * 
-     * @param typeName
-     *            the type name
+     *
+     * @param typeName the type name
      * @return new name, default implementation is the identity.
      */
     public String map(String typeName) {

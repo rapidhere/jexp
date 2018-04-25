@@ -4,15 +4,15 @@
  */
 package ranttu.rapid.jexp.runtime.function.builtin;
 
-import java.util.Map;
-
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
+
+import java.util.Map;
 
 /**
  * jexp basement function supports
+ *
  * @author dongwei.dq
  * @version $Id: JExpLang.java, v0.1 2017-08-31 8:45 PM dongwei.dq Exp $
  */
@@ -25,7 +25,7 @@ final public class JExpLang {
 
     @JExpFunction(lib = "lang", name = "invoke_no_args")
     public static Object invoke(Object o, String methodName) throws Throwable {
-        return MethodUtils.invokeMethod(o, methodName, new Object[] {});
+        return MethodUtils.invokeMethod(o, methodName, new Object[]{});
     }
 
     // getter

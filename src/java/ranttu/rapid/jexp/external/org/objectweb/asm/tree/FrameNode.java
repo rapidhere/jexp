@@ -29,13 +29,13 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A node that represents a stack map frame. These nodes are pseudo instruction
@@ -48,7 +48,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
  * <br>
  * (*) this is mandatory only for classes whose version is greater than or equal
  * to {@link Opcodes#V1_6 V1_6}.
- * 
+ *
  * @author Eric Bruneton
  */
 public class FrameNode extends AbstractInsnNode {
@@ -59,7 +59,7 @@ public class FrameNode extends AbstractInsnNode {
      * {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
      * {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
      */
-    public int          type;
+    public int type;
 
     /**
      * The types of the local variables of this stack map frame. Elements of
@@ -83,27 +83,22 @@ public class FrameNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link FrameNode}.
-     * 
-     * @param type
-     *            the type of this frame. Must be {@link Opcodes#F_NEW} for
-     *            expanded frames, or {@link Opcodes#F_FULL},
-     *            {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP},
-     *            {@link Opcodes#F_SAME} or {@link Opcodes#F_APPEND},
-     *            {@link Opcodes#F_SAME1} for compressed frames.
-     * @param nLocal
-     *            number of local variables of this stack map frame.
-     * @param local
-     *            the types of the local variables of this stack map frame.
-     *            Elements of this list can be Integer, String or LabelNode
-     *            objects (for primitive, reference and uninitialized types
-     *            respectively - see {@link MethodVisitor}).
-     * @param nStack
-     *            number of operand stack elements of this stack map frame.
-     * @param stack
-     *            the types of the operand stack elements of this stack map
-     *            frame. Elements of this list can be Integer, String or
-     *            LabelNode objects (for primitive, reference and uninitialized
-     *            types respectively - see {@link MethodVisitor}).
+     *
+     * @param type   the type of this frame. Must be {@link Opcodes#F_NEW} for
+     *               expanded frames, or {@link Opcodes#F_FULL},
+     *               {@link Opcodes#F_APPEND}, {@link Opcodes#F_CHOP},
+     *               {@link Opcodes#F_SAME} or {@link Opcodes#F_APPEND},
+     *               {@link Opcodes#F_SAME1} for compressed frames.
+     * @param nLocal number of local variables of this stack map frame.
+     * @param local  the types of the local variables of this stack map frame.
+     *               Elements of this list can be Integer, String or LabelNode
+     *               objects (for primitive, reference and uninitialized types
+     *               respectively - see {@link MethodVisitor}).
+     * @param nStack number of operand stack elements of this stack map frame.
+     * @param stack  the types of the operand stack elements of this stack map
+     *               frame. Elements of this list can be Integer, String or
+     *               LabelNode objects (for primitive, reference and uninitialized
+     *               types respectively - see {@link MethodVisitor}).
      */
     public FrameNode(final int type, final int nLocal, final Object[] local, final int nStack,
                      final Object[] stack) {
@@ -136,9 +131,8 @@ public class FrameNode extends AbstractInsnNode {
 
     /**
      * Makes the given visitor visit this stack map frame.
-     * 
-     * @param mv
-     *            a method visitor.
+     *
+     * @param mv a method visitor.
      */
     @Override
     public void accept(final MethodVisitor mv) {

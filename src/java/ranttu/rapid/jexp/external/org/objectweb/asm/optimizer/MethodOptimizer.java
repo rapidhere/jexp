@@ -29,8 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.optimizer;
 
-import java.util.HashMap;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
@@ -42,10 +40,12 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 import ranttu.rapid.jexp.external.org.objectweb.asm.commons.MethodRemapper;
 import ranttu.rapid.jexp.external.org.objectweb.asm.commons.Remapper;
 
+import java.util.HashMap;
+
 /**
  * A {@link MethodVisitor} that renames fields and methods, and removes debug
  * info.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class MethodOptimizer extends MethodRemapper implements Opcodes {
@@ -125,7 +125,7 @@ public class MethodOptimizer extends MethodRemapper implements Opcodes {
         if (!classOptimizer.syntheticClassFields.contains(ldcName)) {
             classOptimizer.syntheticClassFields.add(ldcName);
             FieldVisitor fv = classOptimizer.syntheticFieldVisitor(ACC_STATIC | ACC_SYNTHETIC,
-                fieldName, "Ljava/lang/Class;");
+                    fieldName, "Ljava/lang/Class;");
             fv.visitEnd();
         }
 
@@ -139,7 +139,7 @@ public class MethodOptimizer extends MethodRemapper implements Opcodes {
         // compatibility
         String[] constructorParams;
         if (opcode == INVOKESTATIC && name.equals("valueOf")
-            && (constructorParams = BOXING_MAP.get(owner + desc)) != null) {
+                && (constructorParams = BOXING_MAP.get(owner + desc)) != null) {
             String type = constructorParams[0];
             String initDesc = constructorParams[1];
             super.visitTypeInsn(NEW, type);
@@ -153,14 +153,15 @@ public class MethodOptimizer extends MethodRemapper implements Opcodes {
     }
 
     private static final HashMap<String, String[]> BOXING_MAP;
+
     static {
         String[][] boxingNames = {
-                                   // Boolean.valueOf is 1.4 and is used by the xml package, so no
-                                   // rewrite
-                                   { "java/lang/Byte", "(B)V" }, { "java/lang/Short", "(S)V" },
-                                   { "java/lang/Character", "(C)V" },
-                                   { "java/lang/Integer", "(I)V" }, { "java/lang/Long", "(J)V" },
-                                   { "java/lang/Float", "(F)V" }, { "java/lang/Double", "(D)V" }, };
+                // Boolean.valueOf is 1.4 and is used by the xml package, so no
+                // rewrite
+                {"java/lang/Byte", "(B)V"}, {"java/lang/Short", "(S)V"},
+                {"java/lang/Character", "(C)V"},
+                {"java/lang/Integer", "(I)V"}, {"java/lang/Long", "(J)V"},
+                {"java/lang/Float", "(F)V"}, {"java/lang/Double", "(D)V"},};
         HashMap<String, String[]> map = new HashMap<String, String[]>();
         for (String[] boxingName : boxingNames) {
             String wrapper = boxingName[0];

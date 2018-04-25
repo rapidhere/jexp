@@ -35,7 +35,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureVisitor;
 /**
  * A {@link SignatureVisitor} that prints a disassembled view of the signature
  * it visits.
- * 
+ *
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
@@ -43,19 +43,19 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
     private final StringBuilder declaration;
 
-    private boolean             isInterface;
+    private boolean isInterface;
 
-    private boolean             seenFormalParameter;
+    private boolean seenFormalParameter;
 
-    private boolean             seenInterfaceBound;
+    private boolean seenInterfaceBound;
 
-    private boolean             seenParameter;
+    private boolean seenParameter;
 
-    private boolean             seenInterface;
+    private boolean seenInterface;
 
-    private StringBuilder       returnType;
+    private StringBuilder returnType;
 
-    private StringBuilder       exceptions;
+    private StringBuilder exceptions;
 
     /**
      * Stack used to keep track of class types that have arguments. Each element
@@ -63,16 +63,16 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
      * the lowest order bit. Pushing false = *2, pushing true = *2+1, popping =
      * /2.
      */
-    private int                 argumentStack;
+    private int argumentStack;
 
     /**
      * Stack used to keep track of array class types. Each element of this stack
      * is a boolean encoded in one bit. The top of the stack is the lowest order
      * bit. Pushing false = *2, pushing true = *2+1, popping = /2.
      */
-    private int                 arrayStack;
+    private int arrayStack;
 
-    private String              separator = "";
+    private String separator = "";
 
     public TraceSignatureVisitor(final int access) {
         super(Opcodes.ASM5);

@@ -30,23 +30,23 @@
 
 package ranttu.rapid.jexp.external.org.objectweb.asm.commons;
 
-import java.util.Stack;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureVisitor;
 
+import java.util.Stack;
+
 /**
  * A {@link SignatureVisitor} adapter for type mapping.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class SignatureRemapper extends SignatureVisitor {
 
     private final SignatureVisitor v;
 
-    private final Remapper         remapper;
+    private final Remapper remapper;
 
-    private Stack<String>          classNames = new Stack<String>();
+    private Stack<String> classNames = new Stack<String>();
 
     public SignatureRemapper(final SignatureVisitor v, final Remapper remapper) {
         this(Opcodes.ASM5, v, remapper);
@@ -72,7 +72,7 @@ public class SignatureRemapper extends SignatureVisitor {
         String remappedOuter = remapper.mapType(outerClassName) + '$';
         String remappedName = remapper.mapType(className);
         int index = remappedName.startsWith(remappedOuter) ? remappedOuter.length()
-            : remappedName.lastIndexOf('$') + 1;
+                : remappedName.lastIndexOf('$') + 1;
         v.visitInnerClassType(remappedName.substring(index));
     }
 

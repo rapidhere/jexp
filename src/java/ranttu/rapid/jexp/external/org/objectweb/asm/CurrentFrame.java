@@ -34,7 +34,7 @@ package ranttu.rapid.jexp.external.org.objectweb.asm;
  * Information about the input stack map frame at the "current" instruction of a
  * method. This is implemented as a Frame subclass for a "basic block"
  * containing only one instruction.
- * 
+ *
  * @author Eric Bruneton
  */
 class CurrentFrame extends Frame {

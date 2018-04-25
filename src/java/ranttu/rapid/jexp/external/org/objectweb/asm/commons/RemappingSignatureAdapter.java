@@ -35,18 +35,18 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureVisitor;
 
 /**
  * A {@link SignatureVisitor} adapter for type mapping.
- * 
- * @deprecated use {@link SignatureRemapper} instead.
+ *
  * @author Eugene Kuleshov
+ * @deprecated use {@link SignatureRemapper} instead.
  */
 @Deprecated
 public class RemappingSignatureAdapter extends SignatureVisitor {
 
     private final SignatureVisitor v;
 
-    private final Remapper         remapper;
+    private final Remapper remapper;
 
-    private String                 className;
+    private String className;
 
     public RemappingSignatureAdapter(final SignatureVisitor v, final Remapper remapper) {
         this(Opcodes.ASM5, v, remapper);
@@ -71,7 +71,7 @@ public class RemappingSignatureAdapter extends SignatureVisitor {
         className = className + '$' + name;
         String remappedName = remapper.mapType(className);
         int index = remappedName.startsWith(remappedOuter) ? remappedOuter.length()
-            : remappedName.lastIndexOf('$') + 1;
+                : remappedName.lastIndexOf('$') + 1;
         v.visitInnerClassType(remappedName.substring(index));
     }
 

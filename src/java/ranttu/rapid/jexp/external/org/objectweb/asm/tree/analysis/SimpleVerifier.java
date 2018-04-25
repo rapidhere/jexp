@@ -29,15 +29,15 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis;
 
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+
+import java.util.List;
 
 /**
  * An extended {@link BasicVerifier} that performs more precise verifications.
  * This verifier computes exact class types, instead of using a single "object
  * reference" type (as done in the {@link BasicVerifier}).
- * 
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */
@@ -46,12 +46,12 @@ public class SimpleVerifier extends BasicVerifier {
     /**
      * The class that is verified.
      */
-    private final Type       currentClass;
+    private final Type currentClass;
 
     /**
      * The super class of the class that is verified.
      */
-    private final Type       currentSuperClass;
+    private final Type currentSuperClass;
 
     /**
      * The interfaces implemented by the class that is verified.
@@ -61,12 +61,12 @@ public class SimpleVerifier extends BasicVerifier {
     /**
      * If the class that is verified is an interface.
      */
-    private final boolean    isInterface;
+    private final boolean isInterface;
 
     /**
      * The loader to use for referenced classes.
      */
-    private ClassLoader      loader = getClass().getClassLoader();
+    private ClassLoader loader = getClass().getClassLoader();
 
     /**
      * Constructs a new {@link SimpleVerifier}.
@@ -78,13 +78,10 @@ public class SimpleVerifier extends BasicVerifier {
     /**
      * Constructs a new {@link SimpleVerifier} to verify a specific class. This
      * class will not be loaded into the JVM since it may be incorrect.
-     * 
-     * @param currentClass
-     *            the class that is verified.
-     * @param currentSuperClass
-     *            the super class of the class that is verified.
-     * @param isInterface
-     *            if the class that is verified is an interface.
+     *
+     * @param currentClass      the class that is verified.
+     * @param currentSuperClass the super class of the class that is verified.
+     * @param isInterface       if the class that is verified is an interface.
      */
     public SimpleVerifier(final Type currentClass, final Type currentSuperClass,
                           final boolean isInterface) {
@@ -94,15 +91,11 @@ public class SimpleVerifier extends BasicVerifier {
     /**
      * Constructs a new {@link SimpleVerifier} to verify a specific class. This
      * class will not be loaded into the JVM since it may be incorrect.
-     * 
-     * @param currentClass
-     *            the class that is verified.
-     * @param currentSuperClass
-     *            the super class of the class that is verified.
-     * @param currentClassInterfaces
-     *            the interfaces implemented by the class that is verified.
-     * @param isInterface
-     *            if the class that is verified is an interface.
+     *
+     * @param currentClass           the class that is verified.
+     * @param currentSuperClass      the super class of the class that is verified.
+     * @param currentClassInterfaces the interfaces implemented by the class that is verified.
+     * @param isInterface            if the class that is verified is an interface.
      */
     public SimpleVerifier(final Type currentClass, final Type currentSuperClass,
                           final List<Type> currentClassInterfaces, final boolean isInterface) {
@@ -122,9 +115,8 @@ public class SimpleVerifier extends BasicVerifier {
      * Set the <code>ClassLoader</code> which will be used to load referenced
      * classes. This is useful if you are verifying multiple interdependent
      * classes.
-     * 
-     * @param loader
-     *            a <code>ClassLoader</code> to use
+     *
+     * @param loader a <code>ClassLoader</code> to use
      */
     public void setClassLoader(final ClassLoader loader) {
         this.loader = loader;

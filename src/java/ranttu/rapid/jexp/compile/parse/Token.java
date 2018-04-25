@@ -10,11 +10,11 @@ import lombok.ToString;
  */
 @ToString
 public class Token {
-    public final TokenType    type;
+    public final TokenType type;
 
-    public final int          line, column;
+    public final int line, column;
 
-    public final Object       value;
+    public final Object value;
 
     public static final Token FAKE_TOKEN = new Token(TokenType.FAKE, -1, -1, null);
 

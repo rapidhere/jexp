@@ -29,9 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.optimizer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -43,21 +40,24 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 import ranttu.rapid.jexp.external.org.objectweb.asm.commons.ClassRemapper;
 import ranttu.rapid.jexp.external.org.objectweb.asm.commons.Remapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A {@link ClassVisitor} that renames fields and methods, and removes debug
  * info.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
 public class ClassOptimizer extends ClassRemapper {
 
     private String pkgName;
-    String         clsName;
+    String clsName;
 
-    boolean        isInterface          = false;
-    boolean        hasClinitMethod      = false;
-    List<String>   syntheticClassFields = new ArrayList<String>();
+    boolean isInterface = false;
+    boolean hasClinitMethod = false;
+    List<String> syntheticClassFields = new ArrayList<String>();
 
     public ClassOptimizer(final ClassVisitor cv, final Remapper remapper) {
         super(Opcodes.ASM5, cv, remapper);
@@ -128,7 +128,7 @@ public class ClassOptimizer extends ClassRemapper {
         }
         if ((access & (Opcodes.ACC_PUBLIC | Opcodes.ACC_PROTECTED)) == 0) {
             if ((access & Opcodes.ACC_FINAL) != 0 && (access & Opcodes.ACC_STATIC) != 0
-                && desc.length() == 1) {
+                    && desc.length() == 1) {
                 return null;
             }
             if ("org/objectweb/asm".equals(pkgName) && s.equals(name)) {
@@ -138,7 +138,7 @@ public class ClassOptimizer extends ClassRemapper {
         } else {
             if (!s.equals(name)) {
                 throw new RuntimeException("The public or protected field " + className + '.' + name
-                                           + " must not be renamed.");
+                        + " must not be renamed.");
             }
             super.visitField(access, name, desc, null, value);
         }
@@ -172,7 +172,7 @@ public class ClassOptimizer extends ClassRemapper {
         } else {
             if (!s.equals(name)) {
                 throw new RuntimeException("The public or protected method " + className + '.'
-                                           + name + desc + " must not be renamed.");
+                        + name + desc + " must not be renamed.");
             }
             return super.visitMethod(access, name, desc, null, exceptions);
         }
@@ -188,7 +188,7 @@ public class ClassOptimizer extends ClassRemapper {
         if (syntheticClassFields.isEmpty()) {
             if (hasClinitMethod) {
                 MethodVisitor mv = cv.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC,
-                    "_clinit_", "()V", null, null);
+                        "_clinit_", "()V", null, null);
                 mv.visitCode();
                 mv.visitInsn(Opcodes.RETURN);
                 mv.visitMaxs(0, 0);
@@ -196,7 +196,7 @@ public class ClassOptimizer extends ClassRemapper {
             }
         } else {
             MethodVisitor mv = cv.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC, "class$",
-                "(Ljava/lang/String;)Ljava/lang/Class;", null, null);
+                    "(Ljava/lang/String;)Ljava/lang/Class;", null, null);
             mv.visitCode();
             Label l0 = new Label();
             Label l1 = new Label();
@@ -205,25 +205,25 @@ public class ClassOptimizer extends ClassRemapper {
             mv.visitLabel(l0);
             mv.visitVarInsn(Opcodes.ALOAD, 0);
             mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/Class", "forName",
-                "(Ljava/lang/String;)Ljava/lang/Class;", false);
+                    "(Ljava/lang/String;)Ljava/lang/Class;", false);
             mv.visitLabel(l1);
             mv.visitInsn(Opcodes.ARETURN);
             mv.visitLabel(l2);
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/ClassNotFoundException",
-                "getMessage", "()Ljava/lang/String;", false);
+                    "getMessage", "()Ljava/lang/String;", false);
             mv.visitVarInsn(Opcodes.ASTORE, 1);
             mv.visitTypeInsn(Opcodes.NEW, "java/lang/NoClassDefFoundError");
             mv.visitInsn(Opcodes.DUP);
             mv.visitVarInsn(Opcodes.ALOAD, 1);
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/NoClassDefFoundError", "<init>",
-                "(Ljava/lang/String;)V", false);
+                    "(Ljava/lang/String;)V", false);
             mv.visitInsn(Opcodes.ATHROW);
             mv.visitMaxs(3, 2);
             mv.visitEnd();
 
             if (hasClinitMethod) {
                 mv = cv.visitMethod(Opcodes.ACC_STATIC | Opcodes.ACC_PRIVATE, "_clinit_", "()V",
-                    null, null);
+                        null, null);
             } else {
                 mv = cv.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
             }
@@ -231,7 +231,7 @@ public class ClassOptimizer extends ClassRemapper {
                 String fieldName = "class$" + ldcName.replace('/', '$');
                 mv.visitLdcInsn(ldcName.replace('/', '.'));
                 mv.visitMethodInsn(Opcodes.INVOKESTATIC, clsName, "class$",
-                    "(Ljava/lang/String;)Ljava/lang/Class;", false);
+                        "(Ljava/lang/String;)Ljava/lang/Class;", false);
                 mv.visitFieldInsn(Opcodes.PUTSTATIC, clsName, fieldName, "Ljava/lang/Class;");
             }
             mv.visitInsn(Opcodes.RETURN);

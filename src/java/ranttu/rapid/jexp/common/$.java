@@ -1,13 +1,13 @@
 package ranttu.rapid.jexp.common;
 
-import java.io.PrintWriter;
-
 import lombok.experimental.UtilityClass;
 import ranttu.rapid.jexp.exception.FunctionOpcodeNotSupportedYet;
 import ranttu.rapid.jexp.exception.UnsupportedYet;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.util.TraceClassVisitor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
+
+import java.io.PrintWriter;
 
 /**
  * common utilities
@@ -20,8 +20,9 @@ public class $ {
 
     /**
      * print the class from byte code
-     * @param className  the name of the class
-     * @param bytes      the bytes
+     *
+     * @param className the name of the class
+     * @param bytes     the bytes
      */
     public void printClass(String className, byte[] bytes) {
         if (Boolean.valueOf(System.getProperty("jexp.printBC"))) {

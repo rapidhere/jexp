@@ -29,11 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.util;
 
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
@@ -42,9 +37,14 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A {@link Printer} that prints the ASM code to generate the classes if visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ASMifier extends Printer {
@@ -52,12 +52,12 @@ public class ASMifier extends Printer {
     /**
      * The name of the visitor variable in the produced code.
      */
-    protected final String       name;
+    protected final String name;
 
     /**
      * Identifier of the annotation visitor variable in the produced code.
      */
-    protected final int          id;
+    protected final int id;
 
     /**
      * The label names. This map associates String values to Label keys. It is
@@ -68,25 +68,24 @@ public class ASMifier extends Printer {
     /**
      * Pseudo access flag used to distinguish class access flags.
      */
-    private static final int     ACCESS_CLASS = 262144;
+    private static final int ACCESS_CLASS = 262144;
 
     /**
      * Pseudo access flag used to distinguish field access flags.
      */
-    private static final int     ACCESS_FIELD = 524288;
+    private static final int ACCESS_FIELD = 524288;
 
     /**
      * Pseudo access flag used to distinguish inner class flags.
      */
-    private static final int     ACCESS_INNER = 1048576;
+    private static final int ACCESS_INNER = 1048576;
 
     /**
      * Constructs a new {@link ASMifier}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #ASMifier(int, String, int)} version.
-     * 
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public ASMifier() {
         this(Opcodes.ASM5, "cw", 0);
@@ -97,15 +96,12 @@ public class ASMifier extends Printer {
 
     /**
      * Constructs a new {@link ASMifier}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this class. Must be one of
-     *            {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param name
-     *            the name of the visitor variable in the produced code.
-     * @param id
-     *            identifier of the annotation visitor variable in the produced
-     *            code.
+     *
+     * @param api  the ASM API version implemented by this class. Must be one of
+     *             {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param name the name of the visitor variable in the produced code.
+     * @param id   identifier of the annotation visitor variable in the produced
+     *             code.
      */
     protected ASMifier(final int api, final String name, final int id) {
         super(api);
@@ -118,12 +114,9 @@ public class ASMifier extends Printer {
      * output.
      * <p>
      * Usage: ASMifier [-debug] &lt;binary class name or class file name&gt;
-     * 
-     * @param args
-     *            the command line arguments.
-     * 
-     * @throws Exception
-     *             if the class cannot be found, or if an IO exception occurs.
+     *
+     * @param args the command line arguments.
+     * @throws Exception if the class cannot be found, or if an IO exception occurs.
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
@@ -143,7 +136,7 @@ public class ASMifier extends Printer {
         if (!ok) {
             System.err.println("Prints the ASM code to generate the given class.");
             System.err.println(
-                "Usage: ASMifier [-debug] " + "<fully qualified class name or class file name>");
+                    "Usage: ASMifier [-debug] " + "<fully qualified class name or class file name>");
             return;
         }
         ClassReader cr;
@@ -484,7 +477,7 @@ public class ASMifier extends Printer {
                                              final boolean visible) {
         buf.setLength(0);
         buf.append("{\n").append("av0 = ").append(name).append(".visitParameterAnnotation(")
-            .append(parameter).append(", ");
+                .append(parameter).append(", ");
         appendConstant(desc);
         buf.append(", ").append(visible).append(");\n");
         text.add(buf.toString());
@@ -527,13 +520,13 @@ public class ASMifier extends Printer {
             case Opcodes.F_APPEND:
                 declareFrameTypes(nLocal, local);
                 buf.append(name).append(".visitFrame(Opcodes.F_APPEND,").append(nLocal)
-                    .append(", new Object[] {");
+                        .append(", new Object[] {");
                 appendFrameTypes(nLocal, local);
                 buf.append("}, 0, null");
                 break;
             case Opcodes.F_CHOP:
                 buf.append(name).append(".visitFrame(Opcodes.F_CHOP,").append(nLocal)
-                    .append(", null, 0, null");
+                        .append(", null, 0, null");
                 break;
             case Opcodes.F_SAME:
                 buf.append(name).append(".visitFrame(Opcodes.F_SAME, 0, null, 0, null");
@@ -560,8 +553,8 @@ public class ASMifier extends Printer {
     public void visitIntInsn(final int opcode, final int operand) {
         buf.setLength(0);
         buf.append(name).append(".visitIntInsn(").append(OPCODES[opcode]).append(", ")
-            .append(opcode == Opcodes.NEWARRAY ? TYPES[operand] : Integer.toString(operand))
-            .append(");\n");
+                .append(opcode == Opcodes.NEWARRAY ? TYPES[operand] : Integer.toString(operand))
+                .append(");\n");
         text.add(buf.toString());
     }
 
@@ -569,7 +562,7 @@ public class ASMifier extends Printer {
     public void visitVarInsn(final int opcode, final int var) {
         buf.setLength(0);
         buf.append(name).append(".visitVarInsn(").append(OPCODES[opcode]).append(", ").append(var)
-            .append(");\n");
+                .append(");\n");
         text.add(buf.toString());
     }
 
@@ -685,7 +678,7 @@ public class ASMifier extends Printer {
     public void visitIincInsn(final int var, final int increment) {
         buf.setLength(0);
         buf.append(name).append(".visitIincInsn(").append(var).append(", ").append(increment)
-            .append(");\n");
+                .append(");\n");
         text.add(buf.toString());
     }
 
@@ -699,7 +692,7 @@ public class ASMifier extends Printer {
         declareLabel(dflt);
 
         buf.append(name).append(".visitTableSwitchInsn(").append(min).append(", ").append(max)
-            .append(", ");
+                .append(", ");
         appendLabel(dflt);
         buf.append(", new Label[] {");
         for (int i = 0; i < labels.length; ++i) {
@@ -840,7 +833,7 @@ public class ASMifier extends Printer {
     public void visitMaxs(final int maxStack, final int maxLocals) {
         buf.setLength(0);
         buf.append(name).append(".visitMaxs(").append(maxStack).append(", ").append(maxLocals)
-            .append(");\n");
+                .append(");\n");
         text.add(buf.toString());
     }
 
@@ -918,9 +911,8 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given access modifiers to
      * {@link #buf buf}.
-     * 
-     * @param access
-     *            some access modifiers.
+     *
+     * @param access some access modifiers.
      */
     void appendAccess(final int access) {
         boolean first = true;
@@ -969,7 +961,7 @@ public class ASMifier extends Printer {
             first = false;
         }
         if ((access & Opcodes.ACC_BRIDGE) != 0 && (access & ACCESS_CLASS) == 0
-            && (access & ACCESS_FIELD) == 0) {
+                && (access & ACCESS_FIELD) == 0) {
             if (!first) {
                 buf.append(" + ");
             }
@@ -977,7 +969,7 @@ public class ASMifier extends Printer {
             first = false;
         }
         if ((access & Opcodes.ACC_VARARGS) != 0 && (access & ACCESS_CLASS) == 0
-            && (access & ACCESS_FIELD) == 0) {
+                && (access & ACCESS_FIELD) == 0) {
             if (!first) {
                 buf.append(" + ");
             }
@@ -992,7 +984,7 @@ public class ASMifier extends Printer {
             first = false;
         }
         if ((access & Opcodes.ACC_NATIVE) != 0 && (access & ACCESS_CLASS) == 0
-            && (access & ACCESS_FIELD) == 0) {
+                && (access & ACCESS_FIELD) == 0) {
             if (!first) {
                 buf.append(" + ");
             }
@@ -1000,7 +992,7 @@ public class ASMifier extends Printer {
             first = false;
         }
         if ((access & Opcodes.ACC_ENUM) != 0
-            && ((access & ACCESS_CLASS) != 0 || (access & ACCESS_FIELD) != 0
+                && ((access & ACCESS_CLASS) != 0 || (access & ACCESS_FIELD) != 0
                 || (access & ACCESS_INNER) != 0)) {
             if (!first) {
                 buf.append(" + ");
@@ -1009,7 +1001,7 @@ public class ASMifier extends Printer {
             first = false;
         }
         if ((access & Opcodes.ACC_ANNOTATION) != 0
-            && ((access & ACCESS_CLASS) != 0 || (access & ACCESS_INNER) != 0)) {
+                && ((access & ACCESS_CLASS) != 0 || (access & ACCESS_INNER) != 0)) {
             if (!first) {
                 buf.append(" + ");
             }
@@ -1066,9 +1058,8 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     * 
-     * @param cst
-     *            an {@link Integer}, {@link Float}, {@link Long},
+     *
+     * @param cst an {@link Integer}, {@link Float}, {@link Long},
      *            {@link Double} or {@link String} object. May be <tt>null</tt>.
      */
     protected void appendConstant(final Object cst) {
@@ -1078,11 +1069,9 @@ public class ASMifier extends Printer {
     /**
      * Appends a string representation of the given constant to the given
      * buffer.
-     * 
-     * @param buf
-     *            a string buffer.
-     * @param cst
-     *            an {@link Integer}, {@link Float}, {@link Long},
+     *
+     * @param buf a string buffer.
+     * @param cst an {@link Integer}, {@link Float}, {@link Long},
      *            {@link Double} or {@link String} object. May be <tt>null</tt>.
      */
     static void appendConstant(final StringBuffer buf, final Object cst) {
@@ -1226,9 +1215,8 @@ public class ASMifier extends Printer {
      * Appends a declaration of the given label to {@link #buf buf}. This
      * declaration is of the form "Label lXXX = new Label();". Does nothing if
      * the given label has already been declared.
-     * 
-     * @param l
-     *            a label.
+     *
+     * @param l a label.
      */
     protected void declareLabel(final Label l) {
         if (labelNames == null) {
@@ -1246,9 +1234,8 @@ public class ASMifier extends Printer {
      * Appends the name of the given label to {@link #buf buf}. The given label
      * <i>must</i> already have a name. One way to ensure this is to always call
      * {@link #declareLabel declared} before calling this method.
-     * 
-     * @param l
-     *            a label.
+     *
+     * @param l a label.
      */
     protected void appendLabel(final Label l) {
         buf.append(labelNames.get(l));

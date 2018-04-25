@@ -12,6 +12,7 @@ import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 
 /**
  * ast related utilities
+ *
  * @author rapid
  * @version $Id: AstUtil.java, v 0.1 2018年02月23日 4:25 PM rapid Exp $
  */
@@ -19,7 +20,7 @@ import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 public class AstUtil {
     public boolean isIdentifier(ExpressionNode astNode) {
         return astNode.is(AstType.PRIMARY_EXP)
-               && ((PrimaryExpression) astNode).token.is(TokenType.IDENTIFIER);
+                && ((PrimaryExpression) astNode).token.is(TokenType.IDENTIFIER);
     }
 
     public String asId(ExpressionNode astNode) {
@@ -30,7 +31,7 @@ public class AstUtil {
 
     public boolean isExactString(ExpressionNode astNode) {
         return astNode.is(AstType.PRIMARY_EXP)
-               && ((PrimaryExpression) astNode).token.is(TokenType.STRING);
+                && ((PrimaryExpression) astNode).token.is(TokenType.STRING);
     }
 
     public String asExactString(ExpressionNode astNode) {

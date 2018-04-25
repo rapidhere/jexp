@@ -29,18 +29,18 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis;
 
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.AbstractInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.FieldInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodInsnNode;
 
+import java.util.List;
+
 /**
  * An extended {@link BasicInterpreter} that checks that bytecode instructions
  * are correctly used.
- * 
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */
@@ -83,7 +83,7 @@ public class BasicVerifier extends BasicInterpreter {
             case ASTORE:
                 if (!value.isReference() && !BasicValue.RETURNADDRESS_VALUE.equals(value)) {
                     throw new AnalyzerException(insn, null,
-                        "an object reference or a return address", value);
+                            "an object reference or a return address", value);
                 }
                 return value;
             default:
@@ -351,7 +351,7 @@ public class BasicVerifier extends BasicInterpreter {
         }
         if (!isSubTypeOf(value1, expected1)) {
             throw new AnalyzerException(insn, "First argument",
-                "a " + expected1 + " array reference", value1);
+                    "a " + expected1 + " array reference", value1);
         } else if (!BasicValue.INT_VALUE.equals(value2)) {
             throw new AnalyzerException(insn, "Second argument", BasicValue.INT_VALUE, value2);
         } else if (!isSubTypeOf(value3, expected3)) {
@@ -377,11 +377,11 @@ public class BasicVerifier extends BasicInterpreter {
                 Type owner = Type.getObjectType(((MethodInsnNode) insn).owner);
                 if (!isSubTypeOf(values.get(i++), newValue(owner))) {
                     throw new AnalyzerException(insn, "Method owner", newValue(owner),
-                        values.get(0));
+                            values.get(0));
                 }
             }
             String desc = (opcode == INVOKEDYNAMIC) ? ((InvokeDynamicInsnNode) insn).desc
-                : ((MethodInsnNode) insn).desc;
+                    : ((MethodInsnNode) insn).desc;
             Type[] args = Type.getArgumentTypes(desc);
             while (i < values.size()) {
                 BasicValue expected = newValue(args[j++]);

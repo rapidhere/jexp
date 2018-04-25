@@ -25,10 +25,10 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 /**
  * do some prepare jobs
  * include:
- *      type inferring
- *      member expression folding
- *      constant folding
- *      build identifier tree
+ * type inferring
+ * member expression folding
+ * constant folding
+ * build identifier tree
  *
  * @author dongwei.dq
  * @version $Id: TypeInferPass.java, v0.1 2017-08-24 6:06 PM dongwei.dq Exp $
@@ -80,13 +80,13 @@ public class PreparePass extends NoReturnPass {
         //~~~ infer ret type
         // for String
         if (exp.op.is(TokenType.PLUS)
-            && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
+                && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
             exp.valueType = Type.getType(String.class);
         }
         // number
         else {
             if ($.notIn(exp.op.type, TokenType.PLUS, TokenType.SUBTRACT, TokenType.MULTIPLY,
-                TokenType.DIVIDE, TokenType.MODULAR)) {
+                    TokenType.DIVIDE, TokenType.MODULAR)) {
                 $.notSupport("unknown binary op: " + exp.op);
             }
 
@@ -256,7 +256,7 @@ public class PreparePass extends NoReturnPass {
         if (member.owner instanceof PropertyAccessNode) {
             PropertyAccessNode owner = (PropertyAccessNode) member.owner;
             context.propertyTree.add(owner.propertyNode, member,
-                AstUtil.asConstantString(member.propertyName));
+                    AstUtil.asConstantString(member.propertyName));
         } else {
             context.propertyTree.addToRoot(member, AstUtil.asConstantString(member.propertyName));
         }

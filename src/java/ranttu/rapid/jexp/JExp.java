@@ -1,15 +1,16 @@
 package ranttu.rapid.jexp;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpCompiler;
 import ranttu.rapid.jexp.compile.JExpExpression;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * The jExp facade
+ *
  * @author rapidhere@gmail.com
  * @version $Id: JExp.java, v0.1 2017-07-27 7:41 PM dongwei.dq Exp $
  */
@@ -19,10 +20,11 @@ final public class JExp {
 
     /**
      * eval a expression in context and get result
-     * @param expression  the expression to eval
-     * @param context     context the expression run in
-     * @param <T>         return type
-     * @return            the eval result
+     *
+     * @param expression the expression to eval
+     * @param context    context the expression run in
+     * @param <T>        return type
+     * @return the eval result
      */
     public static <T> T eval(String expression, Object context) {
         var executable = compile(expression);
@@ -34,8 +36,9 @@ final public class JExp {
 
     /**
      * compile a expression and get the compiled stub
-     * @param expression  the expression to compile
-     * @return            the compiled stub
+     *
+     * @param expression the expression to compile
+     * @return the compiled stub
      */
     public static JExpExpression compile(String expression) {
         var compiler = new JExpCompiler();
@@ -44,9 +47,10 @@ final public class JExp {
 
     /**
      * compile a expression and get the compiled stub
-     * @param expression  the expression to compile
+     *
+     * @param expression    the expression to compile
      * @param compileOption compiling options
-     * @return            the compiled stub
+     * @return the compiled stub
      */
     public static JExpExpression compile(String expression, CompileOption compileOption) {
         var compiler = new JExpCompiler(compileOption);

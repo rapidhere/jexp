@@ -29,10 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -43,9 +39,13 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A node that represents a method.
- * 
+ *
  * @author Eric Bruneton
  */
 public class MethodNode extends MethodVisitor {
@@ -54,78 +54,78 @@ public class MethodNode extends MethodVisitor {
      * The method's access flags (see {@link Opcodes}). This field also
      * indicates if the method is synthetic and/or deprecated.
      */
-    public int                               access;
+    public int access;
 
     /**
      * The method's name.
      */
-    public String                            name;
+    public String name;
 
     /**
      * The method's descriptor (see {@link Type}).
      */
-    public String                            desc;
+    public String desc;
 
     /**
      * The method's signature. May be <tt>null</tt>.
      */
-    public String                            signature;
+    public String signature;
 
     /**
      * The internal names of the method's exception classes (see
      * {@link Type#getInternalName() getInternalName}). This list is a list of
      * {@link String} objects.
      */
-    public List<String>                      exceptions;
+    public List<String> exceptions;
 
     /**
      * The method parameter info (access flags and name)
      */
-    public List<ParameterNode>               parameters;
+    public List<ParameterNode> parameters;
 
     /**
      * The runtime visible annotations of this method. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
-    public List<AnnotationNode>              visibleAnnotations;
+    public List<AnnotationNode> visibleAnnotations;
 
     /**
      * The runtime invisible annotations of this method. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
-    public List<AnnotationNode>              invisibleAnnotations;
+    public List<AnnotationNode> invisibleAnnotations;
 
     /**
      * The runtime visible type annotations of this method. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.TypeAnnotationNode
      * @label visible
      */
-    public List<TypeAnnotationNode>          visibleTypeAnnotations;
+    public List<TypeAnnotationNode> visibleTypeAnnotations;
 
     /**
      * The runtime invisible type annotations of this method. This list is a
      * list of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.TypeAnnotationNode
      * @label invisible
      */
-    public List<TypeAnnotationNode>          invisibleTypeAnnotations;
+    public List<TypeAnnotationNode> invisibleTypeAnnotations;
 
     /**
      * The non standard attributes of this method. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.Attribute
      */
-    public List<Attribute>                   attrs;
+    public List<Attribute> attrs;
 
     /**
      * The default value of this annotation interface method. This field must be
@@ -135,65 +135,65 @@ public class MethodNode extends MethodVisitor {
      * enumeration values), a {@link AnnotationNode}, or a {@link List} of
      * values of one of the preceding types. May be <tt>null</tt>.
      */
-    public Object                            annotationDefault;
+    public Object annotationDefault;
 
     /**
      * The runtime visible parameter annotations of this method. These lists are
      * lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label invisible parameters
      */
-    public List<AnnotationNode>[]            visibleParameterAnnotations;
+    public List<AnnotationNode>[] visibleParameterAnnotations;
 
     /**
      * The runtime invisible parameter annotations of this method. These lists
      * are lists of {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label visible parameters
      */
-    public List<AnnotationNode>[]            invisibleParameterAnnotations;
+    public List<AnnotationNode>[] invisibleParameterAnnotations;
 
     /**
      * The instructions of this method. This list is a list of
      * {@link AbstractInsnNode} objects.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AbstractInsnNode
      * @label instructions
      */
-    public InsnList                          instructions;
+    public InsnList instructions;
 
     /**
      * The try catch blocks of this method. This list is a list of
      * {@link TryCatchBlockNode} objects.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.TryCatchBlockNode
      */
-    public List<TryCatchBlockNode>           tryCatchBlocks;
+    public List<TryCatchBlockNode> tryCatchBlocks;
 
     /**
      * The maximum stack size of this method.
      */
-    public int                               maxStack;
+    public int maxStack;
 
     /**
      * The maximum number of local variables of this method.
      */
-    public int                               maxLocals;
+    public int maxLocals;
 
     /**
      * The local variables of this method. This list is a list of
      * {@link LocalVariableNode} objects. May be <tt>null</tt>
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.LocalVariableNode
      */
-    public List<LocalVariableNode>           localVariables;
+    public List<LocalVariableNode> localVariables;
 
     /**
      * The visible local variable annotations of this method. This list is a
      * list of {@link LocalVariableAnnotationNode} objects. May be <tt>null</tt>
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.LocalVariableAnnotationNode
      */
     public List<LocalVariableAnnotationNode> visibleLocalVariableAnnotations;
@@ -201,7 +201,7 @@ public class MethodNode extends MethodVisitor {
     /**
      * The invisible local variable annotations of this method. This list is a
      * list of {@link LocalVariableAnnotationNode} objects. May be <tt>null</tt>
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.LocalVariableAnnotationNode
      */
     public List<LocalVariableAnnotationNode> invisibleLocalVariableAnnotations;
@@ -209,15 +209,14 @@ public class MethodNode extends MethodVisitor {
     /**
      * If the accept method has been called on this object.
      */
-    private boolean                          visited;
+    private boolean visited;
 
     /**
      * Constructs an uninitialized {@link MethodNode}. <i>Subclasses must not
      * use this constructor</i>. Instead, they must use the
      * {@link #MethodNode(int)} version.
-     * 
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public MethodNode() {
         this(Opcodes.ASM5);
@@ -228,9 +227,8 @@ public class MethodNode extends MethodVisitor {
 
     /**
      * Constructs an uninitialized {@link MethodNode}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
+     *
+     * @param api the ASM API version implemented by this visitor. Must be one
      *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     public MethodNode(final int api) {
@@ -242,23 +240,17 @@ public class MethodNode extends MethodVisitor {
      * Constructs a new {@link MethodNode}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #MethodNode(int, int, String, String, String, String[])} version.
-     * 
-     * @param access
-     *            the method's access flags (see {@link Opcodes}). This
-     *            parameter also indicates if the method is synthetic and/or
-     *            deprecated.
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type}).
-     * @param signature
-     *            the method's signature. May be <tt>null</tt>.
-     * @param exceptions
-     *            the internal names of the method's exception classes (see
-     *            {@link Type#getInternalName() getInternalName}). May be
-     *            <tt>null</tt>.
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @param access     the method's access flags (see {@link Opcodes}). This
+     *                   parameter also indicates if the method is synthetic and/or
+     *                   deprecated.
+     * @param name       the method's name.
+     * @param desc       the method's descriptor (see {@link Type}).
+     * @param signature  the method's signature. May be <tt>null</tt>.
+     * @param exceptions the internal names of the method's exception classes (see
+     *                   {@link Type#getInternalName() getInternalName}). May be
+     *                   <tt>null</tt>.
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public MethodNode(final int access, final String name, final String desc,
                       final String signature, final String[] exceptions) {
@@ -270,24 +262,18 @@ public class MethodNode extends MethodVisitor {
 
     /**
      * Constructs a new {@link MethodNode}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param access
-     *            the method's access flags (see {@link Opcodes}). This
-     *            parameter also indicates if the method is synthetic and/or
-     *            deprecated.
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type}).
-     * @param signature
-     *            the method's signature. May be <tt>null</tt>.
-     * @param exceptions
-     *            the internal names of the method's exception classes (see
-     *            {@link Type#getInternalName() getInternalName}). May be
-     *            <tt>null</tt>.
+     *
+     * @param api        the ASM API version implemented by this visitor. Must be one
+     *                   of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param access     the method's access flags (see {@link Opcodes}). This
+     *                   parameter also indicates if the method is synthetic and/or
+     *                   deprecated.
+     * @param name       the method's name.
+     * @param desc       the method's descriptor (see {@link Type}).
+     * @param signature  the method's signature. May be <tt>null</tt>.
+     * @param exceptions the internal names of the method's exception classes (see
+     *                   {@link Type#getInternalName() getInternalName}). May be
+     *                   <tt>null</tt>.
      */
     public MethodNode(final int api, final int access, final String name, final String desc,
                       final String signature, final String[] exceptions) {
@@ -410,7 +396,7 @@ public class MethodNode extends MethodVisitor {
     public void visitFrame(final int type, final int nLocal, final Object[] local, final int nStack,
                            final Object[] stack) {
         instructions.add(new FrameNode(type, nLocal, local == null ? null : getLabelNodes(local),
-            nStack, stack == null ? null : getLabelNodes(stack)));
+                nStack, stack == null ? null : getLabelNodes(stack)));
     }
 
     @Override
@@ -487,7 +473,7 @@ public class MethodNode extends MethodVisitor {
     public void visitTableSwitchInsn(final int min, final int max, final Label dflt,
                                      final Label... labels) {
         instructions
-            .add(new TableSwitchInsnNode(min, max, getLabelNode(dflt), getLabelNodes(labels)));
+                .add(new TableSwitchInsnNode(min, max, getLabelNode(dflt), getLabelNodes(labels)));
     }
 
     @Override
@@ -529,7 +515,7 @@ public class MethodNode extends MethodVisitor {
     public void visitTryCatchBlock(final Label start, final Label end, final Label handler,
                                    final String type) {
         tryCatchBlocks.add(new TryCatchBlockNode(getLabelNode(start), getLabelNode(end),
-            getLabelNode(handler), type));
+                getLabelNode(handler), type));
     }
 
     @Override
@@ -555,7 +541,7 @@ public class MethodNode extends MethodVisitor {
     public void visitLocalVariable(final String name, final String desc, final String signature,
                                    final Label start, final Label end, final int index) {
         localVariables.add(new LocalVariableNode(name, desc, signature, getLabelNode(start),
-            getLabelNode(end), index));
+                getLabelNode(end), index));
     }
 
     @Override
@@ -563,7 +549,7 @@ public class MethodNode extends MethodVisitor {
                                                           Label[] start, Label[] end, int[] index,
                                                           String desc, boolean visible) {
         LocalVariableAnnotationNode an = new LocalVariableAnnotationNode(typeRef, typePath,
-            getLabelNodes(start), getLabelNodes(end), index, desc);
+                getLabelNodes(start), getLabelNodes(end), index, desc);
         if (visible) {
             if (visibleLocalVariableAnnotations == null) {
                 visibleLocalVariableAnnotations = new ArrayList<LocalVariableAnnotationNode>(1);
@@ -598,9 +584,8 @@ public class MethodNode extends MethodVisitor {
      * LabelNode if necessary. The default implementation of this method uses
      * the {@link Label#info} field to store associations between labels and
      * label nodes.
-     * 
-     * @param l
-     *            a Label.
+     *
+     * @param l a Label.
      * @return the LabelNode corresponding to l.
      */
     protected LabelNode getLabelNode(final Label l) {
@@ -639,9 +624,8 @@ public class MethodNode extends MethodVisitor {
      * version. This methods checks that this node, and all its nodes
      * recursively, do not contain elements that were introduced in more recent
      * versions of the ASM API than the given version.
-     * 
-     * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
+     *
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4} or
      *            {@link Opcodes#ASM5}.
      */
     public void check(final int api) {
@@ -659,7 +643,7 @@ public class MethodNode extends MethodVisitor {
                     throw new RuntimeException();
                 }
                 if (tcb.invisibleTypeAnnotations != null
-                    && tcb.invisibleTypeAnnotations.size() > 0) {
+                        && tcb.invisibleTypeAnnotations.size() > 0) {
                     throw new RuntimeException();
                 }
             }
@@ -669,7 +653,7 @@ public class MethodNode extends MethodVisitor {
                     throw new RuntimeException();
                 }
                 if (insn.invisibleTypeAnnotations != null
-                    && insn.invisibleTypeAnnotations.size() > 0) {
+                        && insn.invisibleTypeAnnotations.size() > 0) {
                     throw new RuntimeException();
                 }
                 if (insn instanceof MethodInsnNode) {
@@ -680,11 +664,11 @@ public class MethodNode extends MethodVisitor {
                 }
             }
             if (visibleLocalVariableAnnotations != null
-                && visibleLocalVariableAnnotations.size() > 0) {
+                    && visibleLocalVariableAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
             if (invisibleLocalVariableAnnotations != null
-                && invisibleLocalVariableAnnotations.size() > 0) {
+                    && invisibleLocalVariableAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
         }
@@ -692,9 +676,8 @@ public class MethodNode extends MethodVisitor {
 
     /**
      * Makes the given class visitor visit this method.
-     * 
-     * @param cv
-     *            a class visitor.
+     *
+     * @param cv a class visitor.
      */
     public void accept(final ClassVisitor cv) {
         String[] exceptions = new String[this.exceptions.size()];
@@ -707,9 +690,8 @@ public class MethodNode extends MethodVisitor {
 
     /**
      * Makes the given method visitor visit this method.
-     * 
-     * @param mv
-     *            a method visitor.
+     *
+     * @param mv a method visitor.
      */
     public void accept(final MethodVisitor mv) {
         // visits the method parameters
@@ -794,12 +776,12 @@ public class MethodNode extends MethodVisitor {
             }
             // visits local variable annotations
             n = visibleLocalVariableAnnotations == null ? 0
-                : visibleLocalVariableAnnotations.size();
+                    : visibleLocalVariableAnnotations.size();
             for (i = 0; i < n; ++i) {
                 visibleLocalVariableAnnotations.get(i).accept(mv, true);
             }
             n = invisibleLocalVariableAnnotations == null ? 0
-                : invisibleLocalVariableAnnotations.size();
+                    : invisibleLocalVariableAnnotations.size();
             for (i = 0; i < n; ++i) {
                 invisibleLocalVariableAnnotations.get(i).accept(mv, false);
             }

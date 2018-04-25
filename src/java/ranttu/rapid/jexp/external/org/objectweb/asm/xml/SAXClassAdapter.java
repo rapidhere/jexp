@@ -31,7 +31,6 @@ package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.AttributesImpl;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
@@ -44,17 +43,16 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
  * events from the visited class. It can feed any kind of
  * {@link org.xml.sax.ContentHandler ContentHandler}, e.g. XML serializer, XSLT
  * or XQuery engines.
- * 
+ *
+ * @author Eugene Kuleshov
  * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.Processor
  * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.ASMContentHandler
- * 
- * @author Eugene Kuleshov
  */
 public final class SAXClassAdapter extends ClassVisitor {
 
-    SAXAdapter               sa;
+    SAXAdapter sa;
 
-    private final boolean    singleDocument;
+    private final boolean singleDocument;
 
     /**
      * Pseudo access flag used to distinguish class access flags.
@@ -73,13 +71,11 @@ public final class SAXClassAdapter extends ClassVisitor {
 
     /**
      * Constructs a new {@link SAXClassAdapter SAXClassAdapter} object.
-     * 
-     * @param h
-     *            content handler that will be used to send SAX 2.0 events.
-     * @param singleDocument
-     *            if <tt>true</tt> adapter will not produce
-     *            {@link ContentHandler#startDocument() startDocument()} and
-     *            {@link ContentHandler#endDocument() endDocument()} events.
+     *
+     * @param h              content handler that will be used to send SAX 2.0 events.
+     * @param singleDocument if <tt>true</tt> adapter will not produce
+     *                       {@link ContentHandler#startDocument() startDocument()} and
+     *                       {@link ContentHandler#endDocument() endDocument()} events.
      */
     public SAXClassAdapter(final ContentHandler h, boolean singleDocument) {
         super(Opcodes.ASM5);
@@ -126,7 +122,7 @@ public final class SAXClassAdapter extends ClassVisitor {
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
                                                  boolean visible) {
         return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1, null, desc, typeRef,
-            typePath);
+                typePath);
     }
 
     @Override

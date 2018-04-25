@@ -9,41 +9,60 @@ import java.util.Map;
 
 /**
  * the compiling context
+ *
  * @author rapid
  * @version $Id: CompileContext.java, v 0.1 2017年09月30日 5:59 PM rapid Exp $
  */
 public class CompilingContext {
     //~~~ common
-    /** user specified compiling options */
-    public CompileOption       option;
+    /**
+     * user specified compiling options
+     */
+    public CompileOption option;
 
-    /** compiling result */
-    public JExpExpression      compiledStub;
+    /**
+     * compiling result
+     */
+    public JExpExpression compiledStub;
 
     //~~~ compiling class name
-    /** the standard class name */
-    public String              className;
+    /**
+     * the standard class name
+     */
+    public String className;
 
-    /** internal class name */
-    public String              classInternalName;
+    /**
+     * internal class name
+     */
+    public String classInternalName;
 
     //~~~ compiling constants
-    /** constant slots count */
-    public int                 constantCount     = 0;
+    /**
+     * constant slots count
+     */
+    public int constantCount = 0;
 
-    /** constant slots map */
-    public Map<Object, String> constantSlots     = new HashMap<>();
+    /**
+     * constant slots map
+     */
+    public Map<Object, String> constantSlots = new HashMap<>();
 
     //~~~ compiling variables
-    /** access tree */
-    public PropertyTree        propertyTree;
+    /**
+     * access tree
+     */
+    public PropertyTree propertyTree;
 
-    /** number of variables */
-    public int                 variableCount     = 0;
+    /**
+     * number of variables
+     */
+    public int variableCount = 0;
 
     //~~~ accessor management
-    /** accessor count */
-    public int                 accessorSlotCount = 0;
+    /**
+     * accessor count
+     */
+    public int accessorSlotCount = 0;
 
     public int nextVariableIndex() {
         return variableCount++;

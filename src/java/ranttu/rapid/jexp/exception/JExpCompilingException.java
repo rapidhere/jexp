@@ -2,6 +2,7 @@ package ranttu.rapid.jexp.exception;
 
 /**
  * the compiling exception
+ *
  * @author rapidhere@gmail.com
  * @version $Id: JExpCompilingException.java, v0.1 2017-07-28 4:18 PM dongwei.dq Exp $
  */

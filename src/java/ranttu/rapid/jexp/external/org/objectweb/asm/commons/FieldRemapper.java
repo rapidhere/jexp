@@ -37,7 +37,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
 /**
  * A {@link FieldVisitor} adapter for type remapping.
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class FieldRemapper extends FieldVisitor {
@@ -63,7 +63,7 @@ public class FieldRemapper extends FieldVisitor {
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
                                                  boolean visible) {
         AnnotationVisitor av = super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(desc),
-            visible);
+                visible);
         return av == null ? null : new AnnotationRemapper(av, remapper);
     }
 }

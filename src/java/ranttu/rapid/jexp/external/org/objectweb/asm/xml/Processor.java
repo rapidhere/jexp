@@ -29,6 +29,28 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.helpers.AttributesImpl;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamSource;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,30 +65,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamSource;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.ext.LexicalHandler;
-import org.xml.sax.helpers.AttributesImpl;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
-
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
-
 /**
  * Processor is a command line tool that can be used for bytecode waving
  * directed by XSL transformation.
@@ -74,59 +72,59 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
  * In order to use a concrete XSLT engine, system property
  * <tt>javax.xml.transform.TransformerFactory</tt> must be set to one of the
  * following values.
- * 
+ * <p>
  * <blockquote>
  * <table border="1" cellspacing="0" cellpadding="3">
  * <tr>
  * <td>jd.xslt</td>
  * <td>jd.xml.xslt.trax.TransformerFactoryImpl</td>
  * </tr>
- * 
+ * <p>
  * <tr>
  * <td>Saxon</td>
  * <td>net.sf.saxon.TransformerFactoryImpl</td>
  * </tr>
- * 
+ * <p>
  * <tr>
  * <td>Caucho</td>
  * <td>com.caucho.xsl.Xsl</td>
  * </tr>
- * 
+ * <p>
  * <tr>
  * <td>Xalan interpeter</td>
  * <td>org.apache.xalan.processor.TransformerFactory</td>
  * </tr>
- * 
+ * <p>
  * <tr>
  * <td>Xalan xsltc</td>
  * <td>org.apache.xalan.xsltc.trax.TransformerFactoryImpl</td>
  * </tr>
  * </table>
  * </blockquote>
- * 
+ *
  * @author Eugene Kuleshov
  */
 public class Processor {
 
-    public static final int     BYTECODE        = 1;
+    public static final int BYTECODE = 1;
 
-    public static final int     MULTI_XML       = 2;
+    public static final int MULTI_XML = 2;
 
-    public static final int     SINGLE_XML      = 3;
+    public static final int SINGLE_XML = 3;
 
     private static final String SINGLE_XML_NAME = "classes.xml";
 
-    private final int           inRepresentation;
+    private final int inRepresentation;
 
-    private final int           outRepresentation;
+    private final int outRepresentation;
 
-    private final InputStream   input;
+    private final InputStream input;
 
-    private final OutputStream  output;
+    private final OutputStream output;
 
-    private final Source        xslt;
+    private final Source xslt;
 
-    private int                 n               = 0;
+    private int n = 0;
 
     public Processor(final int inRepresenation, final int outRepresentation,
                      final InputStream input, final OutputStream output, final Source xslt) {
@@ -164,12 +162,12 @@ public class Processor {
         switch (outRepresentation) {
             case BYTECODE:
                 outDocHandler = new OutputSlicingHandler(new ASMContentHandlerFactory(zos),
-                    entryElement, false);
+                        entryElement, false);
                 break;
 
             case MULTI_XML:
                 outDocHandler = new OutputSlicingHandler(new SAXWriterFactory(osw, true),
-                    entryElement, true);
+                        entryElement, true);
                 break;
 
             case SINGLE_XML:
@@ -187,7 +185,7 @@ public class Processor {
             inDocHandler = outDocHandler;
         } else {
             inDocHandler = new InputSlicingHandler("class", outDocHandler,
-                new TransformerHandlerFactory(saxtf, templates, outDocHandler));
+                    new TransformerHandlerFactory(saxtf, templates, outDocHandler));
         }
         ContentHandlerFactory inDocHandlerFactory = new SubdocumentHandlerFactory(inDocHandler);
 
@@ -240,7 +238,7 @@ public class Processor {
     private boolean isClassEntry(final ZipEntry ze) {
         String name = ze.getName();
         return inRepresentation == SINGLE_XML && name.equals(SINGLE_XML_NAME)
-               || name.endsWith(".class") || name.endsWith(".class.xml");
+                || name.endsWith(".class") || name.endsWith(".class.xml");
     }
 
     private void processEntry(final ZipInputStream zis, final ZipEntry ze,
@@ -265,8 +263,8 @@ public class Processor {
                 XMLReader reader = XMLReaderFactory.createXMLReader();
                 reader.setContentHandler(handler);
                 reader.parse(new InputSource(
-                    singleInputDocument ? (InputStream) new ProtectedInputStream(zis)
-                        : new ByteArrayInputStream(readEntry(zis, ze))));
+                        singleInputDocument ? (InputStream) new ProtectedInputStream(zis)
+                                : new ByteArrayInputStream(readEntry(zis, ze))));
 
             }
         } catch (Exception ex) {
@@ -425,7 +423,7 @@ public class Processor {
 
     private static void showUsage() {
         System.err.println(
-            "Usage: Main <in format> <out format> [-in <input jar>] [-out <output jar>] [-xslt <xslt fiel>]");
+                "Usage: Main <in format> <out format> [-in <input jar>] [-out <output jar>] [-xslt <xslt fiel>]");
         System.err.println("  when -in or -out is omitted sysin and sysout would be used");
         System.err.println("  <in format> and <out format> - code | xml | singlexml");
     }
@@ -470,7 +468,7 @@ public class Processor {
 
         /**
          * Creates an instance of the content handler.
-         * 
+         *
          * @return content handler
          */
         ContentHandler createContentHandler();
@@ -481,7 +479,7 @@ public class Processor {
      * SAXWriterFactory
      */
     private static final class SAXWriterFactory implements ContentHandlerFactory {
-        private final Writer  w;
+        private final Writer w;
 
         private final boolean optimizeEmptyElements;
 
@@ -528,9 +526,9 @@ public class Processor {
     private static final class TransformerHandlerFactory implements ContentHandlerFactory {
         private SAXTransformerFactory saxtf;
 
-        private final Templates       templates;
+        private final Templates templates;
 
-        private ContentHandler        outputHandler;
+        private ContentHandler outputHandler;
 
         TransformerHandlerFactory(final SAXTransformerFactory saxtf, final Templates templates,
                                   final ContentHandler outputHandler) {
@@ -570,30 +568,28 @@ public class Processor {
      * A {@link org.xml.sax.ContentHandler ContentHandler} and
      * {@link org.xml.sax.ext.LexicalHandler LexicalHandler} that serializes XML
      * from SAX 2.0 events into {@link java.io.Writer Writer}.
-     * 
+     * <p>
      * <i><blockquote> This implementation does not support namespaces, entity
      * definitions (uncluding DTD), CDATA and text elements. </blockquote></i>
      */
     private static final class SAXWriter extends DefaultHandler implements LexicalHandler {
-        private static final char[] OFF         = "                                                                                                        "
-            .toCharArray();
+        private static final char[] OFF = "                                                                                                        "
+                .toCharArray();
 
-        private Writer              w;
+        private Writer w;
 
-        private final boolean       optimizeEmptyElements;
+        private final boolean optimizeEmptyElements;
 
-        private boolean             openElement = false;
+        private boolean openElement = false;
 
-        private int                 ident       = 0;
+        private int ident = 0;
 
         /**
          * Creates <code>SAXWriter</code>.
-         * 
-         * @param w
-         *            writer
-         * @param optimizeEmptyElements
-         *            if set to <code>true</code>, short XML syntax will be used
-         *            for empty elements
+         *
+         * @param w                     writer
+         * @param optimizeEmptyElements if set to <code>true</code>, short XML syntax will be used
+         *                              for empty elements
          */
         SAXWriter(final Writer w, final boolean optimizeEmptyElements) {
             this.w = w;
@@ -695,16 +691,15 @@ public class Processor {
             int len = atts.getLength();
             for (int i = 0; i < len; i++) {
                 sb.append(' ').append(atts.getLocalName(i)).append("=\"")
-                    .append(esc(atts.getValue(i))).append('\"');
+                        .append(esc(atts.getValue(i))).append('\"');
             }
             w.write(sb.toString());
         }
 
         /**
          * Encode string with escaping.
-         * 
-         * @param str
-         *            string to encode.
+         *
+         * @param str string to encode.
          * @return encoded string
          */
         private static final String esc(final String str) {
@@ -773,29 +768,26 @@ public class Processor {
      * TODO use complete path for subdocumentRoot
      */
     private static final class InputSlicingHandler extends DefaultHandler {
-        private String                subdocumentRoot;
+        private String subdocumentRoot;
 
-        private final ContentHandler  rootHandler;
+        private final ContentHandler rootHandler;
 
         private ContentHandlerFactory subdocumentHandlerFactory;
 
-        private boolean               subdocument = false;
+        private boolean subdocument = false;
 
-        private ContentHandler        subdocumentHandler;
+        private ContentHandler subdocumentHandler;
 
         /**
          * Constructs a new {@link InputSlicingHandler SubdocumentHandler}
          * object.
-         * 
-         * @param subdocumentRoot
-         *            name/path to the root element of the subdocument
-         * @param rootHandler
-         *            content handler for the entire document (subdocument
-         *            envelope).
-         * @param subdocumentHandlerFactory
-         *            a {@link ContentHandlerFactory ContentHandlerFactory} used
-         *            to create {@link ContentHandler ContentHandler} instances
-         *            for subdocuments.
+         *
+         * @param subdocumentRoot           name/path to the root element of the subdocument
+         * @param rootHandler               content handler for the entire document (subdocument
+         *                                  envelope).
+         * @param subdocumentHandlerFactory a {@link ContentHandlerFactory ContentHandlerFactory} used
+         *                                  to create {@link ContentHandler ContentHandler} instances
+         *                                  for subdocuments.
          */
         InputSlicingHandler(final String subdocumentRoot, final ContentHandler rootHandler,
                             final ContentHandlerFactory subdocumentHandlerFactory) {
@@ -868,35 +860,32 @@ public class Processor {
      * {@link java.net.ContentHandlerFactory ContentHandlerFactory}. This is
      * useful for running XSLT engine against large XML document that will
      * hardly fit into the memory all together.
-     * 
+     * <p>
      * <p>
      * TODO use complete path for subdocumentRoot
      */
     private static final class OutputSlicingHandler extends DefaultHandler {
-        private final String          subdocumentRoot;
+        private final String subdocumentRoot;
 
         private ContentHandlerFactory subdocumentHandlerFactory;
 
-        private final EntryElement    entryElement;
+        private final EntryElement entryElement;
 
-        private boolean               isXml;
+        private boolean isXml;
 
-        private boolean               subdocument = false;
+        private boolean subdocument = false;
 
-        private ContentHandler        subdocumentHandler;
+        private ContentHandler subdocumentHandler;
 
         /**
          * Constructs a new {@link OutputSlicingHandler SubdocumentHandler}
          * object.
-         * 
-         * @param subdocumentHandlerFactory
-         *            a {@link ContentHandlerFactory ContentHandlerFactory} used
-         *            to create {@link ContentHandler ContentHandler} instances
-         *            for subdocuments.
-         * @param entryElement
-         *            TODO.
-         * @param isXml
-         *            TODO.
+         *
+         * @param subdocumentHandlerFactory a {@link ContentHandlerFactory ContentHandlerFactory} used
+         *                                  to create {@link ContentHandler ContentHandler} instances
+         *                                  for subdocuments.
+         * @param entryElement              TODO.
+         * @param isXml                     TODO.
          */
         OutputSlicingHandler(final ContentHandlerFactory subdocumentHandlerFactory,
                              final EntryElement entryElement, final boolean isXml) {

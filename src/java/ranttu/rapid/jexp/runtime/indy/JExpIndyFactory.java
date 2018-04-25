@@ -10,6 +10,7 @@ import java.lang.invoke.MethodType;
 
 /**
  * invoke dynamic entry point factory
+ *
  * @author rapid
  * @version $Id: JExpIndyFactory.java, v 0.1 2018年04月05日 4:09 PM rapid Exp $
  */

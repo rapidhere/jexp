@@ -4,18 +4,6 @@
  */
 package ranttu.rapid.jexp.runtime.accesor;
 
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
-import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.WeakHashMap;
-import java.util.function.Consumer;
-
 import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.exception.JExpRuntimeException;
@@ -25,6 +13,18 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.runtime.RuntimeUtil;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.WeakHashMap;
+import java.util.function.Consumer;
+
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getMethodDescriptor;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
 
 /**
  * the accessor generate factory
@@ -43,15 +43,15 @@ final public class AccessorFactory implements Opcodes {
 
     //~~~ impl
 
-    private static final AccessorFactory    theFactory          = new AccessorFactory();
+    private static final AccessorFactory theFactory = new AccessorFactory();
 
-    private Map<String, Accessor>           accessorStore       = new HashMap<>();
+    private Map<String, Accessor> accessorStore = new HashMap<>();
 
     private Map<Class, Map<String, Method>> accessorMethodCache = new WeakHashMap<>();
 
-    private Map<Class, Map<String, Method>> allMethodsCache     = new WeakHashMap<>();
+    private Map<Class, Map<String, Method>> allMethodsCache = new WeakHashMap<>();
 
-    private static int                      accessorCount       = 0;
+    private static int accessorCount = 0;
 
     private Accessor get(Object o) {
         if (o == null) {
@@ -72,7 +72,7 @@ final public class AccessorFactory implements Opcodes {
         // start define
         var cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, classInternalName, null,
-            getInternalName(Object.class), new String[] { getInternalName(Accessor.class) });
+                getInternalName(Object.class), new String[]{getInternalName(Accessor.class)});
         cw.visitSource("<jexp-accessor>", null);
 
         // constructor method
@@ -104,7 +104,7 @@ final public class AccessorFactory implements Opcodes {
 
     private void generateIsSatisfied(ClassWriter cw, Class klass) {
         var mv = cw.visitMethod(ACC_PUBLIC, "isSatisfied",
-            getMethodDescriptor(getType(boolean.class), getType(Object.class)), null, null);
+                getMethodDescriptor(getType(boolean.class), getType(Object.class)), null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 1);
         mv.visitTypeInsn(INSTANCEOF, getInternalName(klass));
@@ -116,7 +116,7 @@ final public class AccessorFactory implements Opcodes {
     private void generateGetter(ClassWriter cw, Class klass) {
         // get method
         var mv = cw.visitMethod(ACC_PUBLIC, "get", getMethodDescriptor(getType(Object.class),
-            getType(Object.class), getType(String.class)), null, null);
+                getType(Object.class), getType(String.class)), null, null);
         mv.visitCode();
 
         //~~~ deal with map accessor
@@ -130,7 +130,7 @@ final public class AccessorFactory implements Opcodes {
 
             // invoke map
             mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Map.class), "get",
-                getMethodDescriptor(getType(Object.class), getType(Object.class)), true);
+                    getMethodDescriptor(getType(Object.class), getType(Object.class)), true);
             mv.visitInsn(ARETURN);
         }
         //~~~ common java bean
@@ -140,10 +140,10 @@ final public class AccessorFactory implements Opcodes {
                 mv.visitTypeInsn(CHECKCAST, getInternalName(klass));
                 if (method.getDeclaringClass().isInterface()) {
                     mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(method.getDeclaringClass()),
-                        method.getName(), getMethodDescriptor(method), true);
+                            method.getName(), getMethodDescriptor(method), true);
                 } else {
                     mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(method.getDeclaringClass()),
-                        method.getName(), getMethodDescriptor(method), false);
+                            method.getName(), getMethodDescriptor(method), false);
                 }
 
                 wrapToWrapper(mv, method);
@@ -161,7 +161,7 @@ final public class AccessorFactory implements Opcodes {
 
     private void generateInvoker(ClassWriter cw, Class klass) {
         var mv = cw.visitMethod(ACC_PUBLIC, "invoke", getMethodDescriptor(getType(Object.class),
-            getType(Object.class), getType(String.class), getType(Object[].class)), null, null);
+                getType(Object.class), getType(String.class), getType(Object[].class)), null, null);
 
         var methodMap = getAllMethods(klass);
 
@@ -184,10 +184,10 @@ final public class AccessorFactory implements Opcodes {
 
             if (method.getDeclaringClass().isInterface()) {
                 mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(method.getDeclaringClass()),
-                    method.getName(), getMethodDescriptor(method), true);
+                        method.getName(), getMethodDescriptor(method), true);
             } else {
                 mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(method.getDeclaringClass()), method.getName(),
-                    getMethodDescriptor(method), false);
+                        getMethodDescriptor(method), false);
             }
 
             wrapToWrapper(mv, method);
@@ -196,9 +196,9 @@ final public class AccessorFactory implements Opcodes {
             mv.visitVarInsn(ALOAD, 2);
             mv.visitLdcInsn(getInternalName(klass));
             mv.visitMethodInsn(INVOKESTATIC, getInternalName(RuntimeUtil.class), "noSuchMethod",
-                getMethodDescriptor(getType(Object.class), getType(String.class),
-                    getType(String.class)),
-                false);
+                    getMethodDescriptor(getType(Object.class), getType(String.class),
+                            getType(String.class)),
+                    false);
             mv.visitInsn(ARETURN);
         });
 
@@ -226,7 +226,7 @@ final public class AccessorFactory implements Opcodes {
         // calc hashcode
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "hashCode",
-            getMethodDescriptor(getType(int.class)), false);
+                getMethodDescriptor(getType(int.class)), false);
         mv.visitLookupSwitchInsn(defaultLabel, hashCodes, hashLabels);
 
         for (i = 0; i < hashCodes.length; i++) {
@@ -239,7 +239,7 @@ final public class AccessorFactory implements Opcodes {
                 mv.visitVarInsn(ALOAD, 2);
                 mv.visitLdcInsn(name);
                 mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(String.class), "equals",
-                    getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
+                        getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
                 mv.visitJumpInsn(IFEQ, failedLabel);
 
                 matched.accept(method);
@@ -323,15 +323,15 @@ final public class AccessorFactory implements Opcodes {
 
     private void primitiveToWrapper(MethodVisitor mv, Class primitiveType, Class warpType) {
         mv.visitMethodInsn(INVOKESTATIC, getInternalName(warpType), "valueOf",
-            getMethodDescriptor(getType(warpType), getType(primitiveType)), false);
+                getMethodDescriptor(getType(warpType), getType(primitiveType)), false);
     }
 
     private void wrapperToPrimitive(MethodVisitor mv, Class primitiveType,
                                     @SuppressWarnings("unused") Class warpType) {
         mv.visitTypeInsn(CHECKCAST, getInternalName(Number.class));
         mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Number.class),
-            primitiveType.getSimpleName() + "Value", getMethodDescriptor(getType(primitiveType)),
-            false);
+                primitiveType.getSimpleName() + "Value", getMethodDescriptor(getType(primitiveType)),
+                false);
     }
 
     private Map<Integer, Map<String, Method>> groupByHashCode(Map<String, Method> methods) {
@@ -393,6 +393,6 @@ final public class AccessorFactory implements Opcodes {
 
     private String getAccessorName(Class klass) {
         return "ranttu.rapid.jexp.runtime.accesor." + klass.getName().replace('.', '_')
-               + "$Accessor$" + accessorCount++;
+                + "$Accessor$" + accessorCount++;
     }
 }

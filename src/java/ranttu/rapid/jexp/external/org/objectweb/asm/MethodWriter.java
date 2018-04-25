@@ -33,7 +33,7 @@ package ranttu.rapid.jexp.external.org.objectweb.asm;
  * A {@link MethodVisitor} that generates methods in bytecode form. Each visit
  * method of this class appends the bytecode corresponding to the visited
  * instruction to a byte vector, in the order these methods are called.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -42,64 +42,64 @@ class MethodWriter extends MethodVisitor {
     /**
      * Pseudo access flag used to denote constructors.
      */
-    static final int           ACC_CONSTRUCTOR                         = 0x80000;
+    static final int ACC_CONSTRUCTOR = 0x80000;
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is zero.
      */
-    static final int           SAME_FRAME                              = 0;               // to 63 (0-3f)
+    static final int SAME_FRAME = 0;               // to 63 (0-3f)
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is 1
      */
-    static final int           SAME_LOCALS_1_STACK_ITEM_FRAME          = 64;              // to 127 (40-7f)
+    static final int SAME_LOCALS_1_STACK_ITEM_FRAME = 64;              // to 127 (40-7f)
 
     /**
      * Reserved for future use
      */
-    static final int           RESERVED                                = 128;
+    static final int RESERVED = 128;
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is 1. Offset is bigger then 63;
      */
-    static final int           SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247;             // f7
+    static final int SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED = 247;             // f7
 
     /**
      * Frame where current locals are the same as the locals in the previous
      * frame, except that the k last locals are absent. The value of k is given
      * by the formula 251-frame_type.
      */
-    static final int           CHOP_FRAME                              = 248;             // to 250 (f8-fA)
+    static final int CHOP_FRAME = 248;             // to 250 (f8-fA)
 
     /**
      * Frame has exactly the same locals as the previous stack map frame and
      * number of stack items is zero. Offset is bigger then 63;
      */
-    static final int           SAME_FRAME_EXTENDED                     = 251;             // fb
+    static final int SAME_FRAME_EXTENDED = 251;             // fb
 
     /**
      * Frame where current locals are the same as the locals in the previous
      * frame, except that k additional locals are defined. The value of k is
      * given by the formula frame_type-251.
      */
-    static final int           APPEND_FRAME                            = 252;             // to 254 // fc-fe
+    static final int APPEND_FRAME = 252;             // to 254 // fc-fe
 
     /**
      * Full frame
      */
-    static final int           FULL_FRAME                              = 255;             // ff
+    static final int FULL_FRAME = 255;             // ff
 
     /**
      * Indicates that the stack map frames must be recomputed from scratch. In
      * this case the maximum stack size and number of local variables is also
      * recomputed from scratch.
-     * 
+     *
      * @see #compute
      */
-    static final int           FRAMES                                  = 0;
+    static final int FRAMES = 0;
 
     /**
      * Indicates that the stack map frames of type F_INSERT must be computed.
@@ -108,57 +108,57 @@ class MethodWriter extends MethodVisitor {
      * together with the bytecode instructions between a F_NEW and a F_INSERT
      * frame - and without any knowledge of the type hierarchy (by definition of
      * F_INSERT).
-     * 
+     *
      * @see #compute
      */
-    static final int           INSERTED_FRAMES                         = 1;
+    static final int INSERTED_FRAMES = 1;
 
     /**
      * Indicates that the maximum stack size and number of local variables must
      * be automatically computed.
-     * 
+     *
      * @see #compute
      */
-    static final int           MAXS                                    = 2;
+    static final int MAXS = 2;
 
     /**
      * Indicates that nothing must be automatically computed.
-     * 
+     *
      * @see #compute
      */
-    static final int           NOTHING                                 = 3;
+    static final int NOTHING = 3;
 
     /**
      * The class writer to which this method must be added.
      */
-    final ClassWriter          cw;
+    final ClassWriter cw;
 
     /**
      * Access flags of this method.
      */
-    private int                access;
+    private int access;
 
     /**
      * The index of the constant pool item that contains the name of this
      * method.
      */
-    private final int          name;
+    private final int name;
 
     /**
      * The index of the constant pool item that contains the descriptor of this
      * method.
      */
-    private final int          desc;
+    private final int desc;
 
     /**
      * The descriptor of this method.
      */
-    private final String       descriptor;
+    private final String descriptor;
 
     /**
      * The signature of this method.
      */
-    String                     signature;
+    String signature;
 
     /**
      * If not zero, indicates that the code of this method must be copied from
@@ -166,7 +166,7 @@ class MethodWriter extends MethodVisitor {
      * precisely, this field gives the index of the first byte to copied from
      * <code>cw.cr.b</code>.
      */
-    int                        classReaderOffset;
+    int classReaderOffset;
 
     /**
      * If not zero, indicates that the code of this method must be copied from
@@ -174,46 +174,46 @@ class MethodWriter extends MethodVisitor {
      * precisely, this field gives the number of bytes to copied from
      * <code>cw.cr.b</code>.
      */
-    int                        classReaderLength;
+    int classReaderLength;
 
     /**
      * Number of exceptions that can be thrown by this method.
      */
-    int                        exceptionCount;
+    int exceptionCount;
 
     /**
      * The exceptions that can be thrown by this method. More precisely, this
      * array contains the indexes of the constant pool items that contain the
      * internal names of these exception classes.
      */
-    int[]                      exceptions;
+    int[] exceptions;
 
     /**
      * The annotation default attribute of this method. May be <tt>null</tt>.
      */
-    private ByteVector         annd;
+    private ByteVector annd;
 
     /**
      * The runtime visible annotations of this method. May be <tt>null</tt>.
      */
-    private AnnotationWriter   anns;
+    private AnnotationWriter anns;
 
     /**
      * The runtime invisible annotations of this method. May be <tt>null</tt>.
      */
-    private AnnotationWriter   ianns;
+    private AnnotationWriter ianns;
 
     /**
      * The runtime visible type annotations of this method. May be <tt>null</tt>
      * .
      */
-    private AnnotationWriter   tanns;
+    private AnnotationWriter tanns;
 
     /**
      * The runtime invisible type annotations of this method. May be
      * <tt>null</tt>.
      */
-    private AnnotationWriter   itanns;
+    private AnnotationWriter itanns;
 
     /**
      * The runtime visible parameter annotations of this method. May be
@@ -230,55 +230,55 @@ class MethodWriter extends MethodVisitor {
     /**
      * The number of synthetic parameters of this method.
      */
-    private int                synthetics;
+    private int synthetics;
 
     /**
      * The non standard attributes of the method.
      */
-    private Attribute          attrs;
+    private Attribute attrs;
 
     /**
      * The bytecode of this method.
      */
-    private ByteVector         code                                    = new ByteVector();
+    private ByteVector code = new ByteVector();
 
     /**
      * Maximum stack size of this method.
      */
-    private int                maxStack;
+    private int maxStack;
 
     /**
      * Maximum number of local variables for this method.
      */
-    private int                maxLocals;
+    private int maxLocals;
 
     /**
      * Number of local variables in the current stack map frame.
      */
-    private int                currentLocals;
+    private int currentLocals;
 
     /**
      * Number of stack map frames in the StackMapTable attribute.
      */
-    private int                frameCount;
+    private int frameCount;
 
     /**
      * The StackMapTable attribute.
      */
-    private ByteVector         stackMap;
+    private ByteVector stackMap;
 
     /**
      * The offset of the last frame that was written in the StackMapTable
      * attribute.
      */
-    private int                previousFrameOffset;
+    private int previousFrameOffset;
 
     /**
      * The last frame that was written in the StackMapTable attribute.
-     * 
+     *
      * @see #frame
      */
-    private int[]              previousFrame;
+    private int[] previousFrame;
 
     /**
      * The current stack map frame. The first element contains the offset of the
@@ -289,87 +289,87 @@ class MethodWriter extends MethodVisitor {
      * nStack, frame[3] = nLocal. All types are encoded as integers, with the
      * same format as the one used in {@link Label}, but limited to BASE types.
      */
-    private int[]              frame;
+    private int[] frame;
 
     /**
      * Number of elements in the exception handler list.
      */
-    private int                handlerCount;
+    private int handlerCount;
 
     /**
      * The first element in the exception handler list.
      */
-    private Handler            firstHandler;
+    private Handler firstHandler;
 
     /**
      * The last element in the exception handler list.
      */
-    private Handler            lastHandler;
+    private Handler lastHandler;
 
     /**
      * Number of entries in the MethodParameters attribute.
      */
-    private int                methodParametersCount;
+    private int methodParametersCount;
 
     /**
      * The MethodParameters attribute.
      */
-    private ByteVector         methodParameters;
+    private ByteVector methodParameters;
 
     /**
      * Number of entries in the LocalVariableTable attribute.
      */
-    private int                localVarCount;
+    private int localVarCount;
 
     /**
      * The LocalVariableTable attribute.
      */
-    private ByteVector         localVar;
+    private ByteVector localVar;
 
     /**
      * Number of entries in the LocalVariableTypeTable attribute.
      */
-    private int                localVarTypeCount;
+    private int localVarTypeCount;
 
     /**
      * The LocalVariableTypeTable attribute.
      */
-    private ByteVector         localVarType;
+    private ByteVector localVarType;
 
     /**
      * Number of entries in the LineNumberTable attribute.
      */
-    private int                lineNumberCount;
+    private int lineNumberCount;
 
     /**
      * The LineNumberTable attribute.
      */
-    private ByteVector         lineNumber;
+    private ByteVector lineNumber;
 
     /**
      * The start offset of the last visited instruction.
      */
-    private int                lastCodeOffset;
+    private int lastCodeOffset;
 
     /**
      * The runtime visible type annotations of the code. May be <tt>null</tt>.
      */
-    private AnnotationWriter   ctanns;
+    private AnnotationWriter ctanns;
 
     /**
      * The runtime invisible type annotations of the code. May be <tt>null</tt>.
      */
-    private AnnotationWriter   ictanns;
+    private AnnotationWriter ictanns;
 
     /**
      * The non standard attributes of the method's code.
      */
-    private Attribute          cattrs;
+    private Attribute cattrs;
 
     /**
      * The number of subroutines in this method.
      */
-    private int                subroutines;
+    private int subroutines;
 
     // ------------------------------------------------------------------------
 
@@ -385,13 +385,13 @@ class MethodWriter extends MethodVisitor {
 
     /**
      * Indicates what must be automatically computed.
-     * 
+     *
      * @see #FRAMES
      * @see #INSERTED_FRAMES
      * @see #MAXS
      * @see #NOTHING
      */
-    private final int          compute;
+    private final int compute;
 
     /**
      * A list of labels. This list is the list of basic blocks in the method,
@@ -400,17 +400,17 @@ class MethodWriter extends MethodVisitor {
      * {@link MethodVisitor#visitLabel}, and starting with the first basic
      * block.
      */
-    private Label              labels;
+    private Label labels;
 
     /**
      * The previous basic block.
      */
-    private Label              previousBlock;
+    private Label previousBlock;
 
     /**
      * The current basic block.
      */
-    private Label              currentBlock;
+    private Label currentBlock;
 
     /**
      * The (relative) stack size after the last visited instruction. This size
@@ -419,7 +419,7 @@ class MethodWriter extends MethodVisitor {
      * {@link Label#inputStackTop beginStackSize} of the current basic block
      * plus <tt>stackSize</tt>.
      */
-    private int                stackSize;
+    private int stackSize;
 
     /**
      * The (relative) maximum stack size after the last visited instruction.
@@ -428,7 +428,7 @@ class MethodWriter extends MethodVisitor {
      * to the {@link Label#inputStackTop beginStackSize} of the current basic
      * block plus <tt>stackSize</tt>.
      */
-    private int                maxStackSize;
+    private int maxStackSize;
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -436,22 +436,15 @@ class MethodWriter extends MethodVisitor {
 
     /**
      * Constructs a new {@link MethodWriter}.
-     * 
-     * @param cw
-     *            the class writer in which the method must be added.
-     * @param access
-     *            the method's access flags (see {@link Opcodes}).
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type}).
-     * @param signature
-     *            the method's signature. May be <tt>null</tt>.
-     * @param exceptions
-     *            the internal names of the method's exceptions. May be
-     *            <tt>null</tt>.
-     * @param compute
-     *            Indicates what must be automatically computed (see #compute).
+     *
+     * @param cw         the class writer in which the method must be added.
+     * @param access     the method's access flags (see {@link Opcodes}).
+     * @param name       the method's name.
+     * @param desc       the method's descriptor (see {@link Type}).
+     * @param signature  the method's signature. May be <tt>null</tt>.
+     * @param exceptions the internal names of the method's exceptions. May be
+     *                   <tt>null</tt>.
+     * @param compute    Indicates what must be automatically computed (see #compute).
      */
     MethodWriter(final ClassWriter cw, final int access, final String name, final String desc,
                  final String signature, final String[] exceptions, final int compute) {
@@ -621,7 +614,7 @@ class MethodWriter extends MethodVisitor {
                 currentBlock.frame = new CurrentFrame();
                 currentBlock.frame.owner = currentBlock;
                 currentBlock.frame.initInputFrame(cw, access, Type.getArgumentTypes(descriptor),
-                    nLocal);
+                        nLocal);
                 visitImplicitFirstFrame();
             } else {
                 if (type == Opcodes.F_NEW) {
@@ -648,7 +641,7 @@ class MethodWriter extends MethodVisitor {
                     frame[frameIndex++] = ((Integer) local[i]).intValue();
                 } else {
                     frame[frameIndex++] = Frame.UNINITIALIZED | cw.addUninitializedType("",
-                        ((Label) local[i]).position);
+                            ((Label) local[i]).position);
                 }
             }
             for (int i = 0; i < nStack; ++i) {
@@ -658,7 +651,7 @@ class MethodWriter extends MethodVisitor {
                     frame[frameIndex++] = ((Integer) stack[i]).intValue();
                 } else {
                     frame[frameIndex++] = Frame.UNINITIALIZED | cw.addUninitializedType("",
-                        ((Label) stack[i]).position);
+                            ((Label) stack[i]).position);
                 }
             }
             endFrame();
@@ -746,7 +739,7 @@ class MethodWriter extends MethodVisitor {
             }
             // if opcode == ATHROW or xRETURN, ends current block (no successor)
             if ((opcode >= Opcodes.IRETURN && opcode <= Opcodes.RETURN)
-                || opcode == Opcodes.ATHROW) {
+                    || opcode == Opcodes.ATHROW) {
                 noSuccessor();
             }
         }
@@ -806,7 +799,7 @@ class MethodWriter extends MethodVisitor {
             // updates max locals
             int n;
             if (opcode == Opcodes.LLOAD || opcode == Opcodes.DLOAD || opcode == Opcodes.LSTORE
-                || opcode == Opcodes.DSTORE) {
+                    || opcode == Opcodes.DSTORE) {
                 n = var + 2;
             } else {
                 n = var + 1;
@@ -1037,7 +1030,7 @@ class MethodWriter extends MethodVisitor {
         }
         // adds the instruction to the bytecode of the method
         if ((label.status & Label.RESOLVED) != 0
-            && label.position - code.length < Short.MIN_VALUE) {
+                && label.position - code.length < Short.MIN_VALUE) {
             /*
              * case of a backward jump with an offset < -32768. In this case we
              * automatically replace GOTO with GOTO_W, JSR with JSR_W and IFxxx
@@ -1366,14 +1359,14 @@ class MethodWriter extends MethodVisitor {
             }
             ++localVarTypeCount;
             localVarType.putShort(start.position).putShort(end.position - start.position)
-                .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(signature)).putShort(index);
+                    .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(signature)).putShort(index);
         }
         if (localVar == null) {
             localVar = new ByteVector();
         }
         ++localVarCount;
         localVar.putShort(start.position).putShort(end.position - start.position)
-            .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(desc)).putShort(index);
+                .putShort(cw.newUTF8(name)).putShort(cw.newUTF8(desc)).putShort(index);
         if (compute != NOTHING) {
             // updates max locals
             char c = desc.charAt(0);
@@ -1396,7 +1389,7 @@ class MethodWriter extends MethodVisitor {
         bv.putByte(typeRef >>> 24).putShort(start.length);
         for (int i = 0; i < start.length; ++i) {
             bv.putShort(start[i].position).putShort(end[i].position - start[i].position)
-                .putShort(index[i]);
+                    .putShort(index[i]);
         }
         if (typePath == null) {
             bv.putByte(0);
@@ -1591,7 +1584,7 @@ class MethodWriter extends MethodVisitor {
                             // ...assigns it a new id and finds its basic blocks
                             id += 1;
                             subroutine.visitSubroutine(null, (id / 32L) << 32 | (1L << (id % 32)),
-                                subroutines);
+                                    subroutines);
                         }
                     }
                     l = l.successor;
@@ -1673,11 +1666,9 @@ class MethodWriter extends MethodVisitor {
 
     /**
      * Adds a successor to the {@link #currentBlock currentBlock} block.
-     * 
-     * @param info
-     *            information about the control flow edge to be added.
-     * @param successor
-     *            the successor block to be added to the current block.
+     *
+     * @param info      information about the control flow edge to be added.
+     * @param successor the successor block to be added to the current block.
      */
     private void addSuccessor(final int info, final Label successor) {
         // creates and initializes an Edge object...
@@ -1715,9 +1706,8 @@ class MethodWriter extends MethodVisitor {
 
     /**
      * Visits a frame that has been computed from scratch.
-     * 
-     * @param f
-     *            the frame that must be visited.
+     *
+     * @param f the frame that must be visited.
      */
     private void visitFrame(final Frame f) {
         int i, t;
@@ -1782,7 +1772,8 @@ class MethodWriter extends MethodVisitor {
             }
         }
         int i = 1;
-        loop: while (true) {
+        loop:
+        while (true) {
             int j = i;
             switch (descriptor.charAt(i++)) {
                 case 'Z':
@@ -1818,7 +1809,7 @@ class MethodWriter extends MethodVisitor {
                         ++i;
                     }
                     frame[frameIndex++] = Frame.OBJECT
-                                          | cw.addType(descriptor.substring(j + 1, i++));
+                            | cw.addType(descriptor.substring(j + 1, i++));
                     break;
                 default:
                     break loop;
@@ -1830,13 +1821,10 @@ class MethodWriter extends MethodVisitor {
 
     /**
      * Starts the visit of a stack map frame.
-     * 
-     * @param offset
-     *            the offset of the instruction to which the frame corresponds.
-     * @param nLocal
-     *            the number of local variables in the frame.
-     * @param nStack
-     *            the number of stack elements in the frame.
+     *
+     * @param offset the offset of the instruction to which the frame corresponds.
+     * @param nLocal the number of local variables in the frame.
+     * @param nStack the number of stack elements in the frame.
      * @return the index of the next element to be written in this frame.
      */
     private int startFrame(final int offset, final int nLocal, final int nStack) {
@@ -1909,7 +1897,7 @@ class MethodWriter extends MethodVisitor {
             }
         } else if (clocalsSize == localsSize && cstackSize == 1) {
             type = delta < 63 ? SAME_LOCALS_1_STACK_ITEM_FRAME
-                : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
+                    : SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED;
         }
         if (type != FULL_FRAME) {
             // verify if locals are the same
@@ -1958,11 +1946,9 @@ class MethodWriter extends MethodVisitor {
      * StackMapTableAttribute. This method converts types from the format used
      * in {@link Label} to the format used in StackMapTable attributes. In
      * particular, it converts type table indexes to constant pool indexes.
-     * 
-     * @param start
-     *            index of the first type in {@link #frame} to write.
-     * @param end
-     *            index of last type in {@link #frame} to write (exclusive).
+     *
+     * @param start index of the first type in {@link #frame} to write.
+     * @param end   index of last type in {@link #frame} to write (exclusive).
      */
     private void writeFrameTypes(final int start, final int end) {
         for (int i = start; i < end; ++i) {
@@ -2038,7 +2024,7 @@ class MethodWriter extends MethodVisitor {
 
     /**
      * Returns the size of the bytecode of this method.
-     * 
+     *
      * @return the size of the bytecode of this method.
      */
     final int getSize() {
@@ -2087,7 +2073,7 @@ class MethodWriter extends MethodVisitor {
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
             if ((cw.version & 0xFFFF) < Opcodes.V1_5
-                || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+                    || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 cw.newUTF8("Synthetic");
                 size += 6;
             }
@@ -2147,15 +2133,14 @@ class MethodWriter extends MethodVisitor {
 
     /**
      * Puts the bytecode of this method in the given byte vector.
-     * 
-     * @param out
-     *            the byte vector into which the bytecode of this method must be
+     *
+     * @param out the byte vector into which the bytecode of this method must be
      *            copied.
      */
     final void put(final ByteVector out) {
         final int FACTOR = ClassWriter.TO_ACC_SYNTHETIC;
         int mask = ACC_CONSTRUCTOR | Opcodes.ACC_DEPRECATED | ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
-                   | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / FACTOR);
+                | ((access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) / FACTOR);
         out.putShort(access & ~mask).putShort(name).putShort(desc);
         if (classReaderOffset != 0) {
             out.putByteArray(cw.cr.b, classReaderOffset, classReaderLength);
@@ -2170,7 +2155,7 @@ class MethodWriter extends MethodVisitor {
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
             if ((cw.version & 0xFFFF) < Opcodes.V1_5
-                || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+                    || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 ++attributeCount;
             }
         }
@@ -2239,7 +2224,7 @@ class MethodWriter extends MethodVisitor {
                 Handler h = firstHandler;
                 while (h != null) {
                     out.putShort(h.start.position).putShort(h.end.position)
-                        .putShort(h.handler.position).putShort(h.type);
+                            .putShort(h.handler.position).putShort(h.type);
                     h = h.next;
                 }
             }
@@ -2308,7 +2293,7 @@ class MethodWriter extends MethodVisitor {
         }
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
             if ((cw.version & 0xFFFF) < Opcodes.V1_5
-                || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
+                    || (access & ClassWriter.ACC_SYNTHETIC_ATTRIBUTE) != 0) {
                 out.putShort(cw.newUTF8("Synthetic")).putInt(0);
             }
         }

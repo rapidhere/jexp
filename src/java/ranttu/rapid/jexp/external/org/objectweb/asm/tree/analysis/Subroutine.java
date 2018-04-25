@@ -29,22 +29,22 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.JumpInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.LabelNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A method subroutine (corresponds to a JSR instruction).
- * 
+ *
  * @author Eric Bruneton
  */
 class Subroutine {
 
-    LabelNode          start;
+    LabelNode start;
 
-    boolean[]          access;
+    boolean[] access;
 
     List<JumpInsnNode> callers;
 

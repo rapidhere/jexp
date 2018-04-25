@@ -29,8 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis;
 
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
@@ -43,9 +41,11 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.TypeInsnNode;
 
+import java.util.List;
+
 /**
  * An {@link Interpreter} for {@link BasicValue} values.
- * 
+ *
  * @author Eric Bruneton
  * @author Bing Ran
  */

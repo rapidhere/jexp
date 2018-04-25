@@ -29,16 +29,16 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.commons;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link MethodVisitor} that keeps track of stack map frame changes between
@@ -56,7 +56,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
  * compute the stack map frame for each instruction. In this case no exception
  * is thrown but the {@link #locals} and {@link #stack} fields will be null for
  * these instructions.
- * 
+ *
  * @author Eric Bruneton
  */
 public class AnalyzerAdapter extends MethodVisitor {
@@ -73,7 +73,7 @@ public class AnalyzerAdapter extends MethodVisitor {
      * this uninitialized value). This field is <tt>null</tt> for unreachable
      * instructions.
      */
-    public List<Object>        locals;
+    public List<Object> locals;
 
     /**
      * <code>List</code> of the operand stack slots for current execution frame.
@@ -87,13 +87,13 @@ public class AnalyzerAdapter extends MethodVisitor {
      * this uninitialized value). This field is <tt>null</tt> for unreachable
      * instructions.
      */
-    public List<Object>        stack;
+    public List<Object> stack;
 
     /**
      * The labels that designate the next instruction to be visited. May be
      * <tt>null</tt>.
      */
-    private List<Label>        labels;
+    private List<Label> labels;
 
     /**
      * Information about uninitialized types in the current execution frame.
@@ -107,37 +107,31 @@ public class AnalyzerAdapter extends MethodVisitor {
     /**
      * The maximum stack size of this method.
      */
-    private int                maxStack;
+    private int maxStack;
 
     /**
      * The maximum number of local variables of this method.
      */
-    private int                maxLocals;
+    private int maxLocals;
 
     /**
      * The owner's class name.
      */
-    private String             owner;
+    private String owner;
 
     /**
      * Creates a new {@link AnalyzerAdapter}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #AnalyzerAdapter(int, String, int, String, String, MethodVisitor)}
      * version.
-     * 
-     * @param owner
-     *            the owner's class name.
-     * @param access
-     *            the method's access flags (see {@link Opcodes}).
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type Type}).
-     * @param mv
-     *            the method visitor to which this adapter delegates calls. May
-     *            be <tt>null</tt>.
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @param owner  the owner's class name.
+     * @param access the method's access flags (see {@link Opcodes}).
+     * @param name   the method's name.
+     * @param desc   the method's descriptor (see {@link Type Type}).
+     * @param mv     the method visitor to which this adapter delegates calls. May
+     *               be <tt>null</tt>.
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public AnalyzerAdapter(final String owner, final int access, final String name,
                            final String desc, final MethodVisitor mv) {
@@ -149,21 +143,15 @@ public class AnalyzerAdapter extends MethodVisitor {
 
     /**
      * Creates a new {@link AnalyzerAdapter}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param owner
-     *            the owner's class name.
-     * @param access
-     *            the method's access flags (see {@link Opcodes}).
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type Type}).
-     * @param mv
-     *            the method visitor to which this adapter delegates calls. May
-     *            be <tt>null</tt>.
+     *
+     * @param api    the ASM API version implemented by this visitor. Must be one
+     *               of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param owner  the owner's class name.
+     * @param access the method's access flags (see {@link Opcodes}).
+     * @param name   the method's name.
+     * @param desc   the method's descriptor (see {@link Type Type}).
+     * @param mv     the method visitor to which this adapter delegates calls. May
+     *               be <tt>null</tt>.
      */
     protected AnalyzerAdapter(final int api, final String owner, final int access,
                               final String name, final String desc, final MethodVisitor mv) {
@@ -218,7 +206,7 @@ public class AnalyzerAdapter extends MethodVisitor {
                            final Object[] stack) {
         if (type != Opcodes.F_NEW) { // uncompressed frame
             throw new IllegalStateException(
-                "ClassReader.accept() should be called with EXPAND_FRAMES flag");
+                    "ClassReader.accept() should be called with EXPAND_FRAMES flag");
         }
 
         if (mv != null) {

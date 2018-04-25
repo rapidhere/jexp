@@ -4,20 +4,21 @@
  */
 package ranttu.rapid.jexp.compile;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * a tree of identifier
+ *
  * @author rapid
  * @version $Id: AccessTree.java, v 0.1 2017年10月09日 8:41 AM rapid Exp $
  */
 @RequiredArgsConstructor
 public class PropertyTree {
-    private PropertyNode           root = new PropertyNode();
+    private PropertyNode root = new PropertyNode();
 
     final private CompilingContext compilingContext;
 
@@ -50,20 +51,20 @@ public class PropertyTree {
     }
 
     /**
-     *  a access node
+     * a access node
      */
     public static class PropertyNode {
-        public String                    identifier;
+        public String identifier;
 
-        public String                    accessorSlot;
+        public String accessorSlot;
 
         public Map<String, PropertyNode> children = new HashMap<>();
 
-        public boolean                   isRoot   = true;
+        public boolean isRoot = true;
 
-        public boolean                   isAccessPoint;
+        public boolean isAccessPoint;
 
-        public int                       variableIndex;
+        public int variableIndex;
 
         private void visit(TreeVisitor tv) {
             tv.visit(this);

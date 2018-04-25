@@ -39,9 +39,9 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
 /**
  * A {@link LocalVariablesSorter} for type mapping.
- * 
- * @deprecated use {@link MethodRemapper} instead.
+ *
  * @author Eugene Kuleshov
+ * @deprecated use {@link MethodRemapper} instead.
  */
 @Deprecated
 public class RemappingMethodAdapter extends LocalVariablesSorter {
@@ -75,21 +75,21 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
                                                  boolean visible) {
         AnnotationVisitor av = super.visitTypeAnnotation(typeRef, typePath, remapper.mapDesc(desc),
-            visible);
+                visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 
     @Override
     public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
         AnnotationVisitor av = super.visitParameterAnnotation(parameter, remapper.mapDesc(desc),
-            visible);
+                visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 
     @Override
     public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
         super.visitFrame(type, nLocal, remapEntries(nLocal, local), nStack,
-            remapEntries(nStack, stack));
+                remapEntries(nStack, stack));
     }
 
     private Object[] remapEntries(int n, Object[] entries) {
@@ -112,7 +112,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     @Override
     public void visitFieldInsn(int opcode, String owner, String name, String desc) {
         super.visitFieldInsn(opcode, remapper.mapType(owner),
-            remapper.mapFieldName(owner, name, desc), remapper.mapDesc(desc));
+                remapper.mapFieldName(owner, name, desc), remapper.mapDesc(desc));
     }
 
     @Deprecated
@@ -146,7 +146,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
         // LocalVariableSorter.
         if (mv != null) {
             mv.visitMethodInsn(opcode, remapper.mapType(owner),
-                remapper.mapMethodName(owner, name, desc), remapper.mapMethodDesc(desc), itf);
+                    remapper.mapMethodName(owner, name, desc), remapper.mapMethodDesc(desc), itf);
         }
     }
 
@@ -156,7 +156,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
             bsmArgs[i] = remapper.mapValue(bsmArgs[i]);
         }
         super.visitInvokeDynamicInsn(remapper.mapInvokeDynamicMethodName(name, desc),
-            remapper.mapMethodDesc(desc), (Handle) remapper.mapValue(bsm), bsmArgs);
+                remapper.mapMethodDesc(desc), (Handle) remapper.mapValue(bsm), bsmArgs);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String desc,
                                                  boolean visible) {
         AnnotationVisitor av = super.visitInsnAnnotation(typeRef, typePath, remapper.mapDesc(desc),
-            visible);
+                visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 
@@ -191,7 +191,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String desc,
                                                      boolean visible) {
         AnnotationVisitor av = super.visitTryCatchAnnotation(typeRef, typePath,
-            remapper.mapDesc(desc), visible);
+                remapper.mapDesc(desc), visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 
@@ -199,7 +199,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
     public void visitLocalVariable(String name, String desc, String signature, Label start,
                                    Label end, int index) {
         super.visitLocalVariable(name, remapper.mapDesc(desc),
-            remapper.mapSignature(signature, true), start, end, index);
+                remapper.mapSignature(signature, true), start, end, index);
     }
 
     @Override
@@ -207,7 +207,7 @@ public class RemappingMethodAdapter extends LocalVariablesSorter {
                                                           Label[] start, Label[] end, int[] index,
                                                           String desc, boolean visible) {
         AnnotationVisitor av = super.visitLocalVariableAnnotation(typeRef, typePath, start, end,
-            index, remapper.mapDesc(desc), visible);
+                index, remapper.mapDesc(desc), visible);
         return av == null ? av : new RemappingAnnotationAdapter(av, remapper);
     }
 }

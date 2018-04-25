@@ -30,7 +30,6 @@
 package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
 import org.xml.sax.Attributes;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
@@ -38,7 +37,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
 /**
  * SAXFieldAdapter
- * 
+ *
  * @author Eugene Kuleshov
  */
 public final class SAXFieldAdapter extends FieldVisitor {
@@ -60,7 +59,7 @@ public final class SAXFieldAdapter extends FieldVisitor {
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
                                                  boolean visible) {
         return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1, null, desc, typeRef,
-            typePath);
+                typePath);
     }
 
     @Override

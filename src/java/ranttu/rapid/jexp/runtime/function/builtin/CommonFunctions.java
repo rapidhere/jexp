@@ -4,9 +4,9 @@
  */
 package ranttu.rapid.jexp.runtime.function.builtin;
 
-import java.util.Date;
-
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
+
+import java.util.Date;
 
 /**
  * @author rapid

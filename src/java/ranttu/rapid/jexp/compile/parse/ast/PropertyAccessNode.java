@@ -13,9 +13,13 @@ import ranttu.rapid.jexp.compile.PropertyTree;
  * @version $Id: PropertyAccessNode.java, v 0.1 2018年02月24日 5:56 PM rapid Exp $
  */
 public abstract class PropertyAccessNode extends ExpressionNode {
-    /** access node on the access tree of this ast node*/
+    /**
+     * access node on the access tree of this ast node
+     */
     public PropertyTree.PropertyNode propertyNode;
 
-    /** if this is a static access? */
-    public boolean                   isStatic = false;
+    /**
+     * if this is a static access?
+     */
+    public boolean isStatic = false;
 }

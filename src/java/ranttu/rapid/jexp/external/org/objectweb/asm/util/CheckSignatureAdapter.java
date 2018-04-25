@@ -34,7 +34,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureVisitor;
 
 /**
  * A {@link SignatureVisitor} that checks that its methods are properly used.
- * 
+ *
  * @author Eric Bruneton
  */
 public class CheckSignatureAdapter extends SignatureVisitor {
@@ -44,54 +44,54 @@ public class CheckSignatureAdapter extends SignatureVisitor {
      * {@link #CheckSignatureAdapter(int, SignatureVisitor)
      * CheckSignatureAdapter}.
      */
-    public static final int        CLASS_SIGNATURE  = 0;
+    public static final int CLASS_SIGNATURE = 0;
 
     /**
      * Type to be used to check method signatures. See
      * {@link #CheckSignatureAdapter(int, SignatureVisitor)
      * CheckSignatureAdapter}.
      */
-    public static final int        METHOD_SIGNATURE = 1;
+    public static final int METHOD_SIGNATURE = 1;
 
     /**
      * Type to be used to check type signatures.See
      * {@link #CheckSignatureAdapter(int, SignatureVisitor)
      * CheckSignatureAdapter}.
      */
-    public static final int        TYPE_SIGNATURE   = 2;
+    public static final int TYPE_SIGNATURE = 2;
 
-    private static final int       EMPTY            = 1;
+    private static final int EMPTY = 1;
 
-    private static final int       FORMAL           = 2;
+    private static final int FORMAL = 2;
 
-    private static final int       BOUND            = 4;
+    private static final int BOUND = 4;
 
-    private static final int       SUPER            = 8;
+    private static final int SUPER = 8;
 
-    private static final int       PARAM            = 16;
+    private static final int PARAM = 16;
 
-    private static final int       RETURN           = 32;
+    private static final int RETURN = 32;
 
-    private static final int       SIMPLE_TYPE      = 64;
+    private static final int SIMPLE_TYPE = 64;
 
-    private static final int       CLASS_TYPE       = 128;
+    private static final int CLASS_TYPE = 128;
 
-    private static final int       END              = 256;
+    private static final int END = 256;
 
     /**
      * Type of the signature to be checked.
      */
-    private final int              type;
+    private final int type;
 
     /**
      * State of the automaton used to check the order of method calls.
      */
-    private int                    state;
+    private int state;
 
     /**
      * <tt>true</tt> if the checked type signature can be 'V'.
      */
-    private boolean                canBeVoid;
+    private boolean canBeVoid;
 
     /**
      * The visitor to which this adapter must delegate calls. May be
@@ -103,14 +103,12 @@ public class CheckSignatureAdapter extends SignatureVisitor {
      * Creates a new {@link CheckSignatureAdapter} object. <i>Subclasses must
      * not use this constructor</i>. Instead, they must use the
      * {@link #CheckSignatureAdapter(int, int, SignatureVisitor)} version.
-     * 
-     * @param type
-     *            the type of signature to be checked. See
-     *            {@link #CLASS_SIGNATURE}, {@link #METHOD_SIGNATURE} and
-     *            {@link #TYPE_SIGNATURE}.
-     * @param sv
-     *            the visitor to which this adapter must delegate calls. May be
-     *            <tt>null</tt>.
+     *
+     * @param type the type of signature to be checked. See
+     *             {@link #CLASS_SIGNATURE}, {@link #METHOD_SIGNATURE} and
+     *             {@link #TYPE_SIGNATURE}.
+     * @param sv   the visitor to which this adapter must delegate calls. May be
+     *             <tt>null</tt>.
      */
     public CheckSignatureAdapter(final int type, final SignatureVisitor sv) {
         this(Opcodes.ASM5, type, sv);
@@ -118,17 +116,14 @@ public class CheckSignatureAdapter extends SignatureVisitor {
 
     /**
      * Creates a new {@link CheckSignatureAdapter} object.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param type
-     *            the type of signature to be checked. See
-     *            {@link #CLASS_SIGNATURE}, {@link #METHOD_SIGNATURE} and
-     *            {@link #TYPE_SIGNATURE}.
-     * @param sv
-     *            the visitor to which this adapter must delegate calls. May be
-     *            <tt>null</tt>.
+     *
+     * @param api  the ASM API version implemented by this visitor. Must be one
+     *             of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param type the type of signature to be checked. See
+     *             {@link #CLASS_SIGNATURE}, {@link #METHOD_SIGNATURE} and
+     *             {@link #TYPE_SIGNATURE}.
+     * @param sv   the visitor to which this adapter must delegate calls. May be
+     *             <tt>null</tt>.
      */
     protected CheckSignatureAdapter(final int api, final int type, final SignatureVisitor sv) {
         super(api);

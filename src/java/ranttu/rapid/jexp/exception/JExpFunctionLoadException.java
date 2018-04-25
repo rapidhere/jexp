@@ -2,6 +2,7 @@ package ranttu.rapid.jexp.exception;
 
 /**
  * load jExp function failed
+ *
  * @author rapidhere@gmail.com
  * @version $Id: JExpFunctionLoadException.java, v0.1 2017-08-03 2:13 PM dongwei.dq Exp $
  */

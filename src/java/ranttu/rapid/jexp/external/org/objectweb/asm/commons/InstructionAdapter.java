@@ -39,7 +39,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 /**
  * A {@link MethodVisitor} providing a more detailed API to generate and
  * transform instructions.
- * 
+ *
  * @author Eric Bruneton
  */
 public class InstructionAdapter extends MethodVisitor {
@@ -50,11 +50,9 @@ public class InstructionAdapter extends MethodVisitor {
      * Creates a new {@link InstructionAdapter}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #InstructionAdapter(int, MethodVisitor)} version.
-     * 
-     * @param mv
-     *            the method visitor to which this adapter delegates calls.
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @param mv the method visitor to which this adapter delegates calls.
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public InstructionAdapter(final MethodVisitor mv) {
         this(Opcodes.ASM5, mv);
@@ -65,12 +63,10 @@ public class InstructionAdapter extends MethodVisitor {
 
     /**
      * Creates a new {@link InstructionAdapter}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
+     *
+     * @param api the ASM API version implemented by this visitor. Must be one
      *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param mv
-     *            the method visitor to which this adapter delegates calls.
+     * @param mv  the method visitor to which this adapter delegates calls.
      */
     protected InstructionAdapter(final int api, final MethodVisitor mv) {
         super(api, mv);

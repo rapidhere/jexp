@@ -32,7 +32,7 @@ package ranttu.rapid.jexp.external.org.objectweb.asm.signature;
 /**
  * A type signature parser to make a signature visitor visit an existing
  * signature.
- * 
+ *
  * @author Thomas Hallgren
  * @author Eric Bruneton
  */
@@ -45,10 +45,9 @@ public class SignatureReader {
 
     /**
      * Constructs a {@link SignatureReader} for the given signature.
-     * 
-     * @param signature
-     *            A <i>ClassSignature</i>, <i>MethodTypeSignature</i>, or
-     *            <i>FieldTypeSignature</i>.
+     *
+     * @param signature A <i>ClassSignature</i>, <i>MethodTypeSignature</i>, or
+     *                  <i>FieldTypeSignature</i>.
      */
     public SignatureReader(final String signature) {
         this.signature = signature;
@@ -65,9 +64,8 @@ public class SignatureReader {
      * <code>signature</code> parameter of the
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor#visitMethod
      * ClassVisitor.visitMethod} method).
-     * 
-     * @param v
-     *            the visitor that must visit this signature.
+     *
+     * @param v the visitor that must visit this signature.
      */
     public void accept(final SignatureVisitor v) {
         String signature = this.signature;
@@ -122,9 +120,8 @@ public class SignatureReader {
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor#visitField ClassVisitor.visitField}
      * or {@link ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor#visitLocalVariable
      * MethodVisitor.visitLocalVariable} methods.
-     * 
-     * @param v
-     *            the visitor that must visit this signature.
+     *
+     * @param v the visitor that must visit this signature.
      */
     public void acceptType(final SignatureVisitor v) {
         parseType(this.signature, 0, v);
@@ -132,13 +129,10 @@ public class SignatureReader {
 
     /**
      * Parses a field type signature and makes the given visitor visit it.
-     * 
-     * @param signature
-     *            a string containing the signature that must be parsed.
-     * @param pos
-     *            index of the first character of the signature to parsed.
-     * @param v
-     *            the visitor that must visit this signature.
+     *
+     * @param signature a string containing the signature that must be parsed.
+     * @param pos       index of the first character of the signature to parsed.
+     * @param v         the visitor that must visit this signature.
      * @return the index of the first character after the parsed signature.
      */
     private static int parseType(final String signature, int pos, final SignatureVisitor v) {
@@ -172,7 +166,7 @@ public class SignatureReader {
                 start = pos;
                 visited = false;
                 inner = false;
-                for (;;) {
+                for (; ; ) {
                     switch (c = signature.charAt(pos++)) {
                         case '.':
                         case ';':
@@ -201,7 +195,8 @@ public class SignatureReader {
                                 v.visitClassType(name);
                             }
                             visited = true;
-                            top: for (;;) {
+                            top:
+                            for (; ; ) {
                                 switch (c = signature.charAt(pos)) {
                                     case '>':
                                         break top;

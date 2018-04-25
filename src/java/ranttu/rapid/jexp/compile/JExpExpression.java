@@ -19,6 +19,7 @@ public interface JExpExpression {
 
     /**
      * get all variable names of this expression
+     *
      * @return a set of variable names
      */
     Set<String> getVariableNames();

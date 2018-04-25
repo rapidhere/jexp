@@ -4,8 +4,6 @@
  */
 package ranttu.rapid.jexp.compile;
 
-import java.util.List;
-
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
@@ -18,9 +16,12 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 
+import java.util.List;
+
 /**
  * FIXME
  * the visitor working on the bytecode
+ *
  * @author dongwei.dq
  * @version $Id: JExpByteCodeTransformer.java, v0.1 2017-08-22 9:56 PM dongwei.dq Exp $
  */
@@ -38,19 +39,19 @@ public class JExpByteCodeTransformer implements Opcodes {
     }
 
     //~~~ impl
-    private FunctionInfo     functionInfo;
+    private FunctionInfo functionInfo;
 
-    private List<ExpressionNode>    parameters;
+    private List<ExpressionNode> parameters;
 
-    private ClassReader      cr;
+    private ClassReader cr;
 
-    private MethodVisitor    cmv;
+    private MethodVisitor cmv;
 
-    private GeneratePass     pass;
+    private GeneratePass pass;
 
     private CompilingContext context;
 
-    private Label            endLabel = new Label();
+    private Label endLabel = new Label();
 
     private void transform() {
         cr = new ClassReader(functionInfo.byteCodes);
@@ -61,7 +62,7 @@ public class JExpByteCodeTransformer implements Opcodes {
         if (functionInfo.returnInsnCount > 1) {
             cmv.visitLabel(endLabel);
             cmv.visitFrame(F_SAME1, 0, null, 1,
-                new Object[] { TypeUtil.getFrameDesc(functionInfo.method.getReturnType()) });
+                    new Object[]{TypeUtil.getFrameDesc(functionInfo.method.getReturnType())});
         }
     }
 

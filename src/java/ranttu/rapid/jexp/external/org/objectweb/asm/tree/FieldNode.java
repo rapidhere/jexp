@@ -29,9 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -39,9 +36,12 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A node that represents a field.
- * 
+ *
  * @author Eric Bruneton
  */
 public class FieldNode extends FieldVisitor {
@@ -50,52 +50,52 @@ public class FieldNode extends FieldVisitor {
      * The field's access flags (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This
      * field also indicates if the field is synthetic and/or deprecated.
      */
-    public int                      access;
+    public int access;
 
     /**
      * The field's name.
      */
-    public String                   name;
+    public String name;
 
     /**
      * The field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
      */
-    public String                   desc;
+    public String desc;
 
     /**
      * The field's signature. May be <tt>null</tt>.
      */
-    public String                   signature;
+    public String signature;
 
     /**
      * The field's initial value. This field, which may be <tt>null</tt> if the
      * field does not have an initial value, must be an {@link Integer}, a
      * {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
      */
-    public Object                   value;
+    public Object value;
 
     /**
      * The runtime visible annotations of this field. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
-    public List<AnnotationNode>     visibleAnnotations;
+    public List<AnnotationNode> visibleAnnotations;
 
     /**
      * The runtime invisible annotations of this field. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
-    public List<AnnotationNode>     invisibleAnnotations;
+    public List<AnnotationNode> invisibleAnnotations;
 
     /**
      * The runtime visible type annotations of this field. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.TypeAnnotationNode
      * @label visible
      */
@@ -104,7 +104,7 @@ public class FieldNode extends FieldVisitor {
     /**
      * The runtime invisible type annotations of this field. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.TypeAnnotationNode
      * @label invisible
      */
@@ -113,34 +113,28 @@ public class FieldNode extends FieldVisitor {
     /**
      * The non standard attributes of this field. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.Attribute
      */
-    public List<Attribute>          attrs;
+    public List<Attribute> attrs;
 
     /**
      * Constructs a new {@link FieldNode}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #FieldNode(int, int, String, String, String, Object)} version.
-     * 
-     * @param access
-     *            the field's access flags (see
-     *            {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This parameter also
-     *            indicates if the field is synthetic and/or deprecated.
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type
-     *            Type}).
-     * @param signature
-     *            the field's signature.
-     * @param value
-     *            the field's initial value. This parameter, which may be
-     *            <tt>null</tt> if the field does not have an initial value,
-     *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
-     *            {@link Double} or a {@link String}.
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @param access    the field's access flags (see
+     *                  {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This parameter also
+     *                  indicates if the field is synthetic and/or deprecated.
+     * @param name      the field's name.
+     * @param desc      the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type
+     *                  Type}).
+     * @param signature the field's signature.
+     * @param value     the field's initial value. This parameter, which may be
+     *                  <tt>null</tt> if the field does not have an initial value,
+     *                  must be an {@link Integer}, a {@link Float}, a {@link Long}, a
+     *                  {@link Double} or a {@link String}.
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public FieldNode(final int access, final String name, final String desc, final String signature,
                      final Object value) {
@@ -153,26 +147,20 @@ public class FieldNode extends FieldVisitor {
     /**
      * Constructs a new {@link FieldNode}. <i>Subclasses must not use this
      * constructor</i>.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param access
-     *            the field's access flags (see
-     *            {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This parameter also
-     *            indicates if the field is synthetic and/or deprecated.
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type
-     *            Type}).
-     * @param signature
-     *            the field's signature.
-     * @param value
-     *            the field's initial value. This parameter, which may be
-     *            <tt>null</tt> if the field does not have an initial value,
-     *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
-     *            {@link Double} or a {@link String}.
+     *
+     * @param api       the ASM API version implemented by this visitor. Must be one
+     *                  of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param access    the field's access flags (see
+     *                  {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This parameter also
+     *                  indicates if the field is synthetic and/or deprecated.
+     * @param name      the field's name.
+     * @param desc      the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type
+     *                  Type}).
+     * @param signature the field's signature.
+     * @param value     the field's initial value. This parameter, which may be
+     *                  <tt>null</tt> if the field does not have an initial value,
+     *                  must be an {@link Integer}, a {@link Float}, a {@link Long}, a
+     *                  {@link Double} or a {@link String}.
      */
     public FieldNode(final int api, final int access, final String name, final String desc,
                      final String signature, final Object value) {
@@ -244,9 +232,8 @@ public class FieldNode extends FieldVisitor {
      * This methods checks that this node, and all its nodes recursively, do not
      * contain elements that were introduced in more recent versions of the ASM
      * API than the given version.
-     * 
-     * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
+     *
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4} or
      *            {@link Opcodes#ASM5}.
      */
     public void check(final int api) {
@@ -262,9 +249,8 @@ public class FieldNode extends FieldVisitor {
 
     /**
      * Makes the given class visitor visit this field.
-     * 
-     * @param cv
-     *            a class visitor.
+     *
+     * @param cv a class visitor.
      */
     public void accept(final ClassVisitor cv) {
         FieldVisitor fv = cv.visitField(access, name, desc, signature, value);

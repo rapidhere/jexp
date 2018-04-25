@@ -38,7 +38,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 /**
  * A {@link FieldVisitor} that collects the {@link Constant}s of the fields it
  * visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class FieldConstantsCollector extends FieldVisitor {

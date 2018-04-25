@@ -33,7 +33,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A signature visitor that generates signatures in string format.
- * 
+ *
  * @author Thomas Hallgren
  * @author Eric Bruneton
  */
@@ -47,12 +47,12 @@ public class SignatureWriter extends SignatureVisitor {
     /**
      * Indicates if the signature contains formal type parameters.
      */
-    private boolean             hasFormals;
+    private boolean hasFormals;
 
     /**
      * Indicates if the signature contains method parameter types.
      */
-    private boolean             hasParameters;
+    private boolean hasParameters;
 
     /**
      * Stack used to keep track of class types that have arguments. Each element
@@ -60,7 +60,7 @@ public class SignatureWriter extends SignatureVisitor {
      * the lowest order bit. Pushing false = *2, pushing true = *2+1, popping =
      * /2.
      */
-    private int                 argumentStack;
+    private int argumentStack;
 
     /**
      * Constructs a new {@link SignatureWriter} object.
@@ -193,7 +193,7 @@ public class SignatureWriter extends SignatureVisitor {
 
     /**
      * Returns the signature that was built by this signature writer.
-     * 
+     *
      * @return the signature that was built by this signature writer.
      */
     @Override

@@ -4,11 +4,11 @@
  */
 package ranttu.rapid.jexp.compile.parse.ast;
 
-import java.util.List;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
+
+import java.util.List;
 
 /**
  * @author rapid
@@ -18,19 +18,21 @@ import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 @RequiredArgsConstructor
 public class CallExpression extends ExpressionNode {
     @NonNull
-    public ExpressionNode       caller;
+    public ExpressionNode caller;
 
     @NonNull
     public List<ExpressionNode> parameters;
 
-    public boolean              isBounded = false;
+    public boolean isBounded = false;
 
     //~~~ unbounded invoke
-    public FunctionInfo         functionInfo;
+    public FunctionInfo functionInfo;
 
     //~~~ bounded invoke
-    public String               methodName;
+    public String methodName;
 
-    /** for bounded invoke, there will be a accessor slot */
-    public String               accessorSlot;
+    /**
+     * for bounded invoke, there will be a accessor slot
+     */
+    public String accessorSlot;
 }

@@ -29,10 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree.analysis;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.AbstractInsnNode;
@@ -41,9 +37,13 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.tree.InvokeDynamicInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.LdcInsnNode;
 import ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodInsnNode;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * An {@link Interpreter} for {@link SourceValue} values.
- * 
+ *
  * @author Eric Bruneton
  */
 public class SourceInterpreter extends Interpreter<SourceValue> implements Opcodes {
@@ -161,7 +161,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
             size = 1;
         } else {
             String desc = (opcode == INVOKEDYNAMIC) ? ((InvokeDynamicInsnNode) insn).desc
-                : ((MethodInsnNode) insn).desc;
+                    : ((MethodInsnNode) insn).desc;
             size = Type.getReturnType(desc).getSize();
         }
         return new SourceValue(size, insn);
@@ -176,7 +176,7 @@ public class SourceInterpreter extends Interpreter<SourceValue> implements Opcod
     public SourceValue merge(final SourceValue d, final SourceValue w) {
         if (d.insns instanceof SmallSet && w.insns instanceof SmallSet) {
             Set<AbstractInsnNode> s = ((SmallSet<AbstractInsnNode>) d.insns)
-                .union((SmallSet<AbstractInsnNode>) w.insns);
+                    .union((SmallSet<AbstractInsnNode>) w.insns);
             if (s == d.insns && d.size == w.size) {
                 return d;
             } else {

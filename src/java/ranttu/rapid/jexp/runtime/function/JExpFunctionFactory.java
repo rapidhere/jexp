@@ -1,5 +1,12 @@
 package ranttu.rapid.jexp.runtime.function;
 
+import lombok.experimental.var;
+import org.apache.commons.io.IOUtils;
+import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
+import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
+import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -7,16 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.io.IOUtils;
-
-import lombok.experimental.var;
-import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
-import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
-import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
-import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
-
 /**
  * the function factory of jExp
+ *
  * @author rapidhere@gmail.com
  * @version $Id: JExpFunctionFactory.java, v0.1 2017-08-03 1:58 PM dongwei.dq Exp $
  */
@@ -25,9 +25,9 @@ final public class JExpFunctionFactory {
     }
 
     // function function lib -> name -> function info
-    private final static Map<String, Map<String, FunctionInfo>> infos            = new HashMap<>();
+    private final static Map<String, Map<String, FunctionInfo>> infos = new HashMap<>();
 
-    private final static String                                 DEFAULT_LIB_NAME = "$DEFAULT";
+    private final static String DEFAULT_LIB_NAME = "$DEFAULT";
 
     // builtin register
     static {
@@ -67,13 +67,13 @@ final public class JExpFunctionFactory {
                 // modifier check
                 if (!Modifier.isStatic(m.getModifiers())) {
                     throw new JExpFunctionLoadException(
-                        "java function can only be static: " + name);
+                            "java function can only be static: " + name);
                 }
 
                 // update function info
                 if (infos.containsKey(lib) && infos.get(lib).containsKey(name)) {
                     throw new JExpFunctionLoadException(
-                        "function name duplicated: " + name + " in lib: " + lib);
+                            "function name duplicated: " + name + " in lib: " + lib);
                 }
 
                 var info = new FunctionInfo();

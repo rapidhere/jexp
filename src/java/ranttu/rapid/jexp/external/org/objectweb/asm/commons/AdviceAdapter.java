@@ -29,16 +29,16 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.commons;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor} to insert before, after and around
@@ -46,52 +46,47 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
  * <p>
  * The behavior for constructors is like this:
  * <ol>
- * 
+ * <p>
  * <li>as long as the INVOKESPECIAL for the object initialization has not been
  * reached, every bytecode instruction is dispatched in the ctor code visitor</li>
- * 
+ * <p>
  * <li>when this one is reached, it is only added in the ctor code visitor and a
  * JP invoke is added</li>
- * 
+ * <p>
  * <li>after that, only the other code visitor receives the instructions</li>
- * 
+ * <p>
  * </ol>
- * 
+ *
  * @author Eugene Kuleshov
  * @author Eric Bruneton
  */
 public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes {
 
-    private static final Object      THIS  = new Object();
+    private static final Object THIS = new Object();
 
-    private static final Object      OTHER = new Object();
+    private static final Object OTHER = new Object();
 
-    protected int                    methodAccess;
+    protected int methodAccess;
 
-    protected String                 methodDesc;
+    protected String methodDesc;
 
-    private boolean                  constructor;
+    private boolean constructor;
 
-    private boolean                  superInitialized;
+    private boolean superInitialized;
 
-    private List<Object>             stackFrame;
+    private List<Object> stackFrame;
 
     private Map<Label, List<Object>> branches;
 
     /**
      * Creates a new {@link AdviceAdapter}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param mv
-     *            the method visitor to which this adapter delegates calls.
-     * @param access
-     *            the method's access flags (see {@link Opcodes}).
-     * @param name
-     *            the method's name.
-     * @param desc
-     *            the method's descriptor (see {@link Type Type}).
+     *
+     * @param api    the ASM API version implemented by this visitor. Must be one
+     *               of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param mv     the method visitor to which this adapter delegates calls.
+     * @param access the method's access flags (see {@link Opcodes}).
+     * @param name   the method's name.
+     * @param desc   the method's descriptor (see {@link Type Type}).
      */
     protected AdviceAdapter(final int api, final MethodVisitor mv, final int access,
                             final String name, final String desc) {
@@ -589,7 +584,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
      * Called at the beginning of the method or after super class call in
      * the constructor. <br>
      * <br>
-     * 
+     * <p>
      * <i>Custom code can use or change all the local variables, but should not
      * change state of the stack.</i>
      */
@@ -600,7 +595,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
      * Called before explicit exit from the method using either return or throw.
      * Top element on the stack contains the return value or exception instance.
      * For example:
-     * 
+     * <p>
      * <pre>
      *   public void onMethodExit(int opcode) {
      *     if(opcode==RETURN) {
@@ -618,22 +613,20 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
      *     visitIntInsn(SIPUSH, opcode);
      *     visitMethodInsn(INVOKESTATIC, owner, "onExit", "(Ljava/lang/Object;I)V");
      *   }
-     * 
+     *
      *   // an actual call back method
      *   public static void onExit(Object param, int opcode) {
      *     ...
      * </pre>
-     * 
+     * <p>
      * <br>
      * <br>
-     * 
+     * <p>
      * <i>Custom code can use or change all the local variables, but should not
      * change state of the stack.</i>
-     * 
-     * @param opcode
-     *            one of the RETURN, IRETURN, FRETURN, ARETURN, LRETURN, DRETURN
-     *            or ATHROW
-     * 
+     *
+     * @param opcode one of the RETURN, IRETURN, FRETURN, ARETURN, LRETURN, DRETURN
+     *               or ATHROW
      */
     protected void onMethodExit(int opcode) {
     }

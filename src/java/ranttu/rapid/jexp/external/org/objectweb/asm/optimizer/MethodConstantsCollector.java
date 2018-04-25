@@ -39,7 +39,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 /**
  * An {@link MethodVisitor} that collects the {@link Constant}s of the methods
  * it visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class MethodConstantsCollector extends MethodVisitor {
@@ -99,7 +99,7 @@ public class MethodConstantsCollector extends MethodVisitor {
             cp.newUTF8("RuntimeInvisibleParameterAnnotations");
         }
         return new AnnotationConstantsCollector(
-            mv.visitParameterAnnotation(parameter, desc, visible), cp);
+                mv.visitParameterAnnotation(parameter, desc, visible), cp);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class MethodConstantsCollector extends MethodVisitor {
             cp.newUTF8("RuntimeInvisibleTypeAnnotations");
         }
         return new AnnotationConstantsCollector(
-            mv.visitInsnAnnotation(typeRef, typePath, desc, visible), cp);
+                mv.visitInsnAnnotation(typeRef, typePath, desc, visible), cp);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class MethodConstantsCollector extends MethodVisitor {
             cp.newUTF8("RuntimeInvisibleTypeAnnotations");
         }
         return new AnnotationConstantsCollector(
-            mv.visitTryCatchAnnotation(typeRef, typePath, desc, visible), cp);
+                mv.visitTryCatchAnnotation(typeRef, typePath, desc, visible), cp);
     }
 
     @Override
@@ -200,8 +200,8 @@ public class MethodConstantsCollector extends MethodVisitor {
             cp.newUTF8("RuntimeInvisibleTypeAnnotations");
         }
         return new AnnotationConstantsCollector(
-            mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible),
-            cp);
+                mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible),
+                cp);
     }
 
     @Override

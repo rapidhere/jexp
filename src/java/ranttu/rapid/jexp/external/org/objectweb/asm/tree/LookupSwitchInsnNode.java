@@ -29,18 +29,18 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
-import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
-
 /**
  * A node that represents a LOOKUPSWITCH instruction.
- * 
+ *
  * @author Eric Bruneton
  */
 public class LookupSwitchInsnNode extends AbstractInsnNode {
@@ -48,12 +48,12 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     /**
      * Beginning of the default handler block.
      */
-    public LabelNode       dflt;
+    public LabelNode dflt;
 
     /**
      * The values of the keys. This list is a list of {@link Integer} objects.
      */
-    public List<Integer>   keys;
+    public List<Integer> keys;
 
     /**
      * Beginnings of the handler blocks. This list is a list of
@@ -63,14 +63,11 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link LookupSwitchInsnNode}.
-     * 
-     * @param dflt
-     *            beginning of the default handler block.
-     * @param keys
-     *            the values of the keys.
-     * @param labels
-     *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
-     *            beginning of the handler block for the <tt>keys[i]</tt> key.
+     *
+     * @param dflt   beginning of the default handler block.
+     * @param keys   the values of the keys.
+     * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the
+     *               beginning of the handler block for the <tt>keys[i]</tt> key.
      */
     public LookupSwitchInsnNode(final LabelNode dflt, final int[] keys, final LabelNode[] labels) {
         super(Opcodes.LOOKUPSWITCH);
@@ -109,7 +106,7 @@ public class LookupSwitchInsnNode extends AbstractInsnNode {
     @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         LookupSwitchInsnNode clone = new LookupSwitchInsnNode(clone(dflt, labels), null,
-            clone(this.labels, labels));
+                clone(this.labels, labels));
         clone.keys.addAll(keys);
         return clone.cloneAnnotations(this);
     }

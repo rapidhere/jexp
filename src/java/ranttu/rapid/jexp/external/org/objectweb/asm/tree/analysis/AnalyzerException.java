@@ -33,7 +33,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.tree.AbstractInsnNode;
 
 /**
  * Thrown if a problem occurs during the analysis of a method.
- * 
+ *
  * @author Bing Ran
  * @author Eric Bruneton
  */
@@ -56,7 +56,7 @@ public class AnalyzerException extends Exception {
     public AnalyzerException(final AbstractInsnNode node, final String msg, final Object expected,
                              final Value encountered) {
         super((msg == null ? "Expected " : msg + ": expected ") + expected + ", but found "
-              + encountered);
+                + encountered);
         this.node = node;
     }
 }

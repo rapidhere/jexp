@@ -14,11 +14,15 @@ import ranttu.rapid.jexp.exception.JExpCompilingException;
  * @version $Id: Compiler.java, v0.1 2017-07-27 7:58 PM dongwei.dq Exp $
  */
 public class JExpCompiler {
-    /** the compile option */
+    /**
+     * the compile option
+     */
     private final CompileOption option;
 
-    /** the name count */
-    private static long         nameCount = 0;
+    /**
+     * the name count
+     */
+    private static long nameCount = 0;
 
     public JExpCompiler() {
         this.option = new CompileOption();
@@ -30,9 +34,10 @@ public class JExpCompiler {
 
     /**
      * compile the expression with binding types
-     * @param expression        expression to compile
-     * @return                  compiled expression
-     * @throws JExpCompilingException   compile failed exception info
+     *
+     * @param expression expression to compile
+     * @return compiled expression
+     * @throws JExpCompilingException compile failed exception info
      */
     public JExpExpression compile(String expression) throws JExpCompilingException {
         ExpressionNode ast = JExpParser.parse(expression);

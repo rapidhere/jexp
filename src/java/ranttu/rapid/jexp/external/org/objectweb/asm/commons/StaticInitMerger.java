@@ -35,18 +35,18 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * A {@link ClassVisitor} that merges clinit methods into a single one.
- * 
+ *
  * @author Eric Bruneton
  */
 public class StaticInitMerger extends ClassVisitor {
 
-    private String        name;
+    private String name;
 
     private MethodVisitor clinit;
 
-    private final String  prefix;
+    private final String prefix;
 
-    private int           counter;
+    private int counter;
 
     public StaticInitMerger(final String prefix, final ClassVisitor cv) {
         this(Opcodes.ASM5, prefix, cv);

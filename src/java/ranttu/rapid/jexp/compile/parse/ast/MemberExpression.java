@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * a member expression
+ *
  * @author rapid
  * @version $Id: MemberExpression.java, v 0.1 2018年02月23日 3:24 PM rapid Exp $
  */

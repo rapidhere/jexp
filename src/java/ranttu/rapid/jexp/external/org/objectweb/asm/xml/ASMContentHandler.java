@@ -29,15 +29,9 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
@@ -48,15 +42,19 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * A {@link org.xml.sax.ContentHandler ContentHandler} that transforms XML
  * document into Java class file. This class can be feeded by any kind of SAX
  * 2.0 event producers, e.g. XML parser, XSLT or XPath engines, or custom code.
- * 
+ *
+ * @author Eugene Kuleshov
  * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.SAXClassAdapter
  * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.Processor
- * 
- * @author Eugene Kuleshov
  */
 public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
@@ -68,22 +66,23 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Complete name of the current element.
      */
-    String                          match = "";
+    String match = "";
 
     /**
      * Current instance of the {@link ClassVisitor ClassVisitor} used to visit
      * classfile bytecode.
      */
-    protected ClassVisitor          cv;
+    protected ClassVisitor cv;
 
     /**
      * Map of the active {@link Label Label} instances for current method.
      */
-    protected Map<Object, Label>    labels;
+    protected Map<Object, Label> labels;
 
-    private static final String     BASE  = "class";
+    private static final String BASE = "class";
 
-    private final RuleSet           RULES = new RuleSet();
+    private final RuleSet RULES = new RuleSet();
+
     {
         RULES.add(BASE, new ClassRule());
         RULES.add(BASE + "/interfaces/interface", new InterfaceRule());
@@ -133,15 +132,15 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     }
 
     private static interface OpcodeGroup {
-        public static final int INSN                = 0;
-        public static final int INSN_INT            = 1;
-        public static final int INSN_VAR            = 2;
-        public static final int INSN_TYPE           = 3;
-        public static final int INSN_FIELD          = 4;
-        public static final int INSN_METHOD         = 5;
-        public static final int INSN_JUMP           = 6;
-        public static final int INSN_LDC            = 7;
-        public static final int INSN_IINC           = 8;
+        public static final int INSN = 0;
+        public static final int INSN_INT = 1;
+        public static final int INSN_VAR = 2;
+        public static final int INSN_TYPE = 3;
+        public static final int INSN_FIELD = 4;
+        public static final int INSN_METHOD = 5;
+        public static final int INSN_JUMP = 6;
+        public static final int INSN_LDC = 7;
+        public static final int INSN_IINC = 8;
         public static final int INSN_MULTIANEWARRAY = 9;
     }
 
@@ -149,6 +148,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
      * Map of the opcode names to opcode and opcode group
      */
     static final HashMap<String, Opcode> OPCODES = new HashMap<String, Opcode>();
+
     static {
         addOpcode("NOP", NOP, OpcodeGroup.INSN);
         addOpcode("ACONST_NULL", ACONST_NULL, OpcodeGroup.INSN);
@@ -311,6 +311,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     }
 
     static final HashMap<String, Integer> TYPES = new HashMap<String, Integer>();
+
     static {
         String[] types = SAXCodeAdapter.TYPES;
         for (int i = 0; i < types.length; i++) {
@@ -320,10 +321,9 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     /**
      * Constructs a new {@link ASMContentHandler ASMContentHandler} object.
-     * 
-     * @param cv
-     *            class visitor that will be called to reconstruct the classfile
-     *            using the XML stream.
+     *
+     * @param cv class visitor that will be called to reconstruct the classfile
+     *           using the XML stream.
      */
     public ASMContentHandler(final ClassVisitor cv) {
         this.cv = cv;
@@ -331,22 +331,17 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     /**
      * Process notification of the start of an XML element being reached.
-     * 
-     * @param ns
-     *            - The Namespace URI, or the empty string if the element has no
-     *            Namespace URI or if Namespace processing is not being
-     *            performed.
-     * @param lName
-     *            - The local name (without prefix), or the empty string if
-     *            Namespace processing is not being performed.
-     * @param qName
-     *            - The qualified name (with prefix), or the empty string if
-     *            qualified names are not available.
-     * @param list
-     *            - The attributes attached to the element. If there are no
-     *            attributes, it shall be an empty Attributes object.
-     * @exception SAXException
-     *                if a parsing error is to be reported
+     *
+     * @param ns    - The Namespace URI, or the empty string if the element has no
+     *              Namespace URI or if Namespace processing is not being
+     *              performed.
+     * @param lName - The local name (without prefix), or the empty string if
+     *              Namespace processing is not being performed.
+     * @param qName - The qualified name (with prefix), or the empty string if
+     *              qualified names are not available.
+     * @param list  - The attributes attached to the element. If there are no
+     *              attributes, it shall be an empty Attributes object.
+     * @throws SAXException if a parsing error is to be reported
      */
     @Override
     public final void startElement(final String ns, final String lName, final String qName,
@@ -372,20 +367,15 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     /**
      * Process notification of the end of an XML element being reached.
-     * 
-     * @param ns
-     *            - The Namespace URI, or the empty string if the element has no
-     *            Namespace URI or if Namespace processing is not being
-     *            performed.
-     * @param lName
-     *            - The local name (without prefix), or the empty string if
-     *            Namespace processing is not being performed.
-     * @param qName
-     *            - The qualified XML 1.0 name (with prefix), or the empty
-     *            string if qualified names are not available.
-     * 
-     * @exception SAXException
-     *                if a parsing error is to be reported
+     *
+     * @param ns    - The Namespace URI, or the empty string if the element has no
+     *              Namespace URI or if Namespace processing is not being
+     *              performed.
+     * @param lName - The local name (without prefix), or the empty string if
+     *              Namespace processing is not being performed.
+     * @param qName - The qualified XML 1.0 name (with prefix), or the empty
+     *              string if qualified names are not available.
+     * @throws SAXException if a parsing error is to be reported
      */
     @Override
     public final void endElement(final String ns, final String lName,
@@ -412,7 +402,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Return the top object on the stack without removing it. If there are no
      * objects on the stack, return <code>null</code>.
-     * 
+     *
      * @return the top object on the stack without removing it.
      */
     final Object peek() {
@@ -423,7 +413,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
     /**
      * Pop the top object off of the stack, and return it. If there are no
      * objects on the stack, return <code>null</code>.
-     * 
+     *
      * @return the top object off of the stack.
      */
     final Object pop() {
@@ -433,9 +423,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     /**
      * Push a new object onto the top of the object stack.
-     * 
-     * @param object
-     *            The new object
+     *
+     * @param object The new object
      */
     final void push(final Object object) {
         stack.add(object);
@@ -443,11 +432,11 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
     static final class RuleSet {
 
-        private final HashMap<String, Object> rules     = new HashMap<String, Object>();
+        private final HashMap<String, Object> rules = new HashMap<String, Object>();
 
-        private final ArrayList<String>       lpatterns = new ArrayList<String>();
+        private final ArrayList<String> lpatterns = new ArrayList<String>();
 
-        private final ArrayList<String>       rpatterns = new ArrayList<String>();
+        private final ArrayList<String> rpatterns = new ArrayList<String>();
 
         public void add(final String path, final Object rule) {
             String pattern = path;
@@ -467,14 +456,14 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             }
 
             int n = path.lastIndexOf('/');
-            for (Iterator<String> it = lpatterns.iterator(); it.hasNext();) {
+            for (Iterator<String> it = lpatterns.iterator(); it.hasNext(); ) {
                 String pattern = it.next();
                 if (path.substring(n).endsWith(pattern)) {
                     return rules.get(pattern);
                 }
             }
 
-            for (Iterator<String> it = rpatterns.iterator(); it.hasNext();) {
+            for (Iterator<String> it = rpatterns.iterator(); it.hasNext(); ) {
                 String pattern = it.next();
                 if (path.startsWith(pattern)) {
                     return rules.get(pattern);
@@ -502,8 +491,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 if ("Ljava/lang/String;".equals(desc)) {
                     value = decode(val);
                 } else if ("Ljava/lang/Integer;".equals(desc) || "I".equals(desc)
-                           || "S".equals(desc) || "B".equals(desc) || "C".equals(desc)
-                           || "Z".equals(desc)) {
+                        || "S".equals(desc) || "B".equals(desc) || "C".equals(desc)
+                        || "Z".equals(desc)) {
                     value = new Integer(val);
 
                 } else if ("Ljava/lang/Short;".equals(desc)) {
@@ -533,7 +522,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 } else {
                     // TODO use of default toString().
                     throw new SAXException(
-                        "Invalid value:" + val + " desc:" + desc + " ctx:" + this);
+                            "Invalid value:" + val + " desc:" + desc + " ctx:" + this);
                 }
             }
             return value;
@@ -548,7 +537,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
                 boolean itf = itfIndex != -1;
                 int tag = Integer
-                    .parseInt(val.substring(tagIndex + 1, itf ? val.length() - 1 : itfIndex));
+                        .parseInt(val.substring(tagIndex + 1, itf ? val.length() - 1 : itfIndex));
                 String owner = val.substring(0, dotIndex);
                 String name = val.substring(dotIndex + 1, descIndex);
                 String desc = val.substring(descIndex, tagIndex - 1);
@@ -708,7 +697,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<String>) ((HashMap<?, ?>) peek()).get("interfaces"))
-                .add(attrs.getValue("name"));
+                    .add(attrs.getValue("name"));
         }
     }
 
@@ -816,7 +805,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<String>) ((HashMap<?, ?>) peek()).get("exceptions"))
-                .add(attrs.getValue("name"));
+                    .add(attrs.getValue("name"));
         }
     }
 
@@ -887,7 +876,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         @SuppressWarnings("unchecked")
         public final void begin(final String name, final Attributes attrs) {
             ((ArrayList<Label>) ((HashMap<?, ?>) peek()).get("labels"))
-                .add(getLabel(attrs.getValue("name")));
+                    .add(getLabel(attrs.getValue("name")));
         }
     }
 
@@ -1110,12 +1099,12 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
                 case OpcodeGroup.INSN_FIELD:
                     getCodeVisitor().visitFieldInsn(o.opcode, attrs.getValue("owner"),
-                        attrs.getValue("name"), attrs.getValue("desc"));
+                            attrs.getValue("name"), attrs.getValue("desc"));
                     break;
 
                 case OpcodeGroup.INSN_INT:
                     getCodeVisitor().visitIntInsn(o.opcode,
-                        Integer.parseInt(attrs.getValue("value")));
+                            Integer.parseInt(attrs.getValue("value")));
                     break;
 
                 case OpcodeGroup.INSN_JUMP:
@@ -1124,8 +1113,8 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
                 case OpcodeGroup.INSN_METHOD:
                     getCodeVisitor().visitMethodInsn(o.opcode, attrs.getValue("owner"),
-                        attrs.getValue("name"), attrs.getValue("desc"),
-                        attrs.getValue("itf").equals("true"));
+                            attrs.getValue("name"), attrs.getValue("desc"),
+                            attrs.getValue("itf").equals("true"));
                     break;
 
                 case OpcodeGroup.INSN_TYPE:
@@ -1134,22 +1123,22 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
 
                 case OpcodeGroup.INSN_VAR:
                     getCodeVisitor().visitVarInsn(o.opcode,
-                        Integer.parseInt(attrs.getValue("var")));
+                            Integer.parseInt(attrs.getValue("var")));
                     break;
 
                 case OpcodeGroup.INSN_IINC:
                     getCodeVisitor().visitIincInsn(Integer.parseInt(attrs.getValue("var")),
-                        Integer.parseInt(attrs.getValue("inc")));
+                            Integer.parseInt(attrs.getValue("inc")));
                     break;
 
                 case OpcodeGroup.INSN_LDC:
                     getCodeVisitor()
-                        .visitLdcInsn(getValue(attrs.getValue("desc"), attrs.getValue("cst")));
+                            .visitLdcInsn(getValue(attrs.getValue("desc"), attrs.getValue("cst")));
                     break;
 
                 case OpcodeGroup.INSN_MULTIANEWARRAY:
                     getCodeVisitor().visitMultiANewArrayInsn(attrs.getValue("desc"),
-                        Integer.parseInt(attrs.getValue("dims")));
+                            Integer.parseInt(attrs.getValue("dims")));
                     break;
 
                 default:
@@ -1275,7 +1264,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             int typeRef = Integer.parseInt(attrs.getValue("typeRef"));
             TypePath typePath = TypePath.fromString(attrs.getValue("typePath"));
             push(
-                ((MethodVisitor) peek()).visitTryCatchAnnotation(typeRef, typePath, desc, visible));
+                    ((MethodVisitor) peek()).visitTryCatchAnnotation(typeRef, typePath, desc, visible));
         }
 
         @Override
@@ -1311,7 +1300,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
                 index[i] = Integer.parseInt(v[i]);
             }
             push(((MethodVisitor) peek()).visitLocalVariableAnnotation(typeRef, typePath, start,
-                end, index, desc, visible));
+                    end, index, desc, visible));
         }
 
         @Override
@@ -1330,7 +1319,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             AnnotationVisitor av = (AnnotationVisitor) peek();
             if (av != null) {
                 av.visit(attrs.getValue("name"),
-                    getValue(attrs.getValue("desc"), attrs.getValue("value")));
+                        getValue(attrs.getValue("desc"), attrs.getValue("value")));
             }
         }
     }
@@ -1342,7 +1331,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
             AnnotationVisitor av = (AnnotationVisitor) peek();
             if (av != null) {
                 av.visitEnum(attrs.getValue("name"), attrs.getValue("desc"),
-                    attrs.getValue("value"));
+                        attrs.getValue("value"));
             }
         }
     }
@@ -1353,7 +1342,7 @@ public class ASMContentHandler extends DefaultHandler implements Opcodes {
         public void begin(final String nm, final Attributes attrs) {
             AnnotationVisitor av = (AnnotationVisitor) peek();
             push(av == null ? null
-                : av.visitAnnotation(attrs.getValue("name"), attrs.getValue("desc")));
+                    : av.visitAnnotation(attrs.getValue("name"), attrs.getValue("desc")));
         }
 
         @Override

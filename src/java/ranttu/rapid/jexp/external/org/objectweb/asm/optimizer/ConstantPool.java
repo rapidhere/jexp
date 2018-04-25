@@ -29,30 +29,30 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.optimizer;
 
-import java.util.HashMap;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
+import java.util.HashMap;
+
 /**
  * A constant pool.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ConstantPool extends HashMap<Constant, Constant> {
 
     private static final long serialVersionUID = 1L;
 
-    private final Constant    key1             = new Constant();
+    private final Constant key1 = new Constant();
 
-    private final Constant    key2             = new Constant();
+    private final Constant key2 = new Constant();
 
-    private final Constant    key3             = new Constant();
+    private final Constant key3 = new Constant();
 
-    private final Constant    key4             = new Constant();
+    private final Constant key4 = new Constant();
 
-    private final Constant    key5             = new Constant();
+    private final Constant key5 = new Constant();
 
     public Constant newInteger(final int value) {
         key1.set(value);
@@ -140,7 +140,7 @@ public class ConstantPool extends HashMap<Constant, Constant> {
     public Constant newHandle(final int tag, final String owner, final String name,
                               final String desc, final boolean itf) {
         key4.set((char) ('h' + tag - 1 + (itf && tag != Opcodes.H_INVOKEINTERFACE ? 4 : 0)), owner,
-            name, desc);
+                name, desc);
         Constant result = get(key4);
         if (result == null) {
             if (tag <= Opcodes.H_PUTSTATIC) {
@@ -218,7 +218,7 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         if (result == null) {
             newNameType(name, desc);
             newHandle(bsm.getTag(), bsm.getOwner(), bsm.getName(), bsm.getDesc(),
-                bsm.isInterface());
+                    bsm.isInterface());
             for (int i = 0; i < bsmArgs.length; i++) {
                 newConst(bsmArgs[i]);
             }

@@ -29,14 +29,14 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
-import java.util.Map;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+
+import java.util.Map;
 
 /**
  * A node that represents a field instruction. A field instruction is an
  * instruction that loads or stores the value of a field of an object.
- * 
+ *
  * @author Eric Bruneton
  */
 public class FieldInsnNode extends AbstractInsnNode {
@@ -59,18 +59,14 @@ public class FieldInsnNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link FieldInsnNode}.
-     * 
-     * @param opcode
-     *            the opcode of the type instruction to be constructed. This
-     *            opcode must be GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
-     * @param owner
-     *            the internal name of the field's owner class (see
-     *            {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName()
-     *            getInternalName}).
-     * @param name
-     *            the field's name.
-     * @param desc
-     *            the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
+     *
+     * @param opcode the opcode of the type instruction to be constructed. This
+     *               opcode must be GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.
+     * @param owner  the internal name of the field's owner class (see
+     *               {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName()
+     *               getInternalName}).
+     * @param name   the field's name.
+     * @param desc   the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
      */
     public FieldInsnNode(final int opcode, final String owner, final String name,
                          final String desc) {
@@ -82,10 +78,9 @@ public class FieldInsnNode extends AbstractInsnNode {
 
     /**
      * Sets the opcode of this instruction.
-     * 
-     * @param opcode
-     *            the new instruction opcode. This opcode must be GETSTATIC,
-     *            PUTSTATIC, GETFIELD or PUTFIELD.
+     *
+     * @param opcode the new instruction opcode. This opcode must be GETSTATIC,
+     *               PUTSTATIC, GETFIELD or PUTFIELD.
      */
     public void setOpcode(final int opcode) {
         this.opcode = opcode;

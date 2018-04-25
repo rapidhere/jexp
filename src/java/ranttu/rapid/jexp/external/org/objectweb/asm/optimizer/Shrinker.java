@@ -29,6 +29,13 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.optimizer;
 
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.external.org.objectweb.asm.commons.Remapper;
+import ranttu.rapid.jexp.external.org.objectweb.asm.commons.SimpleRemapper;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,16 +50,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
-import ranttu.rapid.jexp.external.org.objectweb.asm.commons.Remapper;
-import ranttu.rapid.jexp.external.org.objectweb.asm.commons.SimpleRemapper;
-
 /**
  * A class file shrinker utility.
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */

@@ -35,9 +35,9 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
 /**
  * An {@link AnnotationVisitor} adapter for type remapping.
- * 
- * @deprecated use {@link AnnotationRemapper} instead.
+ *
  * @author Eugene Kuleshov
+ * @deprecated use {@link AnnotationRemapper} instead.
  */
 @Deprecated
 public class RemappingAnnotationAdapter extends AnnotationVisitor {

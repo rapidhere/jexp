@@ -30,7 +30,6 @@
 package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
 import org.xml.sax.helpers.AttributesImpl;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
@@ -38,12 +37,12 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
 /**
  * SAXAnnotationAdapter
- * 
+ *
  * @author Eugene Kuleshov
  */
 public final class SAXAnnotationAdapter extends AnnotationVisitor {
 
-    SAXAdapter           sa;
+    SAXAdapter sa;
 
     private final String elementName;
 
@@ -55,14 +54,14 @@ public final class SAXAnnotationAdapter extends AnnotationVisitor {
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName, final int visible,
                                 final int parameter, final String desc) {
         this(Opcodes.ASM5, sa, elementName, visible, desc, null, parameter, -1, null, null, null,
-            null);
+                null);
     }
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName, final int visible,
                                 final String name, final String desc, final int typeRef,
                                 final TypePath typePath) {
         this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, typeRef, typePath, null, null,
-            null);
+                null);
     }
 
     public SAXAnnotationAdapter(final SAXAdapter sa, final String elementName, final int visible,
@@ -70,7 +69,7 @@ public final class SAXAnnotationAdapter extends AnnotationVisitor {
                                 TypePath typePath, final String[] start, final String[] end,
                                 final int[] index) {
         this(Opcodes.ASM5, sa, elementName, visible, desc, name, -1, typeRef, typePath, start, end,
-            index);
+                index);
     }
 
     protected SAXAnnotationAdapter(final int api, final SAXAdapter sa, final String elementName,

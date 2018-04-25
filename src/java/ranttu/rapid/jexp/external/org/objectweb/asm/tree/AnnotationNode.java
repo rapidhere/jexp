@@ -29,15 +29,15 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A node that represents an annotation.
- * 
+ *
  * @author Eric Bruneton
  */
 public class AnnotationNode extends AnnotationVisitor {
@@ -45,7 +45,7 @@ public class AnnotationNode extends AnnotationVisitor {
     /**
      * The class descriptor of the annotation class.
      */
-    public String       desc;
+    public String desc;
 
     /**
      * The name value pairs of this annotation. Each name value pair is stored
@@ -64,11 +64,9 @@ public class AnnotationNode extends AnnotationVisitor {
      * Constructs a new {@link AnnotationNode}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the
      * {@link #AnnotationNode(int, String)} version.
-     * 
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @param desc the class descriptor of the annotation class.
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public AnnotationNode(final String desc) {
         this(Opcodes.ASM5, desc);
@@ -79,12 +77,10 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Constructs a new {@link AnnotationNode}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
-     *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
-     * @param desc
-     *            the class descriptor of the annotation class.
+     *
+     * @param api  the ASM API version implemented by this visitor. Must be one
+     *             of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
+     * @param desc the class descriptor of the annotation class.
      */
     public AnnotationNode(final int api, final String desc) {
         super(api);
@@ -93,9 +89,8 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Constructs a new {@link AnnotationNode} to visit an array value.
-     * 
-     * @param values
-     *            where the visited values must be stored.
+     *
+     * @param values where the visited values must be stored.
      */
     AnnotationNode(final List<Object> values) {
         super(Opcodes.ASM5);
@@ -183,7 +178,7 @@ public class AnnotationNode extends AnnotationVisitor {
         if (this.desc != null) {
             values.add(name);
         }
-        values.add(new String[] { desc, value });
+        values.add(new String[]{desc, value});
     }
 
     @Override
@@ -225,9 +220,8 @@ public class AnnotationNode extends AnnotationVisitor {
      * version. This methods checks that this node, and all its nodes
      * recursively, do not contain elements that were introduced in more recent
      * versions of the ASM API than the given version.
-     * 
-     * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
+     *
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4} or
      *            {@link Opcodes#ASM5}.
      */
     public void check(final int api) {
@@ -236,9 +230,8 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Makes the given visitor visit this annotation.
-     * 
-     * @param av
-     *            an annotation visitor. Maybe <tt>null</tt>.
+     *
+     * @param av an annotation visitor. Maybe <tt>null</tt>.
      */
     public void accept(final AnnotationVisitor av) {
         if (av != null) {
@@ -255,13 +248,10 @@ public class AnnotationNode extends AnnotationVisitor {
 
     /**
      * Makes the given visitor visit a given annotation value.
-     * 
-     * @param av
-     *            an annotation visitor. Maybe <tt>null</tt>.
-     * @param name
-     *            the value name.
-     * @param value
-     *            the actual value.
+     *
+     * @param av    an annotation visitor. Maybe <tt>null</tt>.
+     * @param name  the value name.
+     * @param value the actual value.
      */
     static void accept(final AnnotationVisitor av, final String name, final Object value) {
         if (av != null) {

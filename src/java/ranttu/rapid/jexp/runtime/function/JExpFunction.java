@@ -14,16 +14,20 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JExpFunction {
-    /** the name (identifier) of the function */
+    /**
+     * the name (identifier) of the function
+     */
     String name() default "";
 
-    /** the lib of this function belong to */
+    /**
+     * the lib of this function belong to
+     */
     String lib() default "";
 
     /**
-     *  whether this function is inlinable, default is false
-     *
-     *  NOTE: this feature is still under experiment, and is not quite useful
+     * whether this function is inlinable, default is false
+     * <p>
+     * NOTE: this feature is still under experiment, and is not quite useful
      */
     boolean inline() default false;
 }

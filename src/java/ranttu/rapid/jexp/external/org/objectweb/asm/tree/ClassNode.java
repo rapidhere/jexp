@@ -29,10 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -41,9 +37,13 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A node that represents a class.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassNode extends ClassVisitor {
@@ -51,24 +51,24 @@ public class ClassNode extends ClassVisitor {
     /**
      * The class version.
      */
-    public int                      version;
+    public int version;
 
     /**
      * The class's access flags (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This
      * field also indicates if the class is deprecated.
      */
-    public int                      access;
+    public int access;
 
     /**
      * The internal name of the class (see
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName() getInternalName}).
      */
-    public String                   name;
+    public String name;
 
     /**
      * The signature of the class. May be <tt>null</tt>.
      */
-    public String                   signature;
+    public String signature;
 
     /**
      * The internal of name of the super class (see
@@ -76,67 +76,67 @@ public class ClassNode extends ClassVisitor {
      * interfaces, the super class is {@link Object}. May be <tt>null</tt>, but
      * only for the {@link Object} class.
      */
-    public String                   superName;
+    public String superName;
 
     /**
      * The internal names of the class's interfaces (see
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName() getInternalName}). This
      * list is a list of {@link String} objects.
      */
-    public List<String>             interfaces;
+    public List<String> interfaces;
 
     /**
      * The name of the source file from which this class was compiled. May be
      * <tt>null</tt>.
      */
-    public String                   sourceFile;
+    public String sourceFile;
 
     /**
      * Debug information to compute the correspondence between source and
      * compiled elements of the class. May be <tt>null</tt>.
      */
-    public String                   sourceDebug;
+    public String sourceDebug;
 
     /**
      * The internal name of the enclosing class of the class. May be
      * <tt>null</tt>.
      */
-    public String                   outerClass;
+    public String outerClass;
 
     /**
      * The name of the method that contains the class, or <tt>null</tt> if the
      * class is not enclosed in a method.
      */
-    public String                   outerMethod;
+    public String outerMethod;
 
     /**
      * The descriptor of the method that contains the class, or <tt>null</tt> if
      * the class is not enclosed in a method.
      */
-    public String                   outerMethodDesc;
+    public String outerMethodDesc;
 
     /**
      * The runtime visible annotations of this class. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
-    public List<AnnotationNode>     visibleAnnotations;
+    public List<AnnotationNode> visibleAnnotations;
 
     /**
      * The runtime invisible annotations of this class. This list is a list of
      * {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
-    public List<AnnotationNode>     invisibleAnnotations;
+    public List<AnnotationNode> invisibleAnnotations;
 
     /**
      * The runtime visible type annotations of this class. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.TypeAnnotationNode
      * @label visible
      */
@@ -145,7 +145,7 @@ public class ClassNode extends ClassVisitor {
     /**
      * The runtime invisible type annotations of this class. This list is a list
      * of {@link TypeAnnotationNode} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.TypeAnnotationNode
      * @label invisible
      */
@@ -154,42 +154,41 @@ public class ClassNode extends ClassVisitor {
     /**
      * The non standard attributes of this class. This list is a list of
      * {@link Attribute} objects. May be <tt>null</tt>.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.Attribute
      */
-    public List<Attribute>          attrs;
+    public List<Attribute> attrs;
 
     /**
      * Informations about the inner classes of this class. This list is a list
      * of {@link InnerClassNode} objects.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.InnerClassNode
      */
-    public List<InnerClassNode>     innerClasses;
+    public List<InnerClassNode> innerClasses;
 
     /**
      * The fields of this class. This list is a list of {@link FieldNode}
      * objects.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.FieldNode
      */
-    public List<FieldNode>          fields;
+    public List<FieldNode> fields;
 
     /**
      * The methods of this class. This list is a list of {@link MethodNode}
      * objects.
-     * 
+     *
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodNode
      */
-    public List<MethodNode>         methods;
+    public List<MethodNode> methods;
 
     /**
      * Constructs a new {@link ClassNode}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the {@link #ClassNode(int)}
      * version.
-     * 
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     *
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public ClassNode() {
         this(Opcodes.ASM5);
@@ -200,9 +199,8 @@ public class ClassNode extends ClassVisitor {
 
     /**
      * Constructs a new {@link ClassNode}.
-     * 
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
+     *
+     * @param api the ASM API version implemented by this visitor. Must be one
      *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     public ClassNode(final int api) {
@@ -322,9 +320,8 @@ public class ClassNode extends ClassVisitor {
      * This methods checks that this node, and all its nodes recursively, do not
      * contain elements that were introduced in more recent versions of the ASM
      * API than the given version.
-     * 
-     * @param api
-     *            an ASM API version. Must be one of {@link Opcodes#ASM4} or
+     *
+     * @param api an ASM API version. Must be one of {@link Opcodes#ASM4} or
      *            {@link Opcodes#ASM5}.
      */
     public void check(final int api) {
@@ -346,9 +343,8 @@ public class ClassNode extends ClassVisitor {
 
     /**
      * Makes the given class visitor visit this class.
-     * 
-     * @param cv
-     *            a class visitor.
+     *
+     * @param cv a class visitor.
      */
     public void accept(final ClassVisitor cv) {
         // visits header

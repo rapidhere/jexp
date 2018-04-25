@@ -35,14 +35,14 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
 /**
  * An {@link AnnotationVisitor} that checks that its methods are properly used.
- * 
+ *
  * @author Eric Bruneton
  */
 public class CheckAnnotationAdapter extends AnnotationVisitor {
 
     private final boolean named;
 
-    private boolean       end;
+    private boolean end;
 
     public CheckAnnotationAdapter(final AnnotationVisitor av) {
         this(av, true);
@@ -58,12 +58,12 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
         checkEnd();
         checkName(name);
         if (!(value instanceof Byte || value instanceof Boolean || value instanceof Character
-              || value instanceof Short || value instanceof Integer || value instanceof Long
-              || value instanceof Float || value instanceof Double || value instanceof String
-              || value instanceof Type || value instanceof byte[] || value instanceof boolean[]
-              || value instanceof char[] || value instanceof short[] || value instanceof int[]
-              || value instanceof long[] || value instanceof float[]
-              || value instanceof double[])) {
+                || value instanceof Short || value instanceof Integer || value instanceof Long
+                || value instanceof Float || value instanceof Double || value instanceof String
+                || value instanceof Type || value instanceof byte[] || value instanceof boolean[]
+                || value instanceof char[] || value instanceof short[] || value instanceof int[]
+                || value instanceof long[] || value instanceof float[]
+                || value instanceof double[])) {
             throw new IllegalArgumentException("Invalid annotation value");
         }
         if (value instanceof Type) {
@@ -117,7 +117,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
     private void checkEnd() {
         if (end) {
             throw new IllegalStateException(
-                "Cannot call a visit method after visitEnd has been called");
+                    "Cannot call a visit method after visitEnd has been called");
         }
     }
 

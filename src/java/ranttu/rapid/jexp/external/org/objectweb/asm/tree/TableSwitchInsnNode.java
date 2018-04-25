@@ -29,18 +29,18 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
+import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
-import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
-
 /**
  * A node that represents a TABLESWITCH instruction.
- * 
+ *
  * @author Eric Bruneton
  */
 public class TableSwitchInsnNode extends AbstractInsnNode {
@@ -48,17 +48,17 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
     /**
      * The minimum key value.
      */
-    public int             min;
+    public int min;
 
     /**
      * The maximum key value.
      */
-    public int             max;
+    public int max;
 
     /**
      * Beginning of the default handler block.
      */
-    public LabelNode       dflt;
+    public LabelNode dflt;
 
     /**
      * Beginnings of the handler blocks. This list is a list of
@@ -68,16 +68,12 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link TableSwitchInsnNode}.
-     * 
-     * @param min
-     *            the minimum key value.
-     * @param max
-     *            the maximum key value.
-     * @param dflt
-     *            beginning of the default handler block.
-     * @param labels
-     *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
-     *            beginning of the handler block for the <tt>min + i</tt> key.
+     *
+     * @param min    the minimum key value.
+     * @param max    the maximum key value.
+     * @param dflt   beginning of the default handler block.
+     * @param labels beginnings of the handler blocks. <tt>labels[i]</tt> is the
+     *               beginning of the handler block for the <tt>min + i</tt> key.
      */
     public TableSwitchInsnNode(final int min, final int max, final LabelNode dflt,
                                final LabelNode... labels) {
@@ -109,6 +105,6 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
     @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
         return new TableSwitchInsnNode(min, max, clone(dflt, labels), clone(this.labels, labels))
-            .cloneAnnotations(this);
+                .cloneAnnotations(this);
     }
 }

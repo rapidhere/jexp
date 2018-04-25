@@ -29,11 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.util;
 
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
@@ -43,6 +38,11 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypeReference;
 import ranttu.rapid.jexp.external.org.objectweb.asm.signature.SignatureReader;
+
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@link Printer} that prints a disassembled view of the classes it visits.
@@ -55,82 +55,82 @@ public class Textifier extends Printer {
      * Constant used in {@link #appendDescriptor appendDescriptor} for internal
      * type names in bytecode notation.
      */
-    public static final int      INTERNAL_NAME          = 0;
+    public static final int INTERNAL_NAME = 0;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for field
      * descriptors, formatted in bytecode notation
      */
-    public static final int      FIELD_DESCRIPTOR       = 1;
+    public static final int FIELD_DESCRIPTOR = 1;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for field
      * signatures, formatted in bytecode notation
      */
-    public static final int      FIELD_SIGNATURE        = 2;
+    public static final int FIELD_SIGNATURE = 2;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for method
      * descriptors, formatted in bytecode notation
      */
-    public static final int      METHOD_DESCRIPTOR      = 3;
+    public static final int METHOD_DESCRIPTOR = 3;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for method
      * signatures, formatted in bytecode notation
      */
-    public static final int      METHOD_SIGNATURE       = 4;
+    public static final int METHOD_SIGNATURE = 4;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for class
      * signatures, formatted in bytecode notation
      */
-    public static final int      CLASS_SIGNATURE        = 5;
+    public static final int CLASS_SIGNATURE = 5;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for field or
      * method return value signatures, formatted in default Java notation
      * (non-bytecode)
      */
-    public static final int      TYPE_DECLARATION       = 6;
+    public static final int TYPE_DECLARATION = 6;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for class
      * signatures, formatted in default Java notation (non-bytecode)
      */
-    public static final int      CLASS_DECLARATION      = 7;
+    public static final int CLASS_DECLARATION = 7;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for method
      * parameter signatures, formatted in default Java notation (non-bytecode)
      */
-    public static final int      PARAMETERS_DECLARATION = 8;
+    public static final int PARAMETERS_DECLARATION = 8;
 
     /**
      * Constant used in {@link #appendDescriptor appendDescriptor} for handle
      * descriptors, formatted in bytecode notation
      */
-    public static final int      HANDLE_DESCRIPTOR      = 9;
+    public static final int HANDLE_DESCRIPTOR = 9;
 
     /**
      * Tab for class members.
      */
-    protected String             tab                    = "  ";
+    protected String tab = "  ";
 
     /**
      * Tab for bytecode instructions.
      */
-    protected String             tab2                   = "    ";
+    protected String tab2 = "    ";
 
     /**
      * Tab for table and lookup switch instructions.
      */
-    protected String             tab3                   = "      ";
+    protected String tab3 = "      ";
 
     /**
      * Tab for labels.
      */
-    protected String             ltab                   = "   ";
+    protected String ltab = "   ";
 
     /**
      * The label names. This map associate String values to Label keys.
@@ -140,17 +140,16 @@ public class Textifier extends Printer {
     /**
      * Class access flags
      */
-    private int                  access;
+    private int access;
 
-    private int                  valueNumber            = 0;
+    private int valueNumber = 0;
 
     /**
      * Constructs a new {@link Textifier}. <i>Subclasses must not use this
      * constructor</i>. Instead, they must use the {@link #Textifier(int)}
      * version.
      *
-     * @throws IllegalStateException
-     *             If a subclass calls this constructor.
+     * @throws IllegalStateException If a subclass calls this constructor.
      */
     public Textifier() {
         this(Opcodes.ASM5);
@@ -162,8 +161,7 @@ public class Textifier extends Printer {
     /**
      * Constructs a new {@link Textifier}.
      *
-     * @param api
-     *            the ASM API version implemented by this visitor. Must be one
+     * @param api the ASM API version implemented by this visitor. Must be one
      *            of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
     protected Textifier(final int api) {
@@ -175,11 +173,8 @@ public class Textifier extends Printer {
      * <p>
      * Usage: Textifier [-debug] &lt;binary class name or class file name &gt;
      *
-     * @param args
-     *            the command line arguments.
-     *
-     * @throws Exception
-     *             if the class cannot be found, or if an IO exception occurs.
+     * @param args the command line arguments.
+     * @throws Exception if the class cannot be found, or if an IO exception occurs.
      */
     public static void main(final String[] args) throws Exception {
         int i = 0;
@@ -199,7 +194,7 @@ public class Textifier extends Printer {
         if (!ok) {
             System.err.println("Prints a disassembled view of the given class.");
             System.err.println(
-                "Usage: Textifier [-debug] " + "<fully qualified class name or class file name>");
+                    "Usage: Textifier [-debug] " + "<fully qualified class name or class file name>");
             return;
         }
         ClassReader cr;
@@ -223,12 +218,12 @@ public class Textifier extends Printer {
         int minor = version >>> 16;
         buf.setLength(0);
         buf.append("// class version ").append(major).append('.').append(minor).append(" (")
-            .append(version).append(")\n");
+                .append(version).append(")\n");
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             buf.append("// DEPRECATED\n");
         }
         buf.append("// access flags 0x").append(Integer.toHexString(access).toUpperCase())
-            .append('\n');
+                .append('\n');
 
         appendDescriptor(CLASS_SIGNATURE, signature);
         if (signature != null) {
@@ -339,7 +334,7 @@ public class Textifier extends Printer {
             buf.append(tab).append("// DEPRECATED\n");
         }
         buf.append(tab).append("// access flags 0x")
-            .append(Integer.toHexString(access).toUpperCase()).append('\n');
+                .append(Integer.toHexString(access).toUpperCase()).append('\n');
         if (signature != null) {
             buf.append(tab);
             appendDescriptor(FIELD_SIGNATURE, signature);
@@ -381,7 +376,7 @@ public class Textifier extends Printer {
             buf.append(tab).append("// DEPRECATED\n");
         }
         buf.append(tab).append("// access flags 0x")
-            .append(Integer.toHexString(access).toUpperCase()).append('\n');
+                .append(Integer.toHexString(access).toUpperCase()).append('\n');
 
         if (signature != null) {
             buf.append(tab);
@@ -395,7 +390,7 @@ public class Textifier extends Printer {
             String genericExceptions = v.getExceptions();
 
             buf.append(tab).append("// declaration: ").append(genericReturn).append(' ')
-                .append(name).append(genericDecl);
+                    .append(name).append(genericDecl);
             if (genericExceptions != null) {
                 buf.append(" throws ").append(genericExceptions);
             }
@@ -414,7 +409,7 @@ public class Textifier extends Printer {
             buf.append("bridge ");
         }
         if ((this.access & Opcodes.ACC_INTERFACE) != 0 && (access & Opcodes.ACC_ABSTRACT) == 0
-            && (access & Opcodes.ACC_STATIC) == 0) {
+                && (access & Opcodes.ACC_STATIC) == 0) {
             buf.append("default ");
         }
 
@@ -757,8 +752,8 @@ public class Textifier extends Printer {
     public void visitIntInsn(final int opcode, final int operand) {
         buf.setLength(0);
         buf.append(tab2).append(OPCODES[opcode]).append(' ')
-            .append(opcode == Opcodes.NEWARRAY ? TYPES[operand] : Integer.toString(operand))
-            .append('\n');
+                .append(opcode == Opcodes.NEWARRAY ? TYPES[operand] : Integer.toString(operand))
+                .append('\n');
         text.add(buf.toString());
     }
 
@@ -1067,10 +1062,8 @@ public class Textifier extends Printer {
     /**
      * Prints a disassembled view of the given annotation.
      *
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @param desc    the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
     public Textifier visitAnnotation(final String desc, final boolean visible) {
@@ -1088,16 +1081,12 @@ public class Textifier extends Printer {
     /**
      * Prints a disassembled view of the given type annotation.
      *
-     * @param typeRef
-     *            a reference to the annotated type. See {@link TypeReference}.
-     * @param typePath
-     *            the path to the annotated type argument, wildcard bound, array
-     *            element type, or static inner type within 'typeRef'. May be
-     *            <tt>null</tt> if the annotation targets 'typeRef' as a whole.
-     * @param desc
-     *            the class descriptor of the annotation class.
-     * @param visible
-     *            <tt>true</tt> if the annotation is visible at runtime.
+     * @param typeRef  a reference to the annotated type. See {@link TypeReference}.
+     * @param typePath the path to the annotated type argument, wildcard bound, array
+     *                 element type, or static inner type within 'typeRef'. May be
+     *                 <tt>null</tt> if the annotation targets 'typeRef' as a whole.
+     * @param desc     the class descriptor of the annotation class.
+     * @param visible  <tt>true</tt> if the annotation is visible at runtime.
      * @return a visitor to visit the annotation values.
      */
     public Textifier visitTypeAnnotation(final int typeRef, final TypePath typePath,
@@ -1121,8 +1110,7 @@ public class Textifier extends Printer {
     /**
      * Prints a disassembled view of the given attribute.
      *
-     * @param attr
-     *            an attribute.
+     * @param attr an attribute.
      */
     public void visitAttribute(final Attribute attr) {
         buf.setLength(0);
@@ -1155,12 +1143,10 @@ public class Textifier extends Printer {
      * Appends an internal name, a type descriptor or a type signature to
      * {@link #buf buf}.
      *
-     * @param type
-     *            indicates if desc is an internal name, a field descriptor, a
-     *            method descriptor, a class signature, ...
-     * @param desc
-     *            an internal name, type descriptor, or type signature. May be
-     *            <tt>null</tt>.
+     * @param type indicates if desc is an internal name, a field descriptor, a
+     *             method descriptor, a class signature, ...
+     * @param desc an internal name, type descriptor, or type signature. May be
+     *             <tt>null</tt>.
      */
     protected void appendDescriptor(final int type, final String desc) {
         if (type == CLASS_SIGNATURE || type == FIELD_SIGNATURE || type == METHOD_SIGNATURE) {
@@ -1176,8 +1162,7 @@ public class Textifier extends Printer {
      * Appends the name of the given label to {@link #buf buf}. Creates a new
      * label name if the given label does not yet have one.
      *
-     * @param l
-     *            a label.
+     * @param l a label.
      */
     protected void appendLabel(final Label l) {
         if (labelNames == null) {
@@ -1194,8 +1179,7 @@ public class Textifier extends Printer {
     /**
      * Appends the information about the given handle to {@link #buf buf}.
      *
-     * @param h
-     *            a handle, non null.
+     * @param h a handle, non null.
      */
     protected void appendHandle(final Handle h) {
         int tag = h.getTag();
@@ -1253,8 +1237,7 @@ public class Textifier extends Printer {
      * Appends a string representation of the given access modifiers to
      * {@link #buf buf}.
      *
-     * @param access
-     *            some access modifiers.
+     * @param access some access modifiers.
      */
     private void appendAccess(final int access) {
         if ((access & Opcodes.ACC_PUBLIC) != 0) {
@@ -1318,11 +1301,11 @@ public class Textifier extends Printer {
                 break;
             case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
                 buf.append("CLASS_TYPE_PARAMETER_BOUND ").append(ref.getTypeParameterIndex())
-                    .append(", ").append(ref.getTypeParameterBoundIndex());
+                        .append(", ").append(ref.getTypeParameterBoundIndex());
                 break;
             case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
                 buf.append("METHOD_TYPE_PARAMETER_BOUND ").append(ref.getTypeParameterIndex())
-                    .append(", ").append(ref.getTypeParameterBoundIndex());
+                        .append(", ").append(ref.getTypeParameterBoundIndex());
                 break;
             case TypeReference.FIELD:
                 buf.append("FIELD");
@@ -1365,14 +1348,14 @@ public class Textifier extends Printer {
                 break;
             case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
                 buf.append("CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT ")
-                    .append(ref.getTypeArgumentIndex());
+                        .append(ref.getTypeArgumentIndex());
                 break;
             case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
                 buf.append("METHOD_INVOCATION_TYPE_ARGUMENT ").append(ref.getTypeArgumentIndex());
                 break;
             case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
                 buf.append("CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT ")
-                    .append(ref.getTypeArgumentIndex());
+                        .append(ref.getTypeArgumentIndex());
                 break;
             case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
                 buf.append("METHOD_REFERENCE_TYPE_ARGUMENT ").append(ref.getTypeArgumentIndex());

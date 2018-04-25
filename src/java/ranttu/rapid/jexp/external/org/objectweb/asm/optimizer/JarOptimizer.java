@@ -29,6 +29,12 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.optimizer;
 
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
+import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
+import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,22 +53,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
-import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
-import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
-import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
-
 /**
  * A Jar file optimizer.
- * 
+ *
  * @author Eric Bruneton
  */
 public class JarOptimizer {
 
-    static final Set<String>         API       = new HashSet<String>();
+    static final Set<String> API = new HashSet<String>();
     static final Map<String, String> HIERARCHY = new HashMap<String, String>();
-    static boolean                   nodebug   = false;
+    static boolean nodebug = false;
 
     public static void main(final String[] args) throws IOException {
         File f = new File(args[0]);
@@ -224,7 +224,7 @@ public class JarOptimizer {
                     o = HIERARCHY.get(o);
                 }
                 System.out.println("WARNING: " + owner + ' ' + member + " called in " + this.owner
-                                   + ' ' + method + " is not defined in JDK 1.3 API");
+                        + ' ' + method + " is not defined in JDK 1.3 API");
             }
         }
     }

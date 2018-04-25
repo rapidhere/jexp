@@ -2,50 +2,59 @@ package ranttu.rapid.jexp.compile.parse;
 
 /**
  * the token types
+ *
  * @author rapidhere@gmail.com
  * @version $Id: TokenType.java, v0.1 2017-07-28 2:05 PM dongwei.dq Exp $
  */
 public enum TokenType {
-                       /** identifer */
-                       IDENTIFIER,
+    /**
+     * identifer
+     */
+    IDENTIFIER,
 
-                       /** literals */
-                       INTEGER,
+    /**
+     * literals
+     */
+    INTEGER,
 
-                       FLOAT,
+    FLOAT,
 
-                       STRING,
+    STRING,
 
-                       /** symbols */
-                       LEFT_PARENTHESIS,
+    /**
+     * symbols
+     */
+    LEFT_PARENTHESIS,
 
-                       RIGHT_PARENTHESIS,
+    RIGHT_PARENTHESIS,
 
-                       LEFT_BRACKET,
+    LEFT_BRACKET,
 
-                       RIGHT_BRACKET,
+    RIGHT_BRACKET,
 
-                       COMMA,
+    COMMA,
 
-                       DOT,
+    DOT,
 
-                       /** math */
-                       PLUS(11, true),
+    /**
+     * math
+     */
+    PLUS(11, true),
 
-                       SUBTRACT(11, true),
+    SUBTRACT(11, true),
 
-                       MULTIPLY(12, true),
+    MULTIPLY(12, true),
 
-                       DIVIDE(12, true),
+    DIVIDE(12, true),
 
-                       MODULAR(12, true),
+    MODULAR(12, true),
 
-                       /** fake */
-                       FAKE(Integer.MIN_VALUE, false)
+    /**
+     * fake
+     */
+    FAKE(Integer.MIN_VALUE, false);
 
-    ;
-
-    public int     priority;
+    public int priority;
 
     public boolean binaryOp;
 

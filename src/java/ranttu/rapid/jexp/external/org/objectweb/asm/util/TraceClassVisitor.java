@@ -29,8 +29,6 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.util;
 
-import java.io.PrintWriter;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Attribute;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
@@ -38,6 +36,8 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
+
+import java.io.PrintWriter;
 
 /**
  * A {@link ClassVisitor} that prints the classes it visits with a
@@ -48,36 +48,36 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
  * The trace printed when visiting the <tt>Hello</tt> class is the following:
  * <p>
  * <blockquote>
- * 
+ * <p>
  * <pre>
  * // class version 49.0 (49) // access flags 0x21 public class Hello {
- * 
+ *
  * // compiled from: Hello.java
- * 
+ *
  * // access flags 0x1 public &lt;init&gt; ()V ALOAD 0 INVOKESPECIAL
  * java/lang/Object &lt;init&gt; ()V RETURN MAXSTACK = 1 MAXLOCALS = 1
- * 
+ *
  * // access flags 0x9 public static main ([Ljava/lang/String;)V GETSTATIC
  * java/lang/System out Ljava/io/PrintStream; LDC &quot;hello&quot;
  * INVOKEVIRTUAL java/io/PrintStream println (Ljava/lang/String;)V RETURN
  * MAXSTACK = 2 MAXLOCALS = 1 }
  * </pre>
- * 
+ * <p>
  * </blockquote> where <tt>Hello</tt> is defined by:
  * <p>
  * <blockquote>
- * 
+ * <p>
  * <pre>
  * public class Hello {
- * 
+ *
  *     public static void main(String[] args) {
  *         System.out.println(&quot;hello&quot;);
  *     }
  * }
  * </pre>
- * 
+ * <p>
  * </blockquote>
- * 
+ *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
  */
@@ -91,13 +91,12 @@ public final class TraceClassVisitor extends ClassVisitor {
     /**
      * The object that actually converts visit events into text.
      */
-    public final Printer      p;
+    public final Printer p;
 
     /**
      * Constructs a new {@link TraceClassVisitor}.
-     * 
-     * @param pw
-     *            the print writer to be used to print the class.
+     *
+     * @param pw the print writer to be used to print the class.
      */
     public TraceClassVisitor(final PrintWriter pw) {
         this(null, pw);
@@ -105,12 +104,10 @@ public final class TraceClassVisitor extends ClassVisitor {
 
     /**
      * Constructs a new {@link TraceClassVisitor}.
-     * 
-     * @param cv
-     *            the {@link ClassVisitor} to which this visitor delegates
-     *            calls. May be <tt>null</tt>.
-     * @param pw
-     *            the print writer to be used to print the class.
+     *
+     * @param cv the {@link ClassVisitor} to which this visitor delegates
+     *           calls. May be <tt>null</tt>.
+     * @param pw the print writer to be used to print the class.
      */
     public TraceClassVisitor(final ClassVisitor cv, final PrintWriter pw) {
         this(cv, new Textifier(), pw);
@@ -118,16 +115,13 @@ public final class TraceClassVisitor extends ClassVisitor {
 
     /**
      * Constructs a new {@link TraceClassVisitor}.
-     * 
-     * @param cv
-     *            the {@link ClassVisitor} to which this visitor delegates
-     *            calls. May be <tt>null</tt>.
-     * @param p
-     *            the object that actually converts visit events into text.
-     * @param pw
-     *            the print writer to be used to print the class. May be null if
-     *            you simply want to use the result via
-     *            {@link Printer#getText()}, instead of printing it.
+     *
+     * @param cv the {@link ClassVisitor} to which this visitor delegates
+     *           calls. May be <tt>null</tt>.
+     * @param p  the object that actually converts visit events into text.
+     * @param pw the print writer to be used to print the class. May be null if
+     *           you simply want to use the result via
+     *           {@link Printer#getText()}, instead of printing it.
      */
     public TraceClassVisitor(final ClassVisitor cv, final Printer p, final PrintWriter pw) {
         super(Opcodes.ASM5, cv);
@@ -166,7 +160,7 @@ public final class TraceClassVisitor extends ClassVisitor {
                                                  boolean visible) {
         Printer p = this.p.visitClassTypeAnnotation(typeRef, typePath, desc, visible);
         AnnotationVisitor av = cv == null ? null
-            : cv.visitTypeAnnotation(typeRef, typePath, desc, visible);
+                : cv.visitTypeAnnotation(typeRef, typePath, desc, visible);
         return new TraceAnnotationVisitor(av, p);
     }
 
@@ -196,7 +190,7 @@ public final class TraceClassVisitor extends ClassVisitor {
                                      final String signature, final String[] exceptions) {
         Printer p = this.p.visitMethod(access, name, desc, signature, exceptions);
         MethodVisitor mv = cv == null ? null
-            : cv.visitMethod(access, name, desc, signature, exceptions);
+                : cv.visitMethod(access, name, desc, signature, exceptions);
         return new TraceMethodVisitor(mv, p);
     }
 

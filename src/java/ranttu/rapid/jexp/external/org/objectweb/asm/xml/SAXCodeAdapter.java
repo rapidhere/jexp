@@ -29,11 +29,7 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.xml.sax.helpers.AttributesImpl;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
@@ -43,31 +39,32 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 import ranttu.rapid.jexp.external.org.objectweb.asm.util.Printer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A {@link MethodVisitor} that generates SAX 2.0 events from the visited
  * method.
- * 
+ *
+ * @author Eugene Kuleshov
  * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.SAXClassAdapter
  * @see ranttu.rapid.jexp.external.org.objectweb.asm.xml.Processor
- * 
- * @author Eugene Kuleshov
  */
 public final class SAXCodeAdapter extends MethodVisitor {
 
-    static final String[]            TYPES = { "top", "int", "float", "double", "long", "null",
-                                               "uninitializedThis" };
+    static final String[] TYPES = {"top", "int", "float", "double", "long", "null",
+            "uninitializedThis"};
 
-    SAXAdapter                       sa;
+    SAXAdapter sa;
 
-    int                              access;
+    int access;
 
     private final Map<Label, String> labelNames;
 
     /**
      * Constructs a new {@link SAXCodeAdapter SAXCodeAdapter} object.
-     * 
-     * @param sa
-     *            content handler that will be used to send SAX 2.0 events.
+     *
+     * @param sa content handler that will be used to send SAX 2.0 events.
      */
     public SAXCodeAdapter(final SAXAdapter sa, final int access) {
         super(Opcodes.ASM5);
@@ -345,28 +342,28 @@ public final class SAXCodeAdapter extends MethodVisitor {
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
                                                  boolean visible) {
         return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1, null, desc, typeRef,
-            typePath);
+                typePath);
     }
 
     @Override
     public AnnotationVisitor visitParameterAnnotation(final int parameter, final String desc,
                                                       final boolean visible) {
         return new SAXAnnotationAdapter(sa, "parameterAnnotation", visible ? 1 : -1, parameter,
-            desc);
+                desc);
     }
 
     @Override
     public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String desc,
                                                  boolean visible) {
         return new SAXAnnotationAdapter(sa, "insnAnnotation", visible ? 1 : -1, null, desc, typeRef,
-            typePath);
+                typePath);
     }
 
     @Override
     public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String desc,
                                                      boolean visible) {
         return new SAXAnnotationAdapter(sa, "tryCatchAnnotation", visible ? 1 : -1, null, desc,
-            typeRef, typePath);
+                typeRef, typePath);
     }
 
     @Override
@@ -382,7 +379,7 @@ public final class SAXCodeAdapter extends MethodVisitor {
             e[i] = getLabel(end[i]);
         }
         return new SAXAnnotationAdapter(sa, "localVariableAnnotation", visible ? 1 : -1, null, desc,
-            typeRef, typePath, s, e, index);
+                typeRef, typePath, s, e, index);
     }
 
     @Override

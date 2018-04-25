@@ -10,6 +10,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
 /**
  * Type utils
+ *
  * @author dongwei.dq
  * @version $Id: Type.java, v0.1 2017-08-24 11:48 AM dongwei.dq Exp $
  */

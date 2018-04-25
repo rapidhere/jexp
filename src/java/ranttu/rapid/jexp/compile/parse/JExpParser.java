@@ -1,12 +1,5 @@
 package ranttu.rapid.jexp.compile.parse;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
 import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
@@ -18,47 +11,52 @@ import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnexpectedEOF;
 import ranttu.rapid.jexp.exception.UnexpectedToken;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
 /**
  * the parser
- *
+ * <p>
  * EXP |=
- *      BINARY_EXP
- *      UNARY_EXP
- *      MEMBER_EXP
- *      FUNCTION_EXP
- *      PRIMARY_EXP
- *
+ * BINARY_EXP
+ * UNARY_EXP
+ * MEMBER_EXP
+ * FUNCTION_EXP
+ * PRIMARY_EXP
+ * <p>
  * BINARY_EXP |=
- *      UNARY_EXP + UNARY_EXP
- *      UNARY_EXP - UNARY_EXP
- *      UNARY_EXP * UNARY_EXP
- *      UNARY_EXP / UNARY_EXP
- *      UNARY_EXP % UNARY_EXP
- *
+ * UNARY_EXP + UNARY_EXP
+ * UNARY_EXP - UNARY_EXP
+ * UNARY_EXP * UNARY_EXP
+ * UNARY_EXP / UNARY_EXP
+ * UNARY_EXP % UNARY_EXP
+ * <p>
  * UNARY_EXP |=
- *      MEMBER_EXP
- *      FUNCTION_EXP
- *      PRIMARY_EXP
- *      (EXP)
- *
+ * MEMBER_EXP
+ * FUNCTION_EXP
+ * PRIMARY_EXP
+ * (EXP)
+ * <p>
  * MEMBER_EXP |=
- *      UNARY_EXP.IDENTIFIER
- *      UNARY_EXP[EXP]
- *
+ * UNARY_EXP.IDENTIFIER
+ * UNARY_EXP[EXP]
+ * <p>
  * FUNCTION_EXP |=
- *      UNARY_EXP(ARGUMENT_LIST)
- *
+ * UNARY_EXP(ARGUMENT_LIST)
+ * <p>
  * ARGUMENT_LIST |=
- *      <NIL>
- *      ARGUMENT_LIST, EXP
- *
+ * <NIL>
+ * ARGUMENT_LIST, EXP
+ * <p>
  * PRIMARY_EXP |=
- *      INTEGER
- *      FLOAT
- *      STRING
- *      IDENTIFIER
- *
- *
+ * INTEGER
+ * FLOAT
+ * STRING
+ * IDENTIFIER
  *
  * @author rapidhere@gmail.com
  * @version $Id: JExpParser.java, v0.1 2017-07-28 2:58 PM dongwei.dq Exp $
@@ -66,8 +64,9 @@ import ranttu.rapid.jexp.exception.UnexpectedToken;
 public class JExpParser {
     /**
      * parse the input and return a ast
-     * @param input  the input text
-     * @return       ast
+     *
+     * @param input the input text
+     * @return ast
      */
     public static ExpressionNode parse(String input) throws JExpCompilingException {
         return new JExpParser(new StringReader(input)).parse();
@@ -75,7 +74,7 @@ public class JExpParser {
 
     // ~~ impl
     // the lexer
-    private Lexer        lexer;
+    private Lexer lexer;
 
     private Stack<Token> tokenStack = new Stack<>();
 
@@ -133,14 +132,13 @@ public class JExpParser {
     }
 
     /**
-     *  unary-class expressions are made with those basic elements:
-     *
-     *  PRIMARY_EXP
-     *  (EXP)
-     *  `.`
-     *  `[...]`
-     *  `(...)`
-     *
+     * unary-class expressions are made with those basic elements:
+     * <p>
+     * PRIMARY_EXP
+     * (EXP)
+     * `.`
+     * `[...]`
+     * `(...)`
      */
     private ExpressionNode parseUnary() {
         var exp = parseUnaryClassElement();
@@ -163,7 +161,7 @@ public class JExpParser {
                 // cast id to str
                 Token idToken = identifier.token;
                 Token strToken = new Token(TokenType.STRING, idToken.line, idToken.column,
-                    idToken.value);
+                        idToken.value);
 
                 exp = new MemberExpression(exp, new PrimaryExpression(strToken));
             }
@@ -189,7 +187,7 @@ public class JExpParser {
 
     /**
      * the element of unary-class expressions, can be:
-     *
+     * <p>
      * (EXP)
      * PRIMARY_EXP
      */

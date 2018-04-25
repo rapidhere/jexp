@@ -29,15 +29,15 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.tree;
 
-import java.util.Map;
-
 import ranttu.rapid.jexp.external.org.objectweb.asm.Handle;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 
+import java.util.Map;
+
 /**
  * A node that represents an invokedynamic instruction.
- * 
+ *
  * @author Remi Forax
  */
 public class InvokeDynamicInsnNode extends AbstractInsnNode {
@@ -45,17 +45,17 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
     /**
      * Invokedynamic name.
      */
-    public String   name;
+    public String name;
 
     /**
      * Invokedynamic descriptor.
      */
-    public String   desc;
+    public String desc;
 
     /**
      * Bootstrap method
      */
-    public Handle   bsm;
+    public Handle bsm;
 
     /**
      * Bootstrap constant arguments
@@ -64,15 +64,11 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
 
     /**
      * Constructs a new {@link InvokeDynamicInsnNode}.
-     * 
-     * @param name
-     *            invokedynamic name.
-     * @param desc
-     *            invokedynamic descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
-     * @param bsm
-     *            the bootstrap method.
-     * @param bsmArgs
-     *            the boostrap constant arguments.
+     *
+     * @param name    invokedynamic name.
+     * @param desc    invokedynamic descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
+     * @param bsm     the bootstrap method.
+     * @param bsmArgs the boostrap constant arguments.
      */
     public InvokeDynamicInsnNode(final String name, final String desc, final Handle bsm,
                                  final Object... bsmArgs) {

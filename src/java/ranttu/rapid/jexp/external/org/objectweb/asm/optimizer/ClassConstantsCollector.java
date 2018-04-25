@@ -40,7 +40,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
 /**
  * A {@link ClassVisitor} that collects the {@link Constant}s of the classes it
  * visits.
- * 
+ *
  * @author Eric Bruneton
  */
 public class ClassConstantsCollector extends ClassVisitor {
@@ -187,6 +187,6 @@ public class ClassConstantsCollector extends ClassVisitor {
             }
         }
         return new MethodConstantsCollector(
-            cv.visitMethod(access, name, desc, signature, exceptions), cp);
+                cv.visitMethod(access, name, desc, signature, exceptions), cp);
     }
 }
