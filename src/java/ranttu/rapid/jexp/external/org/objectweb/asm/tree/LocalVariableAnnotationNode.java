@@ -64,7 +64,7 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
      * The local variable's index in each range. This list must have the same
      * size as the 'start' list. Must not be <tt>null</tt>.
      */
-    public List<Integer> index;
+    public List<Integer>   index;
 
     /**
      * Constructs a new {@link LocalVariableAnnotationNode}. <i>Subclasses must
@@ -91,8 +91,8 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
      * @param desc
      *            the class descriptor of the annotation class.
      */
-    public LocalVariableAnnotationNode(int typeRef, TypePath typePath,
-            LabelNode[] start, LabelNode[] end, int[] index, String desc) {
+    public LocalVariableAnnotationNode(int typeRef, TypePath typePath, LabelNode[] start,
+                                       LabelNode[] end, int[] index, String desc) {
         this(Opcodes.ASM5, typeRef, typePath, start, end, index, desc);
     }
 
@@ -121,8 +121,8 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
      * @param desc
      *            the class descriptor of the annotation class.
      */
-    public LocalVariableAnnotationNode(int api, int typeRef, TypePath typePath,
-            LabelNode[] start, LabelNode[] end, int[] index, String desc) {
+    public LocalVariableAnnotationNode(int api, int typeRef, TypePath typePath, LabelNode[] start,
+                                       LabelNode[] end, int[] index, String desc) {
         super(api, typeRef, typePath, desc);
         this.start = new ArrayList<LabelNode>(start.length);
         this.start.addAll(Arrays.asList(start));
@@ -151,7 +151,6 @@ public class LocalVariableAnnotationNode extends TypeAnnotationNode {
             end[i] = this.end.get(i).getLabel();
             index[i] = this.index.get(i);
         }
-        accept(mv.visitLocalVariableAnnotation(typeRef, typePath, start, end,
-                index, desc, true));
+        accept(mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, true));
     }
 }

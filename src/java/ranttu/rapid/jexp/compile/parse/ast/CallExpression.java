@@ -23,11 +23,11 @@ public class CallExpression extends AstNode {
     @NonNull
     public List<AstNode> parameters;
 
-    public boolean             isBounded = false;
+    public boolean       isBounded = false;
 
     //~~~ unbounded invoke
-    public FunctionInfo        functionInfo;
+    public FunctionInfo  functionInfo;
 
     //~~~ bounded invoke
-    public String              methodName;
+    public String        methodName;
 }

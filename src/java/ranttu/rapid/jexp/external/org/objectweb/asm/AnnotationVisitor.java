@@ -43,7 +43,7 @@ public abstract class AnnotationVisitor {
      * The ASM API version implemented by this visitor. The value of this field
      * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
-    protected final int api;
+    protected final int         api;
 
     /**
      * The annotation visitor to which this visitor must delegate method calls.

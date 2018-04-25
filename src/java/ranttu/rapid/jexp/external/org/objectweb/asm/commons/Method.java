@@ -46,12 +46,12 @@ public class Method {
     /**
      * The method name.
      */
-    private final String name;
+    private final String                     name;
 
     /**
      * The method descriptor.
      */
-    private final String desc;
+    private final String                     desc;
 
     /**
      * Maps primitive Java type names to their descriptors.
@@ -94,8 +94,7 @@ public class Method {
      * @param argumentTypes
      *            the method's argument types.
      */
-    public Method(final String name, final Type returnType,
-            final Type[] argumentTypes) {
+    public Method(final String name, final Type returnType, final Type[] argumentTypes) {
         this(name, Type.getMethodDescriptor(returnType, argumentTypes));
     }
 
@@ -139,8 +138,7 @@ public class Method {
      * @throws IllegalArgumentException
      *             if <code>method</code> could not get parsed.
      */
-    public static Method getMethod(final String method)
-            throws IllegalArgumentException {
+    public static Method getMethod(final String method) throws IllegalArgumentException {
         return getMethod(method, false);
     }
 
@@ -167,7 +165,7 @@ public class Method {
      *             if <code>method</code> could not get parsed.
      */
     public static Method getMethod(final String method,
-            final boolean defaultPackage) throws IllegalArgumentException {
+                                   final boolean defaultPackage) throws IllegalArgumentException {
         int space = method.indexOf(' ');
         int start = method.indexOf('(', space) + 1;
         int end = method.indexOf(')', start);

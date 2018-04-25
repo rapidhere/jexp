@@ -45,12 +45,12 @@ public class Attribute {
     /**
      * The raw value of this attribute, used only for unknown attributes.
      */
-    byte[] value;
+    byte[]              value;
 
     /**
      * The next attribute in this attribute list. May be <tt>null</tt>.
      */
-    Attribute next;
+    Attribute           next;
 
     /**
      * Constructs a new empty attribute.
@@ -122,9 +122,8 @@ public class Attribute {
      * @return a <i>new</i> {@link Attribute} object corresponding to the given
      *         bytes.
      */
-    protected Attribute read(final ClassReader cr, final int off,
-            final int len, final char[] buf, final int codeOff,
-            final Label[] labels) {
+    protected Attribute read(final ClassReader cr, final int off, final int len, final char[] buf,
+                             final int codeOff, final Label[] labels) {
         Attribute attr = new Attribute(type);
         attr.value = new byte[len];
         System.arraycopy(cr.b, off, attr.value, 0, len);
@@ -156,8 +155,8 @@ public class Attribute {
      *            is not a code attribute.
      * @return the byte array form of this attribute.
      */
-    protected ByteVector write(final ClassWriter cw, final byte[] code,
-            final int len, final int maxStack, final int maxLocals) {
+    protected ByteVector write(final ClassWriter cw, final byte[] code, final int len,
+                               final int maxStack, final int maxLocals) {
         ByteVector v = new ByteVector();
         v.data = value;
         v.length = value.length;
@@ -204,8 +203,8 @@ public class Attribute {
      * @return the size of all the attributes in this attribute list. This size
      *         includes the size of the attribute headers.
      */
-    final int getSize(final ClassWriter cw, final byte[] code, final int len,
-            final int maxStack, final int maxLocals) {
+    final int getSize(final ClassWriter cw, final byte[] code, final int len, final int maxStack,
+                      final int maxLocals) {
         Attribute attr = this;
         int size = 0;
         while (attr != null) {
@@ -242,8 +241,8 @@ public class Attribute {
      * @param out
      *            where the attributes must be written.
      */
-    final void put(final ClassWriter cw, final byte[] code, final int len,
-            final int maxStack, final int maxLocals, final ByteVector out) {
+    final void put(final ClassWriter cw, final byte[] code, final int len, final int maxStack,
+                   final int maxLocals, final ByteVector out) {
         Attribute attr = this;
         while (attr != null) {
             ByteVector b = attr.write(cw, code, len, maxStack, maxLocals);

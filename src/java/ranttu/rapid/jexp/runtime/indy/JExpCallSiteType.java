@@ -11,14 +11,14 @@ import ranttu.rapid.jexp.common.$;
  * @version $Id: JExpCallSiteType.java, v 0.1 2018年04月05日 4:35 PM rapid Exp $
  */
 public enum JExpCallSiteType {
-    /** get a property */
-    GET_PROP("GP"),
+                              /** get a property */
+                              GET_PROP("GP"),
 
-    /** unbounded invoke */
-    UB_INVOKE("UI"),
+                              /** unbounded invoke */
+                              UB_INVOKE("UI"),
 
-    /** bounded invoke */
-    BD_INVOKE("BI"),
+                              /** bounded invoke */
+                              BD_INVOKE("BI"),
 
     ;
     /** the method name string */

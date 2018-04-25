@@ -7,6 +7,7 @@ package ranttu.rapid.jexp.base;
 import org.testng.AssertJUnit;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
+
 import ranttu.rapid.jexp.JExp;
 
 /**

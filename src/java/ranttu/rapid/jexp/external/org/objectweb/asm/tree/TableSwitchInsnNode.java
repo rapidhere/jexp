@@ -48,17 +48,17 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
     /**
      * The minimum key value.
      */
-    public int min;
+    public int             min;
 
     /**
      * The maximum key value.
      */
-    public int max;
+    public int             max;
 
     /**
      * Beginning of the default handler block.
      */
-    public LabelNode dflt;
+    public LabelNode       dflt;
 
     /**
      * Beginnings of the handler blocks. This list is a list of
@@ -79,8 +79,8 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
      *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
      *            beginning of the handler block for the <tt>min + i</tt> key.
      */
-    public TableSwitchInsnNode(final int min, final int max,
-            final LabelNode dflt, final LabelNode... labels) {
+    public TableSwitchInsnNode(final int min, final int max, final LabelNode dflt,
+                               final LabelNode... labels) {
         super(Opcodes.TABLESWITCH);
         this.min = min;
         this.max = max;
@@ -108,7 +108,7 @@ public class TableSwitchInsnNode extends AbstractInsnNode {
 
     @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-        return new TableSwitchInsnNode(min, max, clone(dflt, labels), clone(
-                this.labels, labels)).cloneAnnotations(this);
+        return new TableSwitchInsnNode(min, max, clone(dflt, labels), clone(this.labels, labels))
+            .cloneAnnotations(this);
     }
 }

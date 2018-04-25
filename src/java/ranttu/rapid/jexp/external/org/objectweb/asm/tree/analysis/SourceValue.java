@@ -44,7 +44,7 @@ public class SourceValue implements Value {
     /**
      * The size of this value.
      */
-    public final int size;
+    public final int                   size;
 
     /**
      * The instructions that can produce this value. For example, for the Java

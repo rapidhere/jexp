@@ -44,13 +44,12 @@ public class RemappingAnnotationAdapter extends AnnotationVisitor {
 
     protected final Remapper remapper;
 
-    public RemappingAnnotationAdapter(final AnnotationVisitor av,
-            final Remapper remapper) {
+    public RemappingAnnotationAdapter(final AnnotationVisitor av, final Remapper remapper) {
         this(Opcodes.ASM5, av, remapper);
     }
 
-    protected RemappingAnnotationAdapter(final int api,
-            final AnnotationVisitor av, final Remapper remapper) {
+    protected RemappingAnnotationAdapter(final int api, final AnnotationVisitor av,
+                                         final Remapper remapper) {
         super(api, av);
         this.remapper = remapper;
     }
@@ -68,14 +67,12 @@ public class RemappingAnnotationAdapter extends AnnotationVisitor {
     @Override
     public AnnotationVisitor visitAnnotation(String name, String desc) {
         AnnotationVisitor v = av.visitAnnotation(name, remapper.mapDesc(desc));
-        return v == null ? null : (v == av ? this
-                : new RemappingAnnotationAdapter(v, remapper));
+        return v == null ? null : (v == av ? this : new RemappingAnnotationAdapter(v, remapper));
     }
 
     @Override
     public AnnotationVisitor visitArray(String name) {
         AnnotationVisitor v = av.visitArray(name);
-        return v == null ? null : (v == av ? this
-                : new RemappingAnnotationAdapter(v, remapper));
+        return v == null ? null : (v == av ? this : new RemappingAnnotationAdapter(v, remapper));
     }
 }

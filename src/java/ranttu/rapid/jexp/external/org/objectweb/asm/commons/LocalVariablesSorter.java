@@ -50,30 +50,29 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
  */
 public class LocalVariablesSorter extends MethodVisitor {
 
-    private static final Type OBJECT_TYPE = Type
-            .getObjectType("java/lang/Object");
+    private static final Type OBJECT_TYPE = Type.getObjectType("java/lang/Object");
 
     /**
      * Mapping from old to new local variable indexes. A local variable at index
      * i of size 1 is remapped to 'mapping[2*i]', while a local variable at
      * index i of size 2 is remapped to 'mapping[2*i+1]'.
      */
-    private int[] mapping = new int[40];
+    private int[]             mapping     = new int[40];
 
     /**
      * Array used to store stack map local variable types after remapping.
      */
-    private Object[] newLocals = new Object[20];
+    private Object[]          newLocals   = new Object[20];
 
     /**
      * Index of the first local variable, after formal parameters.
      */
-    protected final int firstLocal;
+    protected final int       firstLocal;
 
     /**
      * Index of the next local variable to be created by {@link #newLocal}.
      */
-    protected int nextLocal;
+    protected int             nextLocal;
 
     /**
      * Creates a new {@link LocalVariablesSorter}. <i>Subclasses must not use
@@ -89,8 +88,7 @@ public class LocalVariablesSorter extends MethodVisitor {
      * @throws IllegalStateException
      *             If a subclass calls this constructor.
      */
-    public LocalVariablesSorter(final int access, final String desc,
-            final MethodVisitor mv) {
+    public LocalVariablesSorter(final int access, final String desc, final MethodVisitor mv) {
         this(Opcodes.ASM5, access, desc, mv);
         if (getClass() != LocalVariablesSorter.class) {
             throw new IllegalStateException();
@@ -110,8 +108,8 @@ public class LocalVariablesSorter extends MethodVisitor {
      * @param mv
      *            the method visitor to which this adapter delegates calls.
      */
-    protected LocalVariablesSorter(final int api, final int access,
-            final String desc, final MethodVisitor mv) {
+    protected LocalVariablesSorter(final int api, final int access, final String desc,
+                                   final MethodVisitor mv) {
         super(api, mv);
         Type[] args = Type.getArgumentTypes(desc);
         nextLocal = (Opcodes.ACC_STATIC & access) == 0 ? 1 : 0;
@@ -125,32 +123,32 @@ public class LocalVariablesSorter extends MethodVisitor {
     public void visitVarInsn(final int opcode, final int var) {
         Type type;
         switch (opcode) {
-        case Opcodes.LLOAD:
-        case Opcodes.LSTORE:
-            type = Type.LONG_TYPE;
-            break;
+            case Opcodes.LLOAD:
+            case Opcodes.LSTORE:
+                type = Type.LONG_TYPE;
+                break;
 
-        case Opcodes.DLOAD:
-        case Opcodes.DSTORE:
-            type = Type.DOUBLE_TYPE;
-            break;
+            case Opcodes.DLOAD:
+            case Opcodes.DSTORE:
+                type = Type.DOUBLE_TYPE;
+                break;
 
-        case Opcodes.FLOAD:
-        case Opcodes.FSTORE:
-            type = Type.FLOAT_TYPE;
-            break;
+            case Opcodes.FLOAD:
+            case Opcodes.FSTORE:
+                type = Type.FLOAT_TYPE;
+                break;
 
-        case Opcodes.ILOAD:
-        case Opcodes.ISTORE:
-            type = Type.INT_TYPE;
-            break;
+            case Opcodes.ILOAD:
+            case Opcodes.ISTORE:
+                type = Type.INT_TYPE;
+                break;
 
-        default:
-            // case Opcodes.ALOAD:
-            // case Opcodes.ASTORE:
-            // case RET:
-            type = OBJECT_TYPE;
-            break;
+            default:
+                // case Opcodes.ALOAD:
+                // case Opcodes.ASTORE:
+                // case RET:
+                type = OBJECT_TYPE;
+                break;
         }
         mv.visitVarInsn(opcode, remap(var, type));
     }
@@ -166,32 +164,31 @@ public class LocalVariablesSorter extends MethodVisitor {
     }
 
     @Override
-    public void visitLocalVariable(final String name, final String desc,
-            final String signature, final Label start, final Label end,
-            final int index) {
+    public void visitLocalVariable(final String name, final String desc, final String signature,
+                                   final Label start, final Label end, final int index) {
         int newIndex = remap(index, Type.getType(desc));
         mv.visitLocalVariable(name, desc, signature, start, end, newIndex);
     }
 
     @Override
-    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef,
-            TypePath typePath, Label[] start, Label[] end, int[] index,
-            String desc, boolean visible) {
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef, TypePath typePath,
+                                                          Label[] start, Label[] end, int[] index,
+                                                          String desc, boolean visible) {
         Type t = Type.getType(desc);
         int[] newIndex = new int[index.length];
         for (int i = 0; i < newIndex.length; ++i) {
             newIndex[i] = remap(index[i], t);
         }
-        return mv.visitLocalVariableAnnotation(typeRef, typePath, start, end,
-                newIndex, desc, visible);
+        return mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, newIndex, desc,
+            visible);
     }
 
     @Override
-    public void visitFrame(final int type, final int nLocal,
-            final Object[] local, final int nStack, final Object[] stack) {
+    public void visitFrame(final int type, final int nLocal, final Object[] local, final int nStack,
+                           final Object[] stack) {
         if (type != Opcodes.F_NEW) { // uncompressed frame
             throw new IllegalStateException(
-                    "ClassReader.accept() should be called with EXPAND_FRAMES flag");
+                "ClassReader.accept() should be called with EXPAND_FRAMES flag");
         }
 
         // creates a copy of newLocals
@@ -262,29 +259,29 @@ public class LocalVariablesSorter extends MethodVisitor {
     public int newLocal(final Type type) {
         Object t;
         switch (type.getSort()) {
-        case Type.BOOLEAN:
-        case Type.CHAR:
-        case Type.BYTE:
-        case Type.SHORT:
-        case Type.INT:
-            t = Opcodes.INTEGER;
-            break;
-        case Type.FLOAT:
-            t = Opcodes.FLOAT;
-            break;
-        case Type.LONG:
-            t = Opcodes.LONG;
-            break;
-        case Type.DOUBLE:
-            t = Opcodes.DOUBLE;
-            break;
-        case Type.ARRAY:
-            t = type.getDescriptor();
-            break;
-        // case Type.OBJECT:
-        default:
-            t = type.getInternalName();
-            break;
+            case Type.BOOLEAN:
+            case Type.CHAR:
+            case Type.BYTE:
+            case Type.SHORT:
+            case Type.INT:
+                t = Opcodes.INTEGER;
+                break;
+            case Type.FLOAT:
+                t = Opcodes.FLOAT;
+                break;
+            case Type.LONG:
+                t = Opcodes.LONG;
+                break;
+            case Type.DOUBLE:
+                t = Opcodes.DOUBLE;
+                break;
+            case Type.ARRAY:
+                t = type.getDescriptor();
+                break;
+            // case Type.OBJECT:
+            default:
+                t = type.getInternalName();
+                break;
         }
         int local = newLocalMapping(type);
         setLocalType(local, type);
@@ -313,7 +310,7 @@ public class LocalVariablesSorter extends MethodVisitor {
      */
     protected void updateNewLocals(Object[] newLocals) {
     }
-    
+
     /**
      * Notifies subclasses that a local variable has been added or remapped. The
      * default implementation of this method does nothing.

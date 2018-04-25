@@ -1,13 +1,13 @@
 package ranttu.rapid.jexp.common;
 
+import java.io.PrintWriter;
+
 import lombok.experimental.UtilityClass;
 import ranttu.rapid.jexp.exception.FunctionOpcodeNotSupportedYet;
 import ranttu.rapid.jexp.exception.UnsupportedYet;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.util.TraceClassVisitor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
-
-import java.io.PrintWriter;
 
 /**
  * common utilities

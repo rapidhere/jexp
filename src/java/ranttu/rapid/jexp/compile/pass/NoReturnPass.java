@@ -26,7 +26,6 @@ public abstract class NoReturnPass implements Pass {
         visit(astNode);
     }
 
-
     protected void prepare() {
         // default left as blank
     }

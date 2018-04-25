@@ -176,8 +176,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitParameter("context", 0);
             mv.visitCode();
         } else {
-            throw new JExpCompilingException("unknown java version"
-                                             + context.option.targetJavaVersion);
+            throw new JExpCompilingException(
+                "unknown java version" + context.option.targetJavaVersion);
         }
     }
 
@@ -378,7 +378,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     protected void visit(CallExpression func) {
         // that is, a static call of inner methods
-        if (! func.isBounded) {
+        if (!func.isBounded) {
             applyFunction(func.functionInfo, func.parameters);
         } else {
             $.notSupport(func);
@@ -440,8 +440,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
                 "(I)Ljava/lang/Integer;", false);
         } else if (TypeUtil.isFloat(valueType)) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf",
-                "(D)Ljava/lang/Double;", false);
+            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",
+                false);
         } else if (valueType == Type.BOOLEAN_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
                 "(Z)Ljava/lang/Boolean;", false);
@@ -453,7 +453,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "toString",
                 getMethodDescriptor(getType(String.class)), false);
             mv.visitLabel(l);
-            mv.visitFrame(F_SAME1, 0, null, 1, new Object[] { TypeUtil.getFrameDesc(Object.class) });
+            mv.visitFrame(F_SAME1, 0, null, 1,
+                new Object[] { TypeUtil.getFrameDesc(Object.class) });
         }
     }
 

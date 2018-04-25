@@ -29,14 +29,15 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
+import org.xml.sax.ContentHandler;
+import org.xml.sax.helpers.AttributesImpl;
+
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * A {@link ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor ClassVisitor} that generates SAX 2.0
@@ -51,9 +52,9 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public final class SAXClassAdapter extends ClassVisitor {
 
-    SAXAdapter sa;
+    SAXAdapter               sa;
 
-    private final boolean singleDocument;
+    private final boolean    singleDocument;
 
     /**
      * Pseudo access flag used to distinguish class access flags.
@@ -103,8 +104,7 @@ public final class SAXClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public void visitOuterClass(final String owner, final String name,
-            final String desc) {
+    public void visitOuterClass(final String owner, final String name, final String desc) {
         AttributesImpl att = new AttributesImpl();
         att.addAttribute("", "owner", "owner", "", owner);
         if (name != null) {
@@ -118,23 +118,20 @@ public final class SAXClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
-        return new SAXAnnotationAdapter(sa, "annotation", visible ? 1 : -1,
-                null, desc);
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+        return new SAXAnnotationAdapter(sa, "annotation", visible ? 1 : -1, null, desc);
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-        return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
-                null, desc, typeRef, typePath);
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
+                                                 boolean visible) {
+        return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1, null, desc, typeRef,
+            typePath);
     }
 
     @Override
     public void visit(final int version, final int access, final String name,
-            final String signature, final String superName,
-            final String[] interfaces) {
+                      final String signature, final String superName, final String[] interfaces) {
         StringBuilder sb = new StringBuilder();
         appendAccess(access | ACCESS_CLASS, sb);
 
@@ -144,16 +141,13 @@ public final class SAXClassAdapter extends ClassVisitor {
             att.addAttribute("", "name", "name", "", name);
         }
         if (signature != null) {
-            att.addAttribute("", "signature", "signature", "",
-                    encode(signature));
+            att.addAttribute("", "signature", "signature", "", encode(signature));
         }
         if (superName != null) {
             att.addAttribute("", "parent", "parent", "", superName);
         }
-        att.addAttribute("", "major", "major", "",
-                Integer.toString(version & 0xFFFF));
-        att.addAttribute("", "minor", "minor", "",
-                Integer.toString(version >>> 16));
+        att.addAttribute("", "major", "major", "", Integer.toString(version & 0xFFFF));
+        att.addAttribute("", "minor", "minor", "", Integer.toString(version >>> 16));
         sa.addStart("class", att);
 
         sa.addStart("interfaces", new AttributesImpl());
@@ -168,8 +162,8 @@ public final class SAXClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldVisitor visitField(final int access, final String name, final String desc,
+                                   final String signature, final Object value) {
         StringBuilder sb = new StringBuilder();
         appendAccess(access | ACCESS_FIELD, sb);
 
@@ -178,8 +172,7 @@ public final class SAXClassAdapter extends ClassVisitor {
         att.addAttribute("", "name", "name", "", name);
         att.addAttribute("", "desc", "desc", "", desc);
         if (signature != null) {
-            att.addAttribute("", "signature", "signature", "",
-                    encode(signature));
+            att.addAttribute("", "signature", "signature", "", encode(signature));
         }
         if (value != null) {
             att.addAttribute("", "value", "value", "", encode(value.toString()));
@@ -189,8 +182,8 @@ public final class SAXClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public MethodVisitor visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
+    public MethodVisitor visitMethod(final int access, final String name, final String desc,
+                                     final String signature, final String[] exceptions) {
         StringBuilder sb = new StringBuilder();
         appendAccess(access, sb);
 
@@ -217,8 +210,8 @@ public final class SAXClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public final void visitInnerClass(final String name,
-            final String outerName, final String innerName, final int access) {
+    public final void visitInnerClass(final String name, final String outerName,
+                                      final String innerName, final int access) {
         StringBuilder sb = new StringBuilder();
         appendAccess(access | ACCESS_INNER, sb);
 

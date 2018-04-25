@@ -42,17 +42,16 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.tree.LabelNode;
  */
 class Subroutine {
 
-    LabelNode start;
+    LabelNode          start;
 
-    boolean[] access;
+    boolean[]          access;
 
     List<JumpInsnNode> callers;
 
     private Subroutine() {
     }
 
-    Subroutine(final LabelNode start, final int maxLocals,
-            final JumpInsnNode caller) {
+    Subroutine(final LabelNode start, final int maxLocals, final JumpInsnNode caller) {
         this.start = start;
         this.access = new boolean[maxLocals];
         this.callers = new ArrayList<JumpInsnNode>();

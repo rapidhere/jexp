@@ -38,7 +38,7 @@ package ranttu.rapid.jexp.external.org.objectweb.asm;
  * @author Eric Bruneton
  */
 class CurrentFrame extends Frame {
- 
+
     /**
      * Sets this CurrentFrame to the input stack map frame of the next "current"
      * instruction, i.e. the instruction just after the given one. It is assumed

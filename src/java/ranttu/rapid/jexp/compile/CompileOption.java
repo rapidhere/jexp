@@ -6,8 +6,8 @@ package ranttu.rapid.jexp.compile;
  */
 public class CompileOption {
     //~~~ constants
-    public static final String CURRENT_JAVA_VERSION = System.getProperty(
-                                                        "java.specification.version").trim();
+    public static final String CURRENT_JAVA_VERSION = System
+        .getProperty("java.specification.version").trim();
 
     public static final String JAVA_VERSION_16      = "1.6";
 

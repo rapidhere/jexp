@@ -42,13 +42,13 @@ public class TypePath {
      * A type path step that steps into the element type of an array type. See
      * {@link #getStep getStep}.
      */
-    public final static int ARRAY_ELEMENT = 0;
+    public final static int ARRAY_ELEMENT  = 0;
 
     /**
      * A type path step that steps into the nested type of a class type. See
      * {@link #getStep getStep}.
      */
-    public final static int INNER_TYPE = 1;
+    public final static int INNER_TYPE     = 1;
 
     /**
      * A type path step that steps into the bound of a wildcard type. See
@@ -60,17 +60,17 @@ public class TypePath {
      * A type path step that steps into a type argument of a generic type. See
      * {@link #getStep getStep}.
      */
-    public final static int TYPE_ARGUMENT = 3;
+    public final static int TYPE_ARGUMENT  = 3;
 
     /**
      * The byte array where the path is stored, in Java class file format.
      */
-    byte[] b;
+    byte[]                  b;
 
     /**
      * The offset of the first byte of the type path in 'b'.
      */
-    int offset;
+    int                     offset;
 
     /**
      * Creates a new type path.
@@ -175,20 +175,20 @@ public class TypePath {
         StringBuilder result = new StringBuilder(length * 2);
         for (int i = 0; i < length; ++i) {
             switch (getStep(i)) {
-            case ARRAY_ELEMENT:
-                result.append('[');
-                break;
-            case INNER_TYPE:
-                result.append('.');
-                break;
-            case WILDCARD_BOUND:
-                result.append('*');
-                break;
-            case TYPE_ARGUMENT:
-                result.append(getStepArgument(i)).append(';');
-                break;
-            default:
-                result.append('_');
+                case ARRAY_ELEMENT:
+                    result.append('[');
+                    break;
+                case INNER_TYPE:
+                    result.append('.');
+                    break;
+                case WILDCARD_BOUND:
+                    result.append('*');
+                    break;
+                case TYPE_ARGUMENT:
+                    result.append(getStepArgument(i)).append(';');
+                    break;
+                default:
+                    result.append('_');
             }
         }
         return result.toString();

@@ -43,23 +43,23 @@ public class TryCatchBlockNode {
     /**
      * Beginning of the exception handler's scope (inclusive).
      */
-    public LabelNode start;
+    public LabelNode                start;
 
     /**
      * End of the exception handler's scope (exclusive).
      */
-    public LabelNode end;
+    public LabelNode                end;
 
     /**
      * Beginning of the exception handler's code.
      */
-    public LabelNode handler;
+    public LabelNode                handler;
 
     /**
      * Internal name of the type of exceptions handled by the handler. May be
      * <tt>null</tt> to catch any exceptions (for "finally" blocks).
      */
-    public String type;
+    public String                   type;
 
     /**
      * The runtime visible type annotations on the exception handler type. This
@@ -95,8 +95,8 @@ public class TryCatchBlockNode {
      *            handler, or <tt>null</tt> to catch any exceptions (for
      *            "finally" blocks).
      */
-    public TryCatchBlockNode(final LabelNode start, final LabelNode end,
-            final LabelNode handler, final String type) {
+    public TryCatchBlockNode(final LabelNode start, final LabelNode end, final LabelNode handler,
+                             final String type) {
         this.start = start;
         this.end = end;
         this.handler = handler;
@@ -134,20 +134,16 @@ public class TryCatchBlockNode {
      */
     public void accept(final MethodVisitor mv) {
         mv.visitTryCatchBlock(start.getLabel(), end.getLabel(),
-                handler == null ? null : handler.getLabel(), type);
-        int n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations
-                .size();
+            handler == null ? null : handler.getLabel(), type);
+        int n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath,
-                    an.desc, true));
+            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath, an.desc, true));
         }
-        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
-                .size();
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations.size();
         for (int i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath,
-                    an.desc, false));
+            an.accept(mv.visitTryCatchAnnotation(an.typeRef, an.typePath, an.desc, false));
         }
     }
 }

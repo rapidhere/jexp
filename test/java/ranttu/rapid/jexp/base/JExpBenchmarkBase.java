@@ -4,17 +4,6 @@
  */
 package ranttu.rapid.jexp.base;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.Expression;
-import com.googlecode.aviator.Options;
-import org.mvel2.MVEL;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-import ranttu.rapid.jexp.JExp;
-import ranttu.rapid.jexp.compile.JExpExpression;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +11,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.mvel2.MVEL;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.googlecode.aviator.AviatorEvaluator;
+import com.googlecode.aviator.Expression;
+import com.googlecode.aviator.Options;
+
+import ranttu.rapid.jexp.JExp;
+import ranttu.rapid.jexp.compile.JExpExpression;
 
 /**
  * @author rapid
@@ -46,8 +48,8 @@ abstract public class JExpBenchmarkBase {
             System.out.print(String.format("%-17s ============\n", name));
 
             for (int i = 0; i < TURN_LENGTH; i++) {
-                System.out.print(String.format("%10.4fms, ", (double) turnCostMap.get(name).get(i)
-                                                             / (double) TURN_COUNT / 1000000.0));
+                System.out.print(String.format("%10.4fms, ",
+                    (double) turnCostMap.get(name).get(i) / (double) TURN_COUNT / 1000000.0));
             }
             System.out.println("\n");
         }

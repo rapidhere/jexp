@@ -72,8 +72,8 @@ public class FieldInsnNode extends AbstractInsnNode {
      * @param desc
      *            the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
      */
-    public FieldInsnNode(final int opcode, final String owner,
-            final String name, final String desc) {
+    public FieldInsnNode(final int opcode, final String owner, final String name,
+                         final String desc) {
         super(opcode);
         this.owner = owner;
         this.name = name;
@@ -104,7 +104,6 @@ public class FieldInsnNode extends AbstractInsnNode {
 
     @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-        return new FieldInsnNode(opcode, owner, name, desc)
-                .cloneAnnotations(this);
+        return new FieldInsnNode(opcode, owner, name, desc).cloneAnnotations(this);
     }
 }

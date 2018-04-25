@@ -59,7 +59,7 @@ public class FrameNode extends AbstractInsnNode {
      * {@link Opcodes#F_CHOP}, {@link Opcodes#F_SAME} or
      * {@link Opcodes#F_APPEND}, {@link Opcodes#F_SAME1} for compressed frames.
      */
-    public int type;
+    public int          type;
 
     /**
      * The types of the local variables of this stack map frame. Elements of
@@ -105,27 +105,27 @@ public class FrameNode extends AbstractInsnNode {
      *            LabelNode objects (for primitive, reference and uninitialized
      *            types respectively - see {@link MethodVisitor}).
      */
-    public FrameNode(final int type, final int nLocal, final Object[] local,
-            final int nStack, final Object[] stack) {
+    public FrameNode(final int type, final int nLocal, final Object[] local, final int nStack,
+                     final Object[] stack) {
         super(-1);
         this.type = type;
         switch (type) {
-        case Opcodes.F_NEW:
-        case Opcodes.F_FULL:
-            this.local = asList(nLocal, local);
-            this.stack = asList(nStack, stack);
-            break;
-        case Opcodes.F_APPEND:
-            this.local = asList(nLocal, local);
-            break;
-        case Opcodes.F_CHOP:
-            this.local = Arrays.asList(new Object[nLocal]);
-            break;
-        case Opcodes.F_SAME:
-            break;
-        case Opcodes.F_SAME1:
-            this.stack = asList(1, stack);
-            break;
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                this.local = asList(nLocal, local);
+                this.stack = asList(nStack, stack);
+                break;
+            case Opcodes.F_APPEND:
+                this.local = asList(nLocal, local);
+                break;
+            case Opcodes.F_CHOP:
+                this.local = Arrays.asList(new Object[nLocal]);
+                break;
+            case Opcodes.F_SAME:
+                break;
+            case Opcodes.F_SAME1:
+                this.stack = asList(1, stack);
+                break;
         }
     }
 
@@ -143,23 +143,22 @@ public class FrameNode extends AbstractInsnNode {
     @Override
     public void accept(final MethodVisitor mv) {
         switch (type) {
-        case Opcodes.F_NEW:
-        case Opcodes.F_FULL:
-            mv.visitFrame(type, local.size(), asArray(local), stack.size(),
-                    asArray(stack));
-            break;
-        case Opcodes.F_APPEND:
-            mv.visitFrame(type, local.size(), asArray(local), 0, null);
-            break;
-        case Opcodes.F_CHOP:
-            mv.visitFrame(type, local.size(), null, 0, null);
-            break;
-        case Opcodes.F_SAME:
-            mv.visitFrame(type, 0, null, 0, null);
-            break;
-        case Opcodes.F_SAME1:
-            mv.visitFrame(type, 0, null, 1, asArray(stack));
-            break;
+            case Opcodes.F_NEW:
+            case Opcodes.F_FULL:
+                mv.visitFrame(type, local.size(), asArray(local), stack.size(), asArray(stack));
+                break;
+            case Opcodes.F_APPEND:
+                mv.visitFrame(type, local.size(), asArray(local), 0, null);
+                break;
+            case Opcodes.F_CHOP:
+                mv.visitFrame(type, local.size(), null, 0, null);
+                break;
+            case Opcodes.F_SAME:
+                mv.visitFrame(type, 0, null, 0, null);
+                break;
+            case Opcodes.F_SAME1:
+                mv.visitFrame(type, 0, null, 1, asArray(stack));
+                break;
         }
     }
 

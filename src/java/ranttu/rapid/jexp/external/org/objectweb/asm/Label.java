@@ -46,49 +46,49 @@ public class Label {
      * an exception handler. It can be safely ignored in control flow graph
      * analysis algorithms (for optimization purposes).
      */
-    static final int DEBUG = 1;
+    static final int DEBUG      = 1;
 
     /**
      * Indicates if the position of this label is known.
      */
-    static final int RESOLVED = 2;
+    static final int RESOLVED   = 2;
 
     /**
      * Indicates if this label has been updated, after instruction resizing.
      */
-    static final int RESIZED = 4;
+    static final int RESIZED    = 4;
 
     /**
      * Indicates if this basic block has been pushed in the basic block stack.
      * See {@link MethodWriter#visitMaxs visitMaxs}.
      */
-    static final int PUSHED = 8;
+    static final int PUSHED     = 8;
 
     /**
      * Indicates if this label is the target of a jump instruction, or the start
      * of an exception handler.
      */
-    static final int TARGET = 16;
+    static final int TARGET     = 16;
 
     /**
      * Indicates if a stack map frame must be stored for this label.
      */
-    static final int STORE = 32;
+    static final int STORE      = 32;
 
     /**
      * Indicates if this label corresponds to a reachable basic block.
      */
-    static final int REACHABLE = 64;
+    static final int REACHABLE  = 64;
 
     /**
      * Indicates if this basic block ends with a JSR instruction.
      */
-    static final int JSR = 128;
+    static final int JSR        = 128;
 
     /**
      * Indicates if this basic block ends with a RET instruction.
      */
-    static final int RET = 256;
+    static final int RET        = 256;
 
     /**
      * Indicates if this basic block is the start of a subroutine.
@@ -99,13 +99,13 @@ public class Label {
      * Indicates if this subroutine basic block has been visited by a
      * visitSubroutine(null, ...) call.
      */
-    static final int VISITED = 1024;
+    static final int VISITED    = 1024;
 
     /**
      * Indicates if this subroutine basic block has been visited by a
      * visitSubroutine(!null, ...) call.
      */
-    static final int VISITED2 = 2048;
+    static final int VISITED2   = 2048;
 
     /**
      * Field used to associate user information to a label. Warning: this field
@@ -113,7 +113,7 @@ public class Label {
      * package you must override the
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodNode#getLabelNode} method.
      */
-    public Object info;
+    public Object    info;
 
     /**
      * Flags that indicate the status of this label.
@@ -128,7 +128,7 @@ public class Label {
      * @see #JSR
      * @see #RET
      */
-    int status;
+    int              status;
 
     /**
      * The line number corresponding to this label, if known. If there are
@@ -137,17 +137,17 @@ public class Label {
      * before visitLabel is called, so that this does not impact the rest of the
      * code).
      */
-    int line;
+    int              line;
 
     /**
      * The position of this label in the code, if known.
      */
-    int position;
+    int              position;
 
     /**
      * Number of forward references to this label, times two.
      */
-    private int referenceCount;
+    private int      referenceCount;
 
     /**
      * Informations about forward references. Each forward reference is
@@ -162,7 +162,7 @@ public class Label {
      * forward references have been resolved. Hence the same array can be used
      * for both purposes without problems.
      */
-    private int[] srcAndRefPositions;
+    private int[]    srcAndRefPositions;
 
     // ------------------------------------------------------------------------
 
@@ -208,20 +208,20 @@ public class Label {
      * stack elements, and that the other elements must be appended to the input
      * stack.
      */
-    int inputStackTop;
+    int              inputStackTop;
 
     /**
      * Maximum height reached by the output stack, relatively to the top of the
      * input stack. This maximum is always positive or null.
      */
-    int outputStackMax;
+    int              outputStackMax;
 
     /**
      * Information about the input and output stack map frames of this basic
      * block. This field is only used when {@link ClassWriter#COMPUTE_FRAMES}
      * option is used.
      */
-    Frame frame;
+    Frame            frame;
 
     /**
      * The successor of this label, in the order they are visited. This linked
@@ -230,14 +230,14 @@ public class Label {
      * does not contain successive labels that denote the same bytecode position
      * (in this case only the first label appears in this list).
      */
-    Label successor;
+    Label            successor;
 
     /**
      * The successors of this node in the control flow graph. These successors
      * are stored in a linked list of {@link Edge Edge} objects, linked to each
      * other by their {@link Edge#next} field.
      */
-    Edge successors;
+    Edge             successors;
 
     /**
      * The next basic block in the basic block stack. This stack is used in the
@@ -248,7 +248,7 @@ public class Label {
      * 
      * @see MethodWriter#visitMaxs
      */
-    Label next;
+    Label            next;
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -276,8 +276,7 @@ public class Label {
      */
     public int getOffset() {
         if ((status & RESOLVED) == 0) {
-            throw new IllegalStateException(
-                    "Label offset position has not been resolved yet");
+            throw new IllegalStateException("Label offset position has not been resolved yet");
         }
         return position;
     }
@@ -302,7 +301,7 @@ public class Label {
      *             if this label has not been created by the given code writer.
      */
     void put(final MethodWriter owner, final ByteVector out, final int source,
-            final boolean wideOffset) {
+             final boolean wideOffset) {
         if ((status & RESOLVED) == 0) {
             if (wideOffset) {
                 addReference(-1 - source, out.length);
@@ -333,15 +332,13 @@ public class Label {
      *            the position where the offset for this forward reference must
      *            be stored.
      */
-    private void addReference(final int sourcePosition,
-            final int referencePosition) {
+    private void addReference(final int sourcePosition, final int referencePosition) {
         if (srcAndRefPositions == null) {
             srcAndRefPositions = new int[6];
         }
         if (referenceCount >= srcAndRefPositions.length) {
             int[] a = new int[srcAndRefPositions.length + 6];
-            System.arraycopy(srcAndRefPositions, 0, a, 0,
-                    srcAndRefPositions.length);
+            System.arraycopy(srcAndRefPositions, 0, a, 0, srcAndRefPositions.length);
             srcAndRefPositions = a;
         }
         srcAndRefPositions[referenceCount++] = sourcePosition;
@@ -370,8 +367,7 @@ public class Label {
      *             if this label has already been resolved, or if it has not
      *             been created by the given code writer.
      */
-    boolean resolve(final MethodWriter owner, final int position,
-            final byte[] data) {
+    boolean resolve(final MethodWriter owner, final int position, final byte[] data) {
         boolean needUpdate = false;
         this.status |= RESOLVED;
         this.position = position;

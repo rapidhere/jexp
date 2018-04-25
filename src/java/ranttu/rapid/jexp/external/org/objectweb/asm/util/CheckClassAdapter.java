@@ -129,27 +129,27 @@ public class CheckClassAdapter extends ClassVisitor {
     /**
      * The class version number.
      */
-    private int version;
+    private int                 version;
 
     /**
      * <tt>true</tt> if the visit method has been called.
      */
-    private boolean start;
+    private boolean             start;
 
     /**
      * <tt>true</tt> if the visitSource method has been called.
      */
-    private boolean source;
+    private boolean             source;
 
     /**
      * <tt>true</tt> if the visitOuterClass method has been called.
      */
-    private boolean outer;
+    private boolean             outer;
 
     /**
      * <tt>true</tt> if the visitEnd method has been called.
      */
-    private boolean end;
+    private boolean             end;
 
     /**
      * The already visited labels. This map associate Integer values to Label
@@ -160,7 +160,7 @@ public class CheckClassAdapter extends ClassVisitor {
     /**
      * <tt>true</tt> if the method code must be checked with a BasicVerifier.
      */
-    private boolean checkDataFlow;
+    private boolean             checkDataFlow;
 
     /**
      * Checks a given class.
@@ -176,8 +176,8 @@ public class CheckClassAdapter extends ClassVisitor {
     public static void main(final String[] args) throws Exception {
         if (args.length != 1) {
             System.err.println("Verifies the given class.");
-            System.err.println("Usage: CheckClassAdapter "
-                    + "<fully qualified class name or class file name>");
+            System.err.println(
+                "Usage: CheckClassAdapter " + "<fully qualified class name or class file name>");
             return;
         }
         ClassReader cr;
@@ -206,13 +206,12 @@ public class CheckClassAdapter extends ClassVisitor {
      * @param pw
      *            write where results going to be printed
      */
-    public static void verify(final ClassReader cr, final ClassLoader loader,
-            final boolean dump, final PrintWriter pw) {
+    public static void verify(final ClassReader cr, final ClassLoader loader, final boolean dump,
+                              final PrintWriter pw) {
         ClassNode cn = new ClassNode();
         cr.accept(new CheckClassAdapter(cn, false), ClassReader.SKIP_DEBUG);
 
-        Type syperType = cn.superName == null ? null : Type
-                .getObjectType(cn.superName);
+        Type syperType = cn.superName == null ? null : Type.getObjectType(cn.superName);
         List<MethodNode> methods = cn.methods;
 
         List<Type> interfaces = new ArrayList<Type>();
@@ -222,9 +221,8 @@ public class CheckClassAdapter extends ClassVisitor {
 
         for (int i = 0; i < methods.size(); ++i) {
             MethodNode method = methods.get(i);
-            SimpleVerifier verifier = new SimpleVerifier(
-                    Type.getObjectType(cn.name), syperType, interfaces,
-                    (cn.access & Opcodes.ACC_INTERFACE) != 0);
+            SimpleVerifier verifier = new SimpleVerifier(Type.getObjectType(cn.name), syperType,
+                interfaces, (cn.access & Opcodes.ACC_INTERFACE) != 0);
             Analyzer<BasicValue> a = new Analyzer<BasicValue>(verifier);
             if (loader != null) {
                 verifier.setClassLoader(loader);
@@ -254,13 +252,12 @@ public class CheckClassAdapter extends ClassVisitor {
      * @param pw
      *            write where results going to be printed
      */
-    public static void verify(final ClassReader cr, final boolean dump,
-            final PrintWriter pw) {
+    public static void verify(final ClassReader cr, final boolean dump, final PrintWriter pw) {
         verify(cr, null, dump, pw);
     }
 
     static void printAnalyzerResult(MethodNode method, Analyzer<BasicValue> a,
-            final PrintWriter pw) {
+                                    final PrintWriter pw) {
         Frame<BasicValue>[] frames = a.getFrames();
         Textifier t = new Textifier();
         TraceMethodVisitor mv = new TraceMethodVisitor(t);
@@ -275,13 +272,11 @@ public class CheckClassAdapter extends ClassVisitor {
                 sb.append('?');
             } else {
                 for (int k = 0; k < f.getLocals(); ++k) {
-                    sb.append(getShortName(f.getLocal(k).toString()))
-                            .append(' ');
+                    sb.append(getShortName(f.getLocal(k).toString())).append(' ');
                 }
                 sb.append(" : ");
                 for (int k = 0; k < f.getStackSize(); ++k) {
-                    sb.append(getShortName(f.getStack(k).toString()))
-                            .append(' ');
+                    sb.append(getShortName(f.getStack(k).toString())).append(' ');
                 }
             }
             while (sb.length() < method.maxStack + method.maxLocals + 1) {
@@ -354,8 +349,7 @@ public class CheckClassAdapter extends ClassVisitor {
      *            {@link CheckMethodAdapter}). This option requires valid
      *            maxLocals and maxStack values.
      */
-    protected CheckClassAdapter(final int api, final ClassVisitor cv,
-            final boolean checkDataFlow) {
+    protected CheckClassAdapter(final int api, final ClassVisitor cv, final boolean checkDataFlow) {
         super(api, cv);
         this.labels = new HashMap<Label, Integer>();
         this.checkDataFlow = checkDataFlow;
@@ -367,25 +361,23 @@ public class CheckClassAdapter extends ClassVisitor {
 
     @Override
     public void visit(final int version, final int access, final String name,
-            final String signature, final String superName,
-            final String[] interfaces) {
+                      final String signature, final String superName, final String[] interfaces) {
         if (start) {
             throw new IllegalStateException("visit must be called only once");
         }
         start = true;
         checkState();
-        checkAccess(access, Opcodes.ACC_PUBLIC + Opcodes.ACC_FINAL
-                + Opcodes.ACC_SUPER + Opcodes.ACC_INTERFACE
-                + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC
-                + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM
-                + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+        checkAccess(access,
+            Opcodes.ACC_PUBLIC + Opcodes.ACC_FINAL + Opcodes.ACC_SUPER + Opcodes.ACC_INTERFACE
+                            + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_ANNOTATION
+                            + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         if (name == null || !name.endsWith("package-info")) {
             CheckMethodAdapter.checkInternalName(name, "class name");
         }
         if ("java/lang/Object".equals(name)) {
             if (superName != null) {
                 throw new IllegalArgumentException(
-                        "The super class name of the Object class must be 'null'");
+                    "The super class name of the Object class must be 'null'");
             }
         } else {
             CheckMethodAdapter.checkInternalName(superName, "super class name");
@@ -396,13 +388,12 @@ public class CheckClassAdapter extends ClassVisitor {
         if ((access & Opcodes.ACC_INTERFACE) != 0) {
             if (!"java/lang/Object".equals(superName)) {
                 throw new IllegalArgumentException(
-                        "The super class name of interfaces must be 'java/lang/Object'");
+                    "The super class name of interfaces must be 'java/lang/Object'");
             }
         }
         if (interfaces != null) {
             for (int i = 0; i < interfaces.length; ++i) {
-                CheckMethodAdapter.checkInternalName(interfaces[i],
-                        "interface name at index " + i);
+                CheckMethodAdapter.checkInternalName(interfaces[i], "interface name at index " + i);
             }
         }
         this.version = version;
@@ -413,20 +404,17 @@ public class CheckClassAdapter extends ClassVisitor {
     public void visitSource(final String file, final String debug) {
         checkState();
         if (source) {
-            throw new IllegalStateException(
-                    "visitSource can be called only once.");
+            throw new IllegalStateException("visitSource can be called only once.");
         }
         source = true;
         super.visitSource(file, debug);
     }
 
     @Override
-    public void visitOuterClass(final String owner, final String name,
-            final String desc) {
+    public void visitOuterClass(final String owner, final String name, final String desc) {
         checkState();
         if (outer) {
-            throw new IllegalStateException(
-                    "visitOuterClass can be called only once.");
+            throw new IllegalStateException("visitOuterClass can be called only once.");
         }
         outer = true;
         if (owner == null) {
@@ -439,8 +427,8 @@ public class CheckClassAdapter extends ClassVisitor {
     }
 
     @Override
-    public void visitInnerClass(final String name, final String outerName,
-            final String innerName, final int access) {
+    public void visitInnerClass(final String name, final String outerName, final String innerName,
+                                final int access) {
         checkState();
         CheckMethodAdapter.checkInternalName(name, "class name");
         if (outerName != null) {
@@ -448,32 +436,29 @@ public class CheckClassAdapter extends ClassVisitor {
         }
         if (innerName != null) {
             int start = 0;
-            while (start < innerName.length()
-                    && Character.isDigit(innerName.charAt(start))) {
+            while (start < innerName.length() && Character.isDigit(innerName.charAt(start))) {
                 start++;
             }
             if (start == 0 || start < innerName.length()) {
-                CheckMethodAdapter.checkIdentifier(innerName, start, -1,
-                        "inner class name");
+                CheckMethodAdapter.checkIdentifier(innerName, start, -1, "inner class name");
             }
         }
-        checkAccess(access, Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE
-                + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
-                + Opcodes.ACC_FINAL + Opcodes.ACC_INTERFACE
-                + Opcodes.ACC_ABSTRACT + Opcodes.ACC_SYNTHETIC
-                + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM);
+        checkAccess(access,
+            Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
+                            + Opcodes.ACC_FINAL + Opcodes.ACC_INTERFACE + Opcodes.ACC_ABSTRACT
+                            + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_ANNOTATION + Opcodes.ACC_ENUM);
         super.visitInnerClass(name, outerName, innerName, access);
     }
 
     @Override
-    public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldVisitor visitField(final int access, final String name, final String desc,
+                                   final String signature, final Object value) {
         checkState();
-        checkAccess(access, Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE
-                + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
-                + Opcodes.ACC_FINAL + Opcodes.ACC_VOLATILE
-                + Opcodes.ACC_TRANSIENT + Opcodes.ACC_SYNTHETIC
-                + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+        checkAccess(
+            access,
+            Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
+                    + Opcodes.ACC_FINAL + Opcodes.ACC_VOLATILE + Opcodes.ACC_TRANSIENT
+                    + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_ENUM + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         CheckMethodAdapter.checkUnqualifiedName(version, name, "field name");
         CheckMethodAdapter.checkDesc(desc, false);
         if (signature != null) {
@@ -482,24 +467,22 @@ public class CheckClassAdapter extends ClassVisitor {
         if (value != null) {
             CheckMethodAdapter.checkConstant(value);
         }
-        FieldVisitor av = super
-                .visitField(access, name, desc, signature, value);
+        FieldVisitor av = super.visitField(access, name, desc, signature, value);
         return new CheckFieldAdapter(av);
     }
 
     @Override
-    public MethodVisitor visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
+    public MethodVisitor visitMethod(final int access, final String name, final String desc,
+                                     final String signature, final String[] exceptions) {
         checkState();
-        checkAccess(access, Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE
-                + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
-                + Opcodes.ACC_FINAL + Opcodes.ACC_SYNCHRONIZED
-                + Opcodes.ACC_BRIDGE + Opcodes.ACC_VARARGS + Opcodes.ACC_NATIVE
-                + Opcodes.ACC_ABSTRACT + Opcodes.ACC_STRICT
-                + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
+        checkAccess(access,
+            Opcodes.ACC_PUBLIC + Opcodes.ACC_PRIVATE + Opcodes.ACC_PROTECTED + Opcodes.ACC_STATIC
+                            + Opcodes.ACC_FINAL + Opcodes.ACC_SYNCHRONIZED + Opcodes.ACC_BRIDGE
+                            + Opcodes.ACC_VARARGS + Opcodes.ACC_NATIVE + Opcodes.ACC_ABSTRACT
+                            + Opcodes.ACC_STRICT + Opcodes.ACC_SYNTHETIC + Opcodes.ACC_DEPRECATED
+                            + 0x40000); // ClassWriter.ACC_SYNTHETIC_ATTRIBUTE
         if (!"<init>".equals(name) && !"<clinit>".equals(name)) {
-            CheckMethodAdapter.checkMethodIdentifier(version, name,
-                    "method name");
+            CheckMethodAdapter.checkMethodIdentifier(version, name, "method name");
         }
         CheckMethodAdapter.checkMethodDesc(desc);
         if (signature != null) {
@@ -507,53 +490,50 @@ public class CheckClassAdapter extends ClassVisitor {
         }
         if (exceptions != null) {
             for (int i = 0; i < exceptions.length; ++i) {
-                CheckMethodAdapter.checkInternalName(exceptions[i],
-                        "exception name at index " + i);
+                CheckMethodAdapter.checkInternalName(exceptions[i], "exception name at index " + i);
             }
         }
         CheckMethodAdapter cma;
         if (checkDataFlow) {
-            cma = new CheckMethodAdapter(access, name, desc, super.visitMethod(
-                    access, name, desc, signature, exceptions), labels);
+            cma = new CheckMethodAdapter(access, name, desc,
+                super.visitMethod(access, name, desc, signature, exceptions), labels);
         } else {
-            cma = new CheckMethodAdapter(super.visitMethod(access, name, desc,
-                    signature, exceptions), labels);
+            cma = new CheckMethodAdapter(
+                super.visitMethod(access, name, desc, signature, exceptions), labels);
         }
         cma.version = version;
         return cma;
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
         checkState();
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitAnnotation(desc, visible));
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(final int typeRef, final TypePath typePath,
+                                                 final String desc, final boolean visible) {
         checkState();
         int sort = typeRef >>> 24;
         if (sort != TypeReference.CLASS_TYPE_PARAMETER
-                && sort != TypeReference.CLASS_TYPE_PARAMETER_BOUND
-                && sort != TypeReference.CLASS_EXTENDS) {
-            throw new IllegalArgumentException("Invalid type reference sort 0x"
-                    + Integer.toHexString(sort));
+            && sort != TypeReference.CLASS_TYPE_PARAMETER_BOUND
+            && sort != TypeReference.CLASS_EXTENDS) {
+            throw new IllegalArgumentException(
+                "Invalid type reference sort 0x" + Integer.toHexString(sort));
         }
         checkTypeRefAndPath(typeRef, typePath);
         CheckMethodAdapter.checkDesc(desc, false);
-        return new CheckAnnotationAdapter(super.visitTypeAnnotation(typeRef,
-                typePath, desc, visible));
+        return new CheckAnnotationAdapter(
+            super.visitTypeAnnotation(typeRef, typePath, desc, visible));
     }
 
     @Override
     public void visitAttribute(final Attribute attr) {
         checkState();
         if (attr == null) {
-            throw new IllegalArgumentException(
-                    "Invalid attribute (must not be null)");
+            throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }
         super.visitAttribute(attr);
     }
@@ -575,12 +555,10 @@ public class CheckClassAdapter extends ClassVisitor {
      */
     private void checkState() {
         if (!start) {
-            throw new IllegalStateException(
-                    "Cannot visit member before visit has been called.");
+            throw new IllegalStateException("Cannot visit member before visit has been called.");
         }
         if (end) {
-            throw new IllegalStateException(
-                    "Cannot visit member after visitEnd has been called.");
+            throw new IllegalStateException("Cannot visit member after visitEnd has been called.");
         }
     }
 
@@ -596,22 +574,20 @@ public class CheckClassAdapter extends ClassVisitor {
      */
     static void checkAccess(final int access, final int possibleAccess) {
         if ((access & ~possibleAccess) != 0) {
-            throw new IllegalArgumentException("Invalid access flags: "
-                    + access);
+            throw new IllegalArgumentException("Invalid access flags: " + access);
         }
         int pub = (access & Opcodes.ACC_PUBLIC) == 0 ? 0 : 1;
         int pri = (access & Opcodes.ACC_PRIVATE) == 0 ? 0 : 1;
         int pro = (access & Opcodes.ACC_PROTECTED) == 0 ? 0 : 1;
         if (pub + pri + pro > 1) {
             throw new IllegalArgumentException(
-                    "public private and protected are mutually exclusive: "
-                            + access);
+                "public private and protected are mutually exclusive: " + access);
         }
         int fin = (access & Opcodes.ACC_FINAL) == 0 ? 0 : 1;
         int abs = (access & Opcodes.ACC_ABSTRACT) == 0 ? 0 : 1;
         if (fin + abs > 1) {
             throw new IllegalArgumentException(
-                    "final and abstract are mutually exclusive: " + access);
+                "final and abstract are mutually exclusive: " + access);
         }
     }
 
@@ -634,8 +610,7 @@ public class CheckClassAdapter extends ClassVisitor {
             pos = checkClassTypeSignature(signature, pos);
         }
         if (pos != signature.length()) {
-            throw new IllegalArgumentException(signature + ": error at index "
-                    + pos);
+            throw new IllegalArgumentException(signature + ": error at index " + pos);
         }
     }
 
@@ -673,8 +648,7 @@ public class CheckClassAdapter extends ClassVisitor {
             }
         }
         if (pos != signature.length()) {
-            throw new IllegalArgumentException(signature + ": error at index "
-                    + pos);
+            throw new IllegalArgumentException(signature + ": error at index " + pos);
         }
     }
 
@@ -687,8 +661,7 @@ public class CheckClassAdapter extends ClassVisitor {
     public static void checkFieldSignature(final String signature) {
         int pos = checkFieldTypeSignature(signature, 0);
         if (pos != signature.length()) {
-            throw new IllegalArgumentException(signature + ": error at index "
-                    + pos);
+            throw new IllegalArgumentException(signature + ": error at index " + pos);
         }
     }
 
@@ -705,59 +678,55 @@ public class CheckClassAdapter extends ClassVisitor {
     static void checkTypeRefAndPath(int typeRef, TypePath typePath) {
         int mask = 0;
         switch (typeRef >>> 24) {
-        case TypeReference.CLASS_TYPE_PARAMETER:
-        case TypeReference.METHOD_TYPE_PARAMETER:
-        case TypeReference.METHOD_FORMAL_PARAMETER:
-            mask = 0xFFFF0000;
-            break;
-        case TypeReference.FIELD:
-        case TypeReference.METHOD_RETURN:
-        case TypeReference.METHOD_RECEIVER:
-        case TypeReference.LOCAL_VARIABLE:
-        case TypeReference.RESOURCE_VARIABLE:
-        case TypeReference.INSTANCEOF:
-        case TypeReference.NEW:
-        case TypeReference.CONSTRUCTOR_REFERENCE:
-        case TypeReference.METHOD_REFERENCE:
-            mask = 0xFF000000;
-            break;
-        case TypeReference.CLASS_EXTENDS:
-        case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
-        case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
-        case TypeReference.THROWS:
-        case TypeReference.EXCEPTION_PARAMETER:
-            mask = 0xFFFFFF00;
-            break;
-        case TypeReference.CAST:
-        case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
-        case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
-        case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
-        case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
-            mask = 0xFF0000FF;
-            break;
-        default:
-            throw new IllegalArgumentException("Invalid type reference sort 0x"
-                    + Integer.toHexString(typeRef >>> 24));
+            case TypeReference.CLASS_TYPE_PARAMETER:
+            case TypeReference.METHOD_TYPE_PARAMETER:
+            case TypeReference.METHOD_FORMAL_PARAMETER:
+                mask = 0xFFFF0000;
+                break;
+            case TypeReference.FIELD:
+            case TypeReference.METHOD_RETURN:
+            case TypeReference.METHOD_RECEIVER:
+            case TypeReference.LOCAL_VARIABLE:
+            case TypeReference.RESOURCE_VARIABLE:
+            case TypeReference.INSTANCEOF:
+            case TypeReference.NEW:
+            case TypeReference.CONSTRUCTOR_REFERENCE:
+            case TypeReference.METHOD_REFERENCE:
+                mask = 0xFF000000;
+                break;
+            case TypeReference.CLASS_EXTENDS:
+            case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
+            case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
+            case TypeReference.THROWS:
+            case TypeReference.EXCEPTION_PARAMETER:
+                mask = 0xFFFFFF00;
+                break;
+            case TypeReference.CAST:
+            case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
+            case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
+            case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
+            case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
+                mask = 0xFF0000FF;
+                break;
+            default:
+                throw new IllegalArgumentException(
+                    "Invalid type reference sort 0x" + Integer.toHexString(typeRef >>> 24));
         }
         if ((typeRef & ~mask) != 0) {
-            throw new IllegalArgumentException("Invalid type reference 0x"
-                    + Integer.toHexString(typeRef));
+            throw new IllegalArgumentException(
+                "Invalid type reference 0x" + Integer.toHexString(typeRef));
         }
         if (typePath != null) {
             for (int i = 0; i < typePath.getLength(); ++i) {
                 int step = typePath.getStep(i);
-                if (step != TypePath.ARRAY_ELEMENT
-                        && step != TypePath.INNER_TYPE
-                        && step != TypePath.TYPE_ARGUMENT
-                        && step != TypePath.WILDCARD_BOUND) {
+                if (step != TypePath.ARRAY_ELEMENT && step != TypePath.INNER_TYPE
+                    && step != TypePath.TYPE_ARGUMENT && step != TypePath.WILDCARD_BOUND) {
                     throw new IllegalArgumentException(
-                            "Invalid type path step " + i + " in " + typePath);
+                        "Invalid type path step " + i + " in " + typePath);
                 }
-                if (step != TypePath.TYPE_ARGUMENT
-                        && typePath.getStepArgument(i) != 0) {
+                if (step != TypePath.TYPE_ARGUMENT && typePath.getStepArgument(i) != 0) {
                     throw new IllegalArgumentException(
-                            "Invalid type path step argument for step " + i
-                                    + " in " + typePath);
+                        "Invalid type path step argument for step " + i + " in " + typePath);
                 }
             }
         }
@@ -825,12 +794,12 @@ public class CheckClassAdapter extends ClassVisitor {
         // [ TypeSignature
 
         switch (getChar(signature, pos)) {
-        case 'L':
-            return checkClassTypeSignature(signature, pos);
-        case '[':
-            return checkTypeSignature(signature, pos + 1);
-        default:
-            return checkTypeVariableSignature(signature, pos);
+            case 'L':
+                return checkClassTypeSignature(signature, pos);
+            case '[':
+                return checkTypeSignature(signature, pos + 1);
+            default:
+                return checkTypeVariableSignature(signature, pos);
         }
     }
 
@@ -917,8 +886,7 @@ public class CheckClassAdapter extends ClassVisitor {
      *            index of first character to be checked.
      * @return the index of the first character after the checked part.
      */
-    private static int checkTypeVariableSignature(final String signature,
-            int pos) {
+    private static int checkTypeVariableSignature(final String signature, int pos) {
         // TypeVariableSignature:
         // T Identifier ;
 
@@ -941,17 +909,17 @@ public class CheckClassAdapter extends ClassVisitor {
         // Z | C | B | S | I | F | J | D | FieldTypeSignature
 
         switch (getChar(signature, pos)) {
-        case 'Z':
-        case 'C':
-        case 'B':
-        case 'S':
-        case 'I':
-        case 'F':
-        case 'J':
-        case 'D':
-            return pos + 1;
-        default:
-            return checkFieldTypeSignature(signature, pos);
+            case 'Z':
+            case 'C':
+            case 'B':
+            case 'S':
+            case 'I':
+            case 'F':
+            case 'J':
+            case 'D':
+                return pos + 1;
+            default:
+                return checkFieldTypeSignature(signature, pos);
         }
     }
 
@@ -966,8 +934,7 @@ public class CheckClassAdapter extends ClassVisitor {
      */
     private static int checkIdentifier(final String signature, int pos) {
         if (!Character.isJavaIdentifierStart(getChar(signature, pos))) {
-            throw new IllegalArgumentException(signature
-                    + ": identifier expected at index " + pos);
+            throw new IllegalArgumentException(signature + ": identifier expected at index " + pos);
         }
         ++pos;
         while (Character.isJavaIdentifierPart(getChar(signature, pos))) {
@@ -989,8 +956,7 @@ public class CheckClassAdapter extends ClassVisitor {
         if (getChar(signature, pos) == c) {
             return pos + 1;
         }
-        throw new IllegalArgumentException(signature + ": '" + c
-                + "' expected at index " + pos);
+        throw new IllegalArgumentException(signature + ": '" + c + "' expected at index " + pos);
     }
 
     /**

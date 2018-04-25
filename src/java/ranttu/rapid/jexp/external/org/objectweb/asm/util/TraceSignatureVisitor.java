@@ -43,19 +43,19 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
     private final StringBuilder declaration;
 
-    private boolean isInterface;
+    private boolean             isInterface;
 
-    private boolean seenFormalParameter;
+    private boolean             seenFormalParameter;
 
-    private boolean seenInterfaceBound;
+    private boolean             seenInterfaceBound;
 
-    private boolean seenParameter;
+    private boolean             seenParameter;
 
-    private boolean seenInterface;
+    private boolean             seenInterface;
 
-    private StringBuilder returnType;
+    private StringBuilder       returnType;
 
-    private StringBuilder exceptions;
+    private StringBuilder       exceptions;
 
     /**
      * Stack used to keep track of class types that have arguments. Each element
@@ -63,16 +63,16 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
      * the lowest order bit. Pushing false = *2, pushing true = *2+1, popping =
      * /2.
      */
-    private int argumentStack;
+    private int                 argumentStack;
 
     /**
      * Stack used to keep track of array class types. Each element of this stack
      * is a boolean encoded in one bit. The top of the stack is the lowest order
      * bit. Pushing false = *2, pushing true = *2+1, popping = /2.
      */
-    private int arrayStack;
+    private int                 arrayStack;
 
-    private String separator = "";
+    private String              separator = "";
 
     public TraceSignatureVisitor(final int access) {
         super(Opcodes.ASM5);
@@ -117,8 +117,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
     @Override
     public SignatureVisitor visitInterface() {
-        separator = seenInterface ? ", " : isInterface ? " extends "
-                : " implements ";
+        separator = seenInterface ? ", " : isInterface ? " extends " : " implements ";
         seenInterface = true;
         startType();
         return this;
@@ -164,34 +163,34 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
     @Override
     public void visitBaseType(final char descriptor) {
         switch (descriptor) {
-        case 'V':
-            declaration.append("void");
-            break;
-        case 'B':
-            declaration.append("byte");
-            break;
-        case 'J':
-            declaration.append("long");
-            break;
-        case 'Z':
-            declaration.append("boolean");
-            break;
-        case 'I':
-            declaration.append("int");
-            break;
-        case 'S':
-            declaration.append("short");
-            break;
-        case 'C':
-            declaration.append("char");
-            break;
-        case 'F':
-            declaration.append("float");
-            break;
-        // case 'D':
-        default:
-            declaration.append("double");
-            break;
+            case 'V':
+                declaration.append("void");
+                break;
+            case 'B':
+                declaration.append("byte");
+                break;
+            case 'J':
+                declaration.append("long");
+                break;
+            case 'Z':
+                declaration.append("boolean");
+                break;
+            case 'I':
+                declaration.append("int");
+                break;
+            case 'S':
+                declaration.append("short");
+                break;
+            case 'C':
+                declaration.append("char");
+                break;
+            case 'F':
+                declaration.append("float");
+                break;
+            // case 'D':
+            default:
+                declaration.append("double");
+                break;
         }
         endType();
     }

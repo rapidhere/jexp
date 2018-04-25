@@ -43,7 +43,7 @@ public class TypeAnnotationNode extends AnnotationNode {
     /**
      * A reference to the annotated type. See {@link TypeReference}.
      */
-    public int typeRef;
+    public int      typeRef;
 
     /**
      * The path to the annotated type argument, wildcard bound, array element
@@ -68,8 +68,7 @@ public class TypeAnnotationNode extends AnnotationNode {
      * @throws IllegalStateException
      *             If a subclass calls this constructor.
      */
-    public TypeAnnotationNode(final int typeRef, final TypePath typePath,
-            final String desc) {
+    public TypeAnnotationNode(final int typeRef, final TypePath typePath, final String desc) {
         this(Opcodes.ASM5, typeRef, typePath, desc);
         if (getClass() != TypeAnnotationNode.class) {
             throw new IllegalStateException();
@@ -91,8 +90,8 @@ public class TypeAnnotationNode extends AnnotationNode {
      * @param desc
      *            the class descriptor of the annotation class.
      */
-    public TypeAnnotationNode(final int api, final int typeRef,
-            final TypePath typePath, final String desc) {
+    public TypeAnnotationNode(final int api, final int typeRef, final TypePath typePath,
+                              final String desc) {
         super(api, desc);
         this.typeRef = typeRef;
         this.typePath = typePath;

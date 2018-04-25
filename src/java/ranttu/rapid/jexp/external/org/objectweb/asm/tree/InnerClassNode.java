@@ -61,7 +61,7 @@ public class InnerClassNode {
      * The access flags of the inner class as originally declared in the
      * enclosing class.
      */
-    public int access;
+    public int    access;
 
     /**
      * Constructs a new {@link InnerClassNode}.
@@ -81,8 +81,8 @@ public class InnerClassNode {
      *            the access flags of the inner class as originally declared in
      *            the enclosing class.
      */
-    public InnerClassNode(final String name, final String outerName,
-            final String innerName, final int access) {
+    public InnerClassNode(final String name, final String outerName, final String innerName,
+                          final int access) {
         this.name = name;
         this.outerName = outerName;
         this.innerName = innerName;

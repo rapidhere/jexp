@@ -46,7 +46,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
  */
 public class NameMapping {
 
-    public final Properties mapping;
+    public final Properties  mapping;
 
     public final Set<Object> unused;
 

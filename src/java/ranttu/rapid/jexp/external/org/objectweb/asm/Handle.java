@@ -46,25 +46,24 @@ public final class Handle {
      * {@link Opcodes#H_INVOKESPECIAL}, {@link Opcodes#H_NEWINVOKESPECIAL} or
      * {@link Opcodes#H_INVOKEINTERFACE}.
      */
-    final int tag;
+    final int     tag;
 
     /**
      * The internal name of the class that owns the field or method designated
      * by this handle.
      */
-    final String owner;
+    final String  owner;
 
     /**
      * The name of the field or method designated by this handle.
      */
-    final String name;
+    final String  name;
 
     /**
      * The descriptor of the field or method designated by this handle.
      */
-    final String desc;
-    
-    
+    final String  desc;
+
     /**
      * Indicate if the owner is an interface or not.
      */
@@ -129,7 +128,7 @@ public final class Handle {
         this.desc = desc;
         this.itf = itf;
     }
-    
+
     /**
      * Returns the kind of field or method designated by this handle.
      * 
@@ -172,7 +171,7 @@ public final class Handle {
     public String getDesc() {
         return desc;
     }
-    
+
     /**
      * Returns true if the owner of the field or method designated
      * by this handle is an interface.
@@ -193,13 +192,13 @@ public final class Handle {
             return false;
         }
         Handle h = (Handle) obj;
-        return tag == h.tag && itf == h.itf && owner.equals(h.owner)
-                && name.equals(h.name) && desc.equals(h.desc);
+        return tag == h.tag && itf == h.itf && owner.equals(h.owner) && name.equals(h.name)
+               && desc.equals(h.desc);
     }
 
     @Override
     public int hashCode() {
-        return tag + (itf? 64: 0) + owner.hashCode() * name.hashCode() * desc.hashCode();
+        return tag + (itf ? 64 : 0) + owner.hashCode() * name.hashCode() * desc.hashCode();
     }
 
     /**
@@ -217,6 +216,6 @@ public final class Handle {
      */
     @Override
     public String toString() {
-        return owner + '.' + name + desc + " (" + tag + (itf? " itf": "") + ')';
+        return owner + '.' + name + desc + " (" + tag + (itf ? " itf" : "") + ')';
     }
 }

@@ -45,7 +45,7 @@ public class AnnotationNode extends AnnotationVisitor {
     /**
      * The class descriptor of the annotation class.
      */
-    public String desc;
+    public String       desc;
 
     /**
      * The name value pairs of this annotation. Each name value pair is stored
@@ -176,8 +176,7 @@ public class AnnotationNode extends AnnotationVisitor {
     }
 
     @Override
-    public void visitEnum(final String name, final String desc,
-            final String value) {
+    public void visitEnum(final String name, final String desc, final String value) {
         if (values == null) {
             values = new ArrayList<Object>(this.desc != null ? 2 : 1);
         }
@@ -188,8 +187,7 @@ public class AnnotationNode extends AnnotationVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String name,
-            final String desc) {
+    public AnnotationVisitor visitAnnotation(final String name, final String desc) {
         if (values == null) {
             values = new ArrayList<Object>(this.desc != null ? 2 : 1);
         }
@@ -265,8 +263,7 @@ public class AnnotationNode extends AnnotationVisitor {
      * @param value
      *            the actual value.
      */
-    static void accept(final AnnotationVisitor av, final String name,
-            final Object value) {
+    static void accept(final AnnotationVisitor av, final String name, final Object value) {
         if (av != null) {
             if (value instanceof String[]) {
                 String[] typeconst = (String[]) value;

@@ -45,7 +45,7 @@ public class LineNumberNode extends AbstractInsnNode {
      * A line number. This number refers to the source file from which the class
      * was compiled.
      */
-    public int line;
+    public int       line;
 
     /**
      * The first instruction corresponding to this line number.

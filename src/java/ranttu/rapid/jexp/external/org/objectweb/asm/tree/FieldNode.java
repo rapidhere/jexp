@@ -50,29 +50,29 @@ public class FieldNode extends FieldVisitor {
      * The field's access flags (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This
      * field also indicates if the field is synthetic and/or deprecated.
      */
-    public int access;
+    public int                      access;
 
     /**
      * The field's name.
      */
-    public String name;
+    public String                   name;
 
     /**
      * The field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
      */
-    public String desc;
+    public String                   desc;
 
     /**
      * The field's signature. May be <tt>null</tt>.
      */
-    public String signature;
+    public String                   signature;
 
     /**
      * The field's initial value. This field, which may be <tt>null</tt> if the
      * field does not have an initial value, must be an {@link Integer}, a
      * {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
      */
-    public Object value;
+    public Object                   value;
 
     /**
      * The runtime visible annotations of this field. This list is a list of
@@ -81,7 +81,7 @@ public class FieldNode extends FieldVisitor {
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
-    public List<AnnotationNode> visibleAnnotations;
+    public List<AnnotationNode>     visibleAnnotations;
 
     /**
      * The runtime invisible annotations of this field. This list is a list of
@@ -90,7 +90,7 @@ public class FieldNode extends FieldVisitor {
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
-    public List<AnnotationNode> invisibleAnnotations;
+    public List<AnnotationNode>     invisibleAnnotations;
 
     /**
      * The runtime visible type annotations of this field. This list is a list
@@ -116,7 +116,7 @@ public class FieldNode extends FieldVisitor {
      * 
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.Attribute
      */
-    public List<Attribute> attrs;
+    public List<Attribute>          attrs;
 
     /**
      * Constructs a new {@link FieldNode}. <i>Subclasses must not use this
@@ -142,8 +142,8 @@ public class FieldNode extends FieldVisitor {
      * @throws IllegalStateException
      *             If a subclass calls this constructor.
      */
-    public FieldNode(final int access, final String name, final String desc,
-            final String signature, final Object value) {
+    public FieldNode(final int access, final String name, final String desc, final String signature,
+                     final Object value) {
         this(Opcodes.ASM5, access, name, desc, signature, value);
         if (getClass() != FieldNode.class) {
             throw new IllegalStateException();
@@ -174,8 +174,8 @@ public class FieldNode extends FieldVisitor {
      *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
      *            {@link Double} or a {@link String}.
      */
-    public FieldNode(final int api, final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldNode(final int api, final int access, final String name, final String desc,
+                     final String signature, final Object value) {
         super(api);
         this.access = access;
         this.name = name;
@@ -189,8 +189,7 @@ public class FieldNode extends FieldVisitor {
     // ------------------------------------------------------------------------
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
         AnnotationNode an = new AnnotationNode(desc);
         if (visible) {
             if (visibleAnnotations == null) {
@@ -207,8 +206,8 @@ public class FieldNode extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
+                                                 boolean visible) {
         TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
         if (visible) {
             if (visibleTypeAnnotations == null) {
@@ -252,12 +251,10 @@ public class FieldNode extends FieldVisitor {
      */
     public void check(final int api) {
         if (api == Opcodes.ASM4) {
-            if (visibleTypeAnnotations != null
-                    && visibleTypeAnnotations.size() > 0) {
+            if (visibleTypeAnnotations != null && visibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
-            if (invisibleTypeAnnotations != null
-                    && invisibleTypeAnnotations.size() > 0) {
+            if (invisibleTypeAnnotations != null && invisibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
         }
@@ -288,15 +285,12 @@ public class FieldNode extends FieldVisitor {
         n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    true));
+            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, true));
         }
-        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
-                .size();
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    false));
+            an.accept(fv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, false));
         }
         n = attrs == null ? 0 : attrs.size();
         for (i = 0; i < n; ++i) {

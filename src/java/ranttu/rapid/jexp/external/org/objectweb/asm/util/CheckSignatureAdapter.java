@@ -44,54 +44,54 @@ public class CheckSignatureAdapter extends SignatureVisitor {
      * {@link #CheckSignatureAdapter(int, SignatureVisitor)
      * CheckSignatureAdapter}.
      */
-    public static final int CLASS_SIGNATURE = 0;
+    public static final int        CLASS_SIGNATURE  = 0;
 
     /**
      * Type to be used to check method signatures. See
      * {@link #CheckSignatureAdapter(int, SignatureVisitor)
      * CheckSignatureAdapter}.
      */
-    public static final int METHOD_SIGNATURE = 1;
+    public static final int        METHOD_SIGNATURE = 1;
 
     /**
      * Type to be used to check type signatures.See
      * {@link #CheckSignatureAdapter(int, SignatureVisitor)
      * CheckSignatureAdapter}.
      */
-    public static final int TYPE_SIGNATURE = 2;
+    public static final int        TYPE_SIGNATURE   = 2;
 
-    private static final int EMPTY = 1;
+    private static final int       EMPTY            = 1;
 
-    private static final int FORMAL = 2;
+    private static final int       FORMAL           = 2;
 
-    private static final int BOUND = 4;
+    private static final int       BOUND            = 4;
 
-    private static final int SUPER = 8;
+    private static final int       SUPER            = 8;
 
-    private static final int PARAM = 16;
+    private static final int       PARAM            = 16;
 
-    private static final int RETURN = 32;
+    private static final int       RETURN           = 32;
 
-    private static final int SIMPLE_TYPE = 64;
+    private static final int       SIMPLE_TYPE      = 64;
 
-    private static final int CLASS_TYPE = 128;
+    private static final int       CLASS_TYPE       = 128;
 
-    private static final int END = 256;
+    private static final int       END              = 256;
 
     /**
      * Type of the signature to be checked.
      */
-    private final int type;
+    private final int              type;
 
     /**
      * State of the automaton used to check the order of method calls.
      */
-    private int state;
+    private int                    state;
 
     /**
      * <tt>true</tt> if the checked type signature can be 'V'.
      */
-    private boolean canBeVoid;
+    private boolean                canBeVoid;
 
     /**
      * The visitor to which this adapter must delegate calls. May be
@@ -130,8 +130,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
      *            the visitor to which this adapter must delegate calls. May be
      *            <tt>null</tt>.
      */
-    protected CheckSignatureAdapter(final int api, final int type,
-            final SignatureVisitor sv) {
+    protected CheckSignatureAdapter(final int api, final int type, final SignatureVisitor sv) {
         super(api);
         this.type = type;
         this.state = EMPTY;
@@ -142,8 +141,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
 
     @Override
     public void visitFormalTypeParameter(final String name) {
-        if (type == TYPE_SIGNATURE
-                || (state != EMPTY && state != FORMAL && state != BOUND)) {
+        if (type == TYPE_SIGNATURE || (state != EMPTY && state != FORMAL && state != BOUND)) {
             throw new IllegalStateException();
         }
         CheckMethodAdapter.checkIdentifier(name, "formal type parameter");
@@ -197,8 +195,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
 
     @Override
     public SignatureVisitor visitParameterType() {
-        if (type != METHOD_SIGNATURE
-                || (state & (EMPTY | FORMAL | BOUND | PARAM)) == 0) {
+        if (type != METHOD_SIGNATURE || (state & (EMPTY | FORMAL | BOUND | PARAM)) == 0) {
             throw new IllegalArgumentException();
         }
         state = PARAM;
@@ -208,8 +205,7 @@ public class CheckSignatureAdapter extends SignatureVisitor {
 
     @Override
     public SignatureVisitor visitReturnType() {
-        if (type != METHOD_SIGNATURE
-                || (state & (EMPTY | FORMAL | BOUND | PARAM)) == 0) {
+        if (type != METHOD_SIGNATURE || (state & (EMPTY | FORMAL | BOUND | PARAM)) == 0) {
             throw new IllegalArgumentException();
         }
         state = RETURN;

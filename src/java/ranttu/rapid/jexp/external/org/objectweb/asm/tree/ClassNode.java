@@ -51,24 +51,24 @@ public class ClassNode extends ClassVisitor {
     /**
      * The class version.
      */
-    public int version;
+    public int                      version;
 
     /**
      * The class's access flags (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes}). This
      * field also indicates if the class is deprecated.
      */
-    public int access;
+    public int                      access;
 
     /**
      * The internal name of the class (see
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName() getInternalName}).
      */
-    public String name;
+    public String                   name;
 
     /**
      * The signature of the class. May be <tt>null</tt>.
      */
-    public String signature;
+    public String                   signature;
 
     /**
      * The internal of name of the super class (see
@@ -76,44 +76,44 @@ public class ClassNode extends ClassVisitor {
      * interfaces, the super class is {@link Object}. May be <tt>null</tt>, but
      * only for the {@link Object} class.
      */
-    public String superName;
+    public String                   superName;
 
     /**
      * The internal names of the class's interfaces (see
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName() getInternalName}). This
      * list is a list of {@link String} objects.
      */
-    public List<String> interfaces;
+    public List<String>             interfaces;
 
     /**
      * The name of the source file from which this class was compiled. May be
      * <tt>null</tt>.
      */
-    public String sourceFile;
+    public String                   sourceFile;
 
     /**
      * Debug information to compute the correspondence between source and
      * compiled elements of the class. May be <tt>null</tt>.
      */
-    public String sourceDebug;
+    public String                   sourceDebug;
 
     /**
      * The internal name of the enclosing class of the class. May be
      * <tt>null</tt>.
      */
-    public String outerClass;
+    public String                   outerClass;
 
     /**
      * The name of the method that contains the class, or <tt>null</tt> if the
      * class is not enclosed in a method.
      */
-    public String outerMethod;
+    public String                   outerMethod;
 
     /**
      * The descriptor of the method that contains the class, or <tt>null</tt> if
      * the class is not enclosed in a method.
      */
-    public String outerMethodDesc;
+    public String                   outerMethodDesc;
 
     /**
      * The runtime visible annotations of this class. This list is a list of
@@ -122,7 +122,7 @@ public class ClassNode extends ClassVisitor {
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label visible
      */
-    public List<AnnotationNode> visibleAnnotations;
+    public List<AnnotationNode>     visibleAnnotations;
 
     /**
      * The runtime invisible annotations of this class. This list is a list of
@@ -131,7 +131,7 @@ public class ClassNode extends ClassVisitor {
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.AnnotationNode
      * @label invisible
      */
-    public List<AnnotationNode> invisibleAnnotations;
+    public List<AnnotationNode>     invisibleAnnotations;
 
     /**
      * The runtime visible type annotations of this class. This list is a list
@@ -157,7 +157,7 @@ public class ClassNode extends ClassVisitor {
      * 
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.Attribute
      */
-    public List<Attribute> attrs;
+    public List<Attribute>          attrs;
 
     /**
      * Informations about the inner classes of this class. This list is a list
@@ -165,7 +165,7 @@ public class ClassNode extends ClassVisitor {
      * 
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.InnerClassNode
      */
-    public List<InnerClassNode> innerClasses;
+    public List<InnerClassNode>     innerClasses;
 
     /**
      * The fields of this class. This list is a list of {@link FieldNode}
@@ -173,7 +173,7 @@ public class ClassNode extends ClassVisitor {
      * 
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.FieldNode
      */
-    public List<FieldNode> fields;
+    public List<FieldNode>          fields;
 
     /**
      * The methods of this class. This list is a list of {@link MethodNode}
@@ -181,7 +181,7 @@ public class ClassNode extends ClassVisitor {
      * 
      * @associates ranttu.rapid.jexp.external.org.objectweb.asm.tree.MethodNode
      */
-    public List<MethodNode> methods;
+    public List<MethodNode>         methods;
 
     /**
      * Constructs a new {@link ClassNode}. <i>Subclasses must not use this
@@ -219,8 +219,7 @@ public class ClassNode extends ClassVisitor {
 
     @Override
     public void visit(final int version, final int access, final String name,
-            final String signature, final String superName,
-            final String[] interfaces) {
+                      final String signature, final String superName, final String[] interfaces) {
         this.version = version;
         this.access = access;
         this.name = name;
@@ -238,16 +237,14 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
-    public void visitOuterClass(final String owner, final String name,
-            final String desc) {
+    public void visitOuterClass(final String owner, final String name, final String desc) {
         outerClass = owner;
         outerMethod = name;
         outerMethodDesc = desc;
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
         AnnotationNode an = new AnnotationNode(desc);
         if (visible) {
             if (visibleAnnotations == null) {
@@ -264,8 +261,8 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
+                                                 boolean visible) {
         TypeAnnotationNode an = new TypeAnnotationNode(typeRef, typePath, desc);
         if (visible) {
             if (visibleTypeAnnotations == null) {
@@ -290,26 +287,24 @@ public class ClassNode extends ClassVisitor {
     }
 
     @Override
-    public void visitInnerClass(final String name, final String outerName,
-            final String innerName, final int access) {
-        InnerClassNode icn = new InnerClassNode(name, outerName, innerName,
-                access);
+    public void visitInnerClass(final String name, final String outerName, final String innerName,
+                                final int access) {
+        InnerClassNode icn = new InnerClassNode(name, outerName, innerName, access);
         innerClasses.add(icn);
     }
 
     @Override
-    public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldVisitor visitField(final int access, final String name, final String desc,
+                                   final String signature, final Object value) {
         FieldNode fn = new FieldNode(access, name, desc, signature, value);
         fields.add(fn);
         return fn;
     }
 
     @Override
-    public MethodVisitor visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
-        MethodNode mn = new MethodNode(access, name, desc, signature,
-                exceptions);
+    public MethodVisitor visitMethod(final int access, final String name, final String desc,
+                                     final String signature, final String[] exceptions) {
+        MethodNode mn = new MethodNode(access, name, desc, signature, exceptions);
         methods.add(mn);
         return mn;
     }
@@ -334,12 +329,10 @@ public class ClassNode extends ClassVisitor {
      */
     public void check(final int api) {
         if (api == Opcodes.ASM4) {
-            if (visibleTypeAnnotations != null
-                    && visibleTypeAnnotations.size() > 0) {
+            if (visibleTypeAnnotations != null && visibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
-            if (invisibleTypeAnnotations != null
-                    && invisibleTypeAnnotations.size() > 0) {
+            if (invisibleTypeAnnotations != null && invisibleTypeAnnotations.size() > 0) {
                 throw new RuntimeException();
             }
             for (FieldNode f : fields) {
@@ -385,15 +378,12 @@ public class ClassNode extends ClassVisitor {
         n = visibleTypeAnnotations == null ? 0 : visibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = visibleTypeAnnotations.get(i);
-            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    true));
+            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, true));
         }
-        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations
-                .size();
+        n = invisibleTypeAnnotations == null ? 0 : invisibleTypeAnnotations.size();
         for (i = 0; i < n; ++i) {
             TypeAnnotationNode an = invisibleTypeAnnotations.get(i);
-            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc,
-                    false));
+            an.accept(cv.visitTypeAnnotation(an.typeRef, an.typePath, an.desc, false));
         }
         n = attrs == null ? 0 : attrs.size();
         for (i = 0; i < n; ++i) {

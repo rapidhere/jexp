@@ -66,25 +66,25 @@ public abstract class Printer {
 
     static {
         String s = "NOP,ACONST_NULL,ICONST_M1,ICONST_0,ICONST_1,ICONST_2,"
-                + "ICONST_3,ICONST_4,ICONST_5,LCONST_0,LCONST_1,FCONST_0,"
-                + "FCONST_1,FCONST_2,DCONST_0,DCONST_1,BIPUSH,SIPUSH,LDC,,,"
-                + "ILOAD,LLOAD,FLOAD,DLOAD,ALOAD,,,,,,,,,,,,,,,,,,,,,IALOAD,"
-                + "LALOAD,FALOAD,DALOAD,AALOAD,BALOAD,CALOAD,SALOAD,ISTORE,"
-                + "LSTORE,FSTORE,DSTORE,ASTORE,,,,,,,,,,,,,,,,,,,,,IASTORE,"
-                + "LASTORE,FASTORE,DASTORE,AASTORE,BASTORE,CASTORE,SASTORE,POP,"
-                + "POP2,DUP,DUP_X1,DUP_X2,DUP2,DUP2_X1,DUP2_X2,SWAP,IADD,LADD,"
-                + "FADD,DADD,ISUB,LSUB,FSUB,DSUB,IMUL,LMUL,FMUL,DMUL,IDIV,LDIV,"
-                + "FDIV,DDIV,IREM,LREM,FREM,DREM,INEG,LNEG,FNEG,DNEG,ISHL,LSHL,"
-                + "ISHR,LSHR,IUSHR,LUSHR,IAND,LAND,IOR,LOR,IXOR,LXOR,IINC,I2L,"
-                + "I2F,I2D,L2I,L2F,L2D,F2I,F2L,F2D,D2I,D2L,D2F,I2B,I2C,I2S,LCMP,"
-                + "FCMPL,FCMPG,DCMPL,DCMPG,IFEQ,IFNE,IFLT,IFGE,IFGT,IFLE,"
-                + "IF_ICMPEQ,IF_ICMPNE,IF_ICMPLT,IF_ICMPGE,IF_ICMPGT,IF_ICMPLE,"
-                + "IF_ACMPEQ,IF_ACMPNE,GOTO,JSR,RET,TABLESWITCH,LOOKUPSWITCH,"
-                + "IRETURN,LRETURN,FRETURN,DRETURN,ARETURN,RETURN,GETSTATIC,"
-                + "PUTSTATIC,GETFIELD,PUTFIELD,INVOKEVIRTUAL,INVOKESPECIAL,"
-                + "INVOKESTATIC,INVOKEINTERFACE,INVOKEDYNAMIC,NEW,NEWARRAY,"
-                + "ANEWARRAY,ARRAYLENGTH,ATHROW,CHECKCAST,INSTANCEOF,"
-                + "MONITORENTER,MONITOREXIT,,MULTIANEWARRAY,IFNULL,IFNONNULL,";
+                   + "ICONST_3,ICONST_4,ICONST_5,LCONST_0,LCONST_1,FCONST_0,"
+                   + "FCONST_1,FCONST_2,DCONST_0,DCONST_1,BIPUSH,SIPUSH,LDC,,,"
+                   + "ILOAD,LLOAD,FLOAD,DLOAD,ALOAD,,,,,,,,,,,,,,,,,,,,,IALOAD,"
+                   + "LALOAD,FALOAD,DALOAD,AALOAD,BALOAD,CALOAD,SALOAD,ISTORE,"
+                   + "LSTORE,FSTORE,DSTORE,ASTORE,,,,,,,,,,,,,,,,,,,,,IASTORE,"
+                   + "LASTORE,FASTORE,DASTORE,AASTORE,BASTORE,CASTORE,SASTORE,POP,"
+                   + "POP2,DUP,DUP_X1,DUP_X2,DUP2,DUP2_X1,DUP2_X2,SWAP,IADD,LADD,"
+                   + "FADD,DADD,ISUB,LSUB,FSUB,DSUB,IMUL,LMUL,FMUL,DMUL,IDIV,LDIV,"
+                   + "FDIV,DDIV,IREM,LREM,FREM,DREM,INEG,LNEG,FNEG,DNEG,ISHL,LSHL,"
+                   + "ISHR,LSHR,IUSHR,LUSHR,IAND,LAND,IOR,LOR,IXOR,LXOR,IINC,I2L,"
+                   + "I2F,I2D,L2I,L2F,L2D,F2I,F2L,F2D,D2I,D2L,D2F,I2B,I2C,I2S,LCMP,"
+                   + "FCMPL,FCMPG,DCMPL,DCMPG,IFEQ,IFNE,IFLT,IFGE,IFGT,IFLE,"
+                   + "IF_ICMPEQ,IF_ICMPNE,IF_ICMPLT,IF_ICMPGE,IF_ICMPGT,IF_ICMPLE,"
+                   + "IF_ACMPEQ,IF_ACMPNE,GOTO,JSR,RET,TABLESWITCH,LOOKUPSWITCH,"
+                   + "IRETURN,LRETURN,FRETURN,DRETURN,ARETURN,RETURN,GETSTATIC,"
+                   + "PUTSTATIC,GETFIELD,PUTFIELD,INVOKEVIRTUAL,INVOKESPECIAL,"
+                   + "INVOKESTATIC,INVOKEINTERFACE,INVOKEDYNAMIC,NEW,NEWARRAY,"
+                   + "ANEWARRAY,ARRAYLENGTH,ATHROW,CHECKCAST,INSTANCEOF,"
+                   + "MONITORENTER,MONITOREXIT,,MULTIANEWARRAY,IFNULL,IFNONNULL,";
         OPCODES = new String[200];
         int i = 0;
         int j = 0;
@@ -104,8 +104,8 @@ public abstract class Printer {
         }
 
         s = "H_GETFIELD,H_GETSTATIC,H_PUTFIELD,H_PUTSTATIC,"
-                + "H_INVOKEVIRTUAL,H_INVOKESTATIC,H_INVOKESPECIAL,"
-                + "H_NEWINVOKESPECIAL,H_INVOKEINTERFACE,";
+            + "H_INVOKEVIRTUAL,H_INVOKESTATIC,H_INVOKESPECIAL,"
+            + "H_NEWINVOKESPECIAL,H_INVOKEINTERFACE,";
         HANDLE_TAG = new String[10];
         j = 0;
         i = 1;
@@ -119,7 +119,7 @@ public abstract class Printer {
      * The ASM API version implemented by this class. The value of this field
      * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
-    protected final int api;
+    protected final int          api;
 
     /**
      * A buffer that can be used to create strings.
@@ -138,7 +138,7 @@ public abstract class Printer {
      * string list that can contain other string lists, which can themselves
      * contain other string lists, and so on.
      */
-    public final List<Object> text;
+    public final List<Object>    text;
 
     /**
      * Constructs a new {@link Printer}.
@@ -179,9 +179,9 @@ public abstract class Printer {
      *            {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName() getInternalName}).
      *            May be <tt>null</tt>.
      */
-    public abstract void visit(final int version, final int access,
-            final String name, final String signature, final String superName,
-            final String[] interfaces);
+    public abstract void visit(final int version, final int access, final String name,
+                               final String signature, final String superName,
+                               final String[] interfaces);
 
     /**
      * Class source.
@@ -215,8 +215,7 @@ public abstract class Printer {
      *            <tt>null</tt> if the class is not enclosed in a method of its
      *            enclosing class.
      */
-    public abstract void visitOuterClass(final String owner, final String name,
-            final String desc);
+    public abstract void visitOuterClass(final String owner, final String name, final String desc);
 
     /**
      * Class annotation.
@@ -228,8 +227,7 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public abstract Printer visitClassAnnotation(final String desc,
-            final boolean visible);
+    public abstract Printer visitClassAnnotation(final String desc, final boolean visible);
 
     /**
      * Class type annotation.
@@ -252,8 +250,8 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public Printer visitClassTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+    public Printer visitClassTypeAnnotation(final int typeRef, final TypePath typePath,
+                                            final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -284,8 +282,8 @@ public abstract class Printer {
      *            the access flags of the inner class as originally declared in
      *            the enclosing class.
      */
-    public abstract void visitInnerClass(final String name,
-            final String outerName, final String innerName, final int access);
+    public abstract void visitInnerClass(final String name, final String outerName,
+                                         final String innerName, final int access);
 
     /**
      * Class field.
@@ -313,8 +311,8 @@ public abstract class Printer {
      *            constructors or methods.
      * @return the printer
      */
-    public abstract Printer visitField(final int access, final String name,
-            final String desc, final String signature, final Object value);
+    public abstract Printer visitField(final int access, final String name, final String desc,
+                                       final String signature, final Object value);
 
     /**
      * Class method.
@@ -338,8 +336,8 @@ public abstract class Printer {
      *            <tt>null</tt>.
      * @return the printer
      */
-    public abstract Printer visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions);
+    public abstract Printer visitMethod(final int access, final String name, final String desc,
+                                        final String signature, final String[] exceptions);
 
     /**
      * Class end. See {@link ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor#visitEnd}.
@@ -382,8 +380,7 @@ public abstract class Printer {
      * @param value
      *            the actual enumeration value.
      */
-    public abstract void visitEnum(final String name, final String desc,
-            final String value);
+    public abstract void visitEnum(final String name, final String desc, final String value);
 
     /**
      * Nested annotation value.
@@ -431,8 +428,7 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public abstract Printer visitFieldAnnotation(final String desc,
-            final boolean visible);
+    public abstract Printer visitFieldAnnotation(final String desc, final boolean visible);
 
     /**
      * Field type annotation.
@@ -452,8 +448,8 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public Printer visitFieldTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+    public Printer visitFieldTypeAnnotation(final int typeRef, final TypePath typePath,
+                                            final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -509,8 +505,7 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public abstract Printer visitMethodAnnotation(final String desc,
-            final boolean visible);
+    public abstract Printer visitMethodAnnotation(final String desc, final boolean visible);
 
     /**
      * Method type annotation.
@@ -530,8 +525,8 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public Printer visitMethodTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+    public Printer visitMethodTypeAnnotation(final int typeRef, final TypePath typePath,
+                                             final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -547,8 +542,8 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public abstract Printer visitParameterAnnotation(final int parameter,
-            final String desc, final boolean visible);
+    public abstract Printer visitParameterAnnotation(final int parameter, final String desc,
+                                                     final boolean visible);
 
     /**
      * Method attribute.
@@ -643,8 +638,8 @@ public abstract class Printer {
      *             instruction between the two (unless this frame is a
      *             Opcodes#F_SAME frame, in which case it is silently ignored).
      */
-    public abstract void visitFrame(final int type, final int nLocal,
-            final Object[] local, final int nStack, final Object[] stack);
+    public abstract void visitFrame(final int type, final int nLocal, final Object[] local,
+                                    final int nStack, final Object[] stack);
 
     /**
      * Method instruction.
@@ -737,8 +732,8 @@ public abstract class Printer {
      * @param desc
      *            the field's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type Type}).
      */
-    public abstract void visitFieldInsn(final int opcode, final String owner,
-            final String name, final String desc);
+    public abstract void visitFieldInsn(final int opcode, final String owner, final String name,
+                                        final String desc);
 
     /**
      * Method instruction.
@@ -757,8 +752,8 @@ public abstract class Printer {
      *            the method's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type Type}).
      */
     @Deprecated
-    public void visitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc) {
+    public void visitMethodInsn(final int opcode, final String owner, final String name,
+                                final String desc) {
         if (api >= Opcodes.ASM5) {
             boolean itf = opcode == Opcodes.INVOKEINTERFACE;
             visitMethodInsn(opcode, owner, name, desc, itf);
@@ -785,12 +780,12 @@ public abstract class Printer {
      * @param itf
      *            if the method's owner class is an interface.
      */
-    public void visitMethodInsn(final int opcode, final String owner,
-            final String name, final String desc, final boolean itf) {
+    public void visitMethodInsn(final int opcode, final String owner, final String name,
+                                final String desc, final boolean itf) {
         if (api < Opcodes.ASM5) {
             if (itf != (opcode == Opcodes.INVOKEINTERFACE)) {
                 throw new IllegalArgumentException(
-                        "INVOKESPECIAL/STATIC on interfaces require ASM 5");
+                    "INVOKESPECIAL/STATIC on interfaces require ASM 5");
             }
             visitMethodInsn(opcode, owner, name, desc);
             return;
@@ -817,8 +812,8 @@ public abstract class Printer {
      *            value. This method is allowed to modify the content of the
      *            array so a caller should expect that this array may change.
      */
-    public abstract void visitInvokeDynamicInsn(String name, String desc,
-            Handle bsm, Object... bsmArgs);
+    public abstract void visitInvokeDynamicInsn(String name, String desc, Handle bsm,
+                                                Object... bsmArgs);
 
     /**
      * Method jump instruction.
@@ -919,8 +914,8 @@ public abstract class Printer {
      *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
      *            beginning of the handler block for the <tt>min + i</tt> key.
      */
-    public abstract void visitTableSwitchInsn(final int min, final int max,
-            final Label dflt, final Label... labels);
+    public abstract void visitTableSwitchInsn(final int min, final int max, final Label dflt,
+                                              final Label... labels);
 
     /**
      * Method instruction.
@@ -934,8 +929,8 @@ public abstract class Printer {
      *            beginnings of the handler blocks. <tt>labels[i]</tt> is the
      *            beginning of the handler block for the <tt>keys[i]</tt> key.
      */
-    public abstract void visitLookupSwitchInsn(final Label dflt,
-            final int[] keys, final Label[] labels);
+    public abstract void visitLookupSwitchInsn(final Label dflt, final int[] keys,
+                                               final Label[] labels);
 
     /**
      * Method instruction.
@@ -946,8 +941,7 @@ public abstract class Printer {
      * @param dims
      *            number of dimensions of the array to allocate.
      */
-    public abstract void visitMultiANewArrayInsn(final String desc,
-            final int dims);
+    public abstract void visitMultiANewArrayInsn(final String desc, final int dims);
 
     /**
      * Instruction type annotation.
@@ -975,8 +969,8 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public Printer visitInsnAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+    public Printer visitInsnAnnotation(final int typeRef, final TypePath typePath,
+                                       final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -998,8 +992,8 @@ public abstract class Printer {
      *             if one of the labels has already been visited by this visitor
      *             (by the {@link #visitLabel visitLabel} method).
      */
-    public abstract void visitTryCatchBlock(final Label start, final Label end,
-            final Label handler, final String type);
+    public abstract void visitTryCatchBlock(final Label start, final Label end, final Label handler,
+                                            final String type);
 
     /**
      * Try catch block type annotation.
@@ -1020,8 +1014,8 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public Printer visitTryCatchAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+    public Printer visitTryCatchAnnotation(final int typeRef, final TypePath typePath,
+                                           final String desc, final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 
@@ -1049,9 +1043,9 @@ public abstract class Printer {
      *             if one of the labels has not already been visited by this
      *             visitor (by the {@link #visitLabel visitLabel} method).
      */
-    public abstract void visitLocalVariable(final String name,
-            final String desc, final String signature, final Label start,
-            final Label end, final int index);
+    public abstract void visitLocalVariable(final String name, final String desc,
+                                            final String signature, final Label start,
+                                            final Label end, final int index);
 
     /**
      * Local variable type annotation.
@@ -1083,9 +1077,10 @@ public abstract class Printer {
      *            <tt>true</tt> if the annotation is visible at runtime.
      * @return the printer
      */
-    public Printer visitLocalVariableAnnotation(final int typeRef,
-            final TypePath typePath, final Label[] start, final Label[] end,
-            final int[] index, final String desc, final boolean visible) {
+    public Printer visitLocalVariableAnnotation(final int typeRef, final TypePath typePath,
+                                                final Label[] start, final Label[] end,
+                                                final int[] index, final String desc,
+                                                final boolean visible) {
         throw new RuntimeException("Must be overriden");
     }
 

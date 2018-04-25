@@ -43,8 +43,7 @@ public class AnnotationConstantsCollector extends AnnotationVisitor {
 
     private final ConstantPool cp;
 
-    public AnnotationConstantsCollector(final AnnotationVisitor av,
-            final ConstantPool cp) {
+    public AnnotationConstantsCollector(final AnnotationVisitor av, final ConstantPool cp) {
         super(Opcodes.ASM5, av);
         this.cp = cp;
     }
@@ -111,8 +110,7 @@ public class AnnotationConstantsCollector extends AnnotationVisitor {
     }
 
     @Override
-    public void visitEnum(final String name, final String desc,
-            final String value) {
+    public void visitEnum(final String name, final String desc, final String value) {
         if (name != null) {
             cp.newUTF8(name);
         }
@@ -122,14 +120,12 @@ public class AnnotationConstantsCollector extends AnnotationVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String name,
-            final String desc) {
+    public AnnotationVisitor visitAnnotation(final String name, final String desc) {
         if (name != null) {
             cp.newUTF8(name);
         }
         cp.newUTF8(desc);
-        return new AnnotationConstantsCollector(av.visitAnnotation(name, desc),
-                cp);
+        return new AnnotationConstantsCollector(av.visitAnnotation(name, desc), cp);
     }
 
     @Override

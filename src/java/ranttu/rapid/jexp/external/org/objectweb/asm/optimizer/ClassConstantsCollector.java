@@ -54,8 +54,7 @@ public class ClassConstantsCollector extends ClassVisitor {
 
     @Override
     public void visit(final int version, final int access, final String name,
-            final String signature, final String superName,
-            final String[] interfaces) {
+                      final String signature, final String superName, final String[] interfaces) {
         if ((access & Opcodes.ACC_DEPRECATED) != 0) {
             cp.newUTF8("Deprecated");
         }
@@ -91,8 +90,7 @@ public class ClassConstantsCollector extends ClassVisitor {
     }
 
     @Override
-    public void visitOuterClass(final String owner, final String name,
-            final String desc) {
+    public void visitOuterClass(final String owner, final String name, final String desc) {
         cp.newUTF8("EnclosingMethod");
         cp.newClass(owner);
         if (name != null && desc != null) {
@@ -102,29 +100,26 @@ public class ClassConstantsCollector extends ClassVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
         cp.newUTF8(desc);
         if (visible) {
             cp.newUTF8("RuntimeVisibleAnnotations");
         } else {
             cp.newUTF8("RuntimeInvisibleAnnotations");
         }
-        return new AnnotationConstantsCollector(cv.visitAnnotation(desc,
-                visible), cp);
+        return new AnnotationConstantsCollector(cv.visitAnnotation(desc, visible), cp);
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
+                                                 boolean visible) {
         cp.newUTF8(desc);
         if (visible) {
             cp.newUTF8("RuntimeVisibleTypeAnnotations");
         } else {
             cp.newUTF8("RuntimeInvisibleTypeAnnotations");
         }
-        return new AnnotationConstantsCollector(cv.visitAnnotation(desc,
-                visible), cp);
+        return new AnnotationConstantsCollector(cv.visitAnnotation(desc, visible), cp);
     }
 
     @Override
@@ -134,8 +129,8 @@ public class ClassConstantsCollector extends ClassVisitor {
     }
 
     @Override
-    public void visitInnerClass(final String name, final String outerName,
-            final String innerName, final int access) {
+    public void visitInnerClass(final String name, final String outerName, final String innerName,
+                                final int access) {
         cp.newUTF8("InnerClasses");
         if (name != null) {
             cp.newClass(name);
@@ -150,8 +145,8 @@ public class ClassConstantsCollector extends ClassVisitor {
     }
 
     @Override
-    public FieldVisitor visitField(final int access, final String name,
-            final String desc, final String signature, final Object value) {
+    public FieldVisitor visitField(final int access, final String name, final String desc,
+                                   final String signature, final Object value) {
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
             cp.newUTF8("Synthetic");
         }
@@ -167,13 +162,12 @@ public class ClassConstantsCollector extends ClassVisitor {
         if (value != null) {
             cp.newConst(value);
         }
-        return new FieldConstantsCollector(cv.visitField(access, name, desc,
-                signature, value), cp);
+        return new FieldConstantsCollector(cv.visitField(access, name, desc, signature, value), cp);
     }
 
     @Override
-    public MethodVisitor visitMethod(final int access, final String name,
-            final String desc, final String signature, final String[] exceptions) {
+    public MethodVisitor visitMethod(final int access, final String name, final String desc,
+                                     final String signature, final String[] exceptions) {
         if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
             cp.newUTF8("Synthetic");
         }
@@ -192,7 +186,7 @@ public class ClassConstantsCollector extends ClassVisitor {
                 cp.newClass(exceptions[i]);
             }
         }
-        return new MethodConstantsCollector(cv.visitMethod(access, name, desc,
-                signature, exceptions), cp);
+        return new MethodConstantsCollector(
+            cv.visitMethod(access, name, desc, signature, exceptions), cp);
     }
 }

@@ -43,7 +43,7 @@ public class InsnList {
     /**
      * The number of instructions in this list.
      */
-    private int size;
+    private int              size;
 
     /**
      * The first instruction in this list. May be <tt>null</tt>.
@@ -59,7 +59,7 @@ public class InsnList {
      * A cache of the instructions of this list. This cache is used to improve
      * the performance of the {@link #get} method.
      */
-    AbstractInsnNode[] cache;
+    AbstractInsnNode[]       cache;
 
     /**
      * Returns the number of instructions in this list.
@@ -341,8 +341,7 @@ public class InsnList {
      *            the instruction to be inserted, <i>which must not belong to
      *            any {@link InsnList}</i>.
      */
-    public void insert(final AbstractInsnNode location,
-            final AbstractInsnNode insn) {
+    public void insert(final AbstractInsnNode location, final AbstractInsnNode insn) {
         ++size;
         AbstractInsnNode next = location.next;
         if (next == null) {
@@ -397,8 +396,7 @@ public class InsnList {
      *            the instruction to be inserted, <i>which must not belong to
      *            any {@link InsnList}</i>.
      */
-    public void insertBefore(final AbstractInsnNode location,
-            final AbstractInsnNode insn) {
+    public void insertBefore(final AbstractInsnNode location, final AbstractInsnNode insn) {
         ++size;
         AbstractInsnNode prev = location.prev;
         if (prev == null) {
@@ -423,8 +421,7 @@ public class InsnList {
      *            the instruction list to be inserted, which is cleared during
      *            the process. This list must be different from 'this'.
      */
-    public void insertBefore(final AbstractInsnNode location,
-            final InsnList insns) {
+    public void insertBefore(final AbstractInsnNode location, final InsnList insns) {
         if (insns.size == 0) {
             return;
         }
@@ -622,7 +619,7 @@ public class InsnList {
                 if (remove == prev) {
                     prev = (AbstractInsnNode) o;
                 } else {
-                    next = (AbstractInsnNode) o;                    
+                    next = (AbstractInsnNode) o;
                 }
             } else {
                 throw new IllegalStateException();

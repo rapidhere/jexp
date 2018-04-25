@@ -47,7 +47,7 @@ public class ParameterNode {
      * Valid values are <tt>ACC_FINAL</tt>, <tt>ACC_SYNTHETIC</tt> and
      * <tt>ACC_MANDATED</tt>.
      */
-    public int access;
+    public int    access;
 
     /**
      * Constructs a new {@link ParameterNode}.

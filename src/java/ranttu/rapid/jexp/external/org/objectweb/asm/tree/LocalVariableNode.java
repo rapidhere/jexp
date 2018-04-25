@@ -41,17 +41,17 @@ public class LocalVariableNode {
     /**
      * The name of a local variable.
      */
-    public String name;
+    public String    name;
 
     /**
      * The type descriptor of this local variable.
      */
-    public String desc;
+    public String    desc;
 
     /**
      * The signature of this local variable. May be <tt>null</tt>.
      */
-    public String signature;
+    public String    signature;
 
     /**
      * The first instruction corresponding to the scope of this local variable
@@ -68,7 +68,7 @@ public class LocalVariableNode {
     /**
      * The local variable's index.
      */
-    public int index;
+    public int       index;
 
     /**
      * Constructs a new {@link LocalVariableNode}.
@@ -88,9 +88,8 @@ public class LocalVariableNode {
      * @param index
      *            the local variable's index.
      */
-    public LocalVariableNode(final String name, final String desc,
-            final String signature, final LabelNode start, final LabelNode end,
-            final int index) {
+    public LocalVariableNode(final String name, final String desc, final String signature,
+                             final LabelNode start, final LabelNode end, final int index) {
         this.name = name;
         this.desc = desc;
         this.signature = signature;
@@ -106,7 +105,6 @@ public class LocalVariableNode {
      *            a method visitor.
      */
     public void accept(final MethodVisitor mv) {
-        mv.visitLocalVariable(name, desc, signature, start.getLabel(),
-                end.getLabel(), index);
+        mv.visitLocalVariable(name, desc, signature, start.getLabel(), end.getLabel(), index);
     }
 }

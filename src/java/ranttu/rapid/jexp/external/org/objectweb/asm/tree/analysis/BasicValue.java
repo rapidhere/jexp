@@ -42,22 +42,20 @@ public class BasicValue implements Value {
 
     public static final BasicValue UNINITIALIZED_VALUE = new BasicValue(null);
 
-    public static final BasicValue INT_VALUE = new BasicValue(Type.INT_TYPE);
+    public static final BasicValue INT_VALUE           = new BasicValue(Type.INT_TYPE);
 
-    public static final BasicValue FLOAT_VALUE = new BasicValue(Type.FLOAT_TYPE);
+    public static final BasicValue FLOAT_VALUE         = new BasicValue(Type.FLOAT_TYPE);
 
-    public static final BasicValue LONG_VALUE = new BasicValue(Type.LONG_TYPE);
+    public static final BasicValue LONG_VALUE          = new BasicValue(Type.LONG_TYPE);
 
-    public static final BasicValue DOUBLE_VALUE = new BasicValue(
-            Type.DOUBLE_TYPE);
+    public static final BasicValue DOUBLE_VALUE        = new BasicValue(Type.DOUBLE_TYPE);
 
-    public static final BasicValue REFERENCE_VALUE = new BasicValue(
-            Type.getObjectType("java/lang/Object"));
+    public static final BasicValue REFERENCE_VALUE     = new BasicValue(
+        Type.getObjectType("java/lang/Object"));
 
-    public static final BasicValue RETURNADDRESS_VALUE = new BasicValue(
-            Type.VOID_TYPE);
+    public static final BasicValue RETURNADDRESS_VALUE = new BasicValue(Type.VOID_TYPE);
 
-    private final Type type;
+    private final Type             type;
 
     public BasicValue(final Type type) {
         this.type = type;
@@ -72,8 +70,7 @@ public class BasicValue implements Value {
     }
 
     public boolean isReference() {
-        return type != null
-                && (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY);
+        return type != null && (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY);
     }
 
     @Override

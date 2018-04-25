@@ -8,7 +8,7 @@ import ranttu.rapid.jexp.compile.parse.Token;
  */
 @Type(AstType.BINARY_EXP)
 public class BinaryExpression extends AstNode {
-    final public Token op;
+    final public Token   op;
 
     final public AstNode left, right;
 

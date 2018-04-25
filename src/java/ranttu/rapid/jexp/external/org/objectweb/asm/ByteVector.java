@@ -45,7 +45,7 @@ public class ByteVector {
     /**
      * Actual number of bytes in this vector.
      */
-    int length;
+    int    length;
 
     /**
      * Constructs a new {@link ByteVector ByteVector} with a default initial
@@ -274,8 +274,8 @@ public class ByteVector {
         }
         int start = length - i - 2;
         if (start >= 0) {
-          data[start] = (byte) (byteLength >>> 8);
-          data[start + 1] = (byte) byteLength;
+            data[start] = (byte) (byteLength >>> 8);
+            data[start + 1] = (byte) byteLength;
         }
         if (length + byteLength - i > data.length) {
             enlarge(byteLength - i);

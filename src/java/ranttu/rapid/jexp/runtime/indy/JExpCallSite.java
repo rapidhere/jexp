@@ -4,17 +4,15 @@
  */
 package ranttu.rapid.jexp.runtime.indy;
 
-import ranttu.rapid.jexp.common.$;
-import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
+import static java.lang.invoke.MethodType.methodType;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
-import java.lang.reflect.Method;
 import java.util.Map;
 
-import static java.lang.invoke.MethodType.methodType;
+import ranttu.rapid.jexp.common.$;
 
 /**
  * the indy call-site for jexp
@@ -46,8 +44,9 @@ public class JExpCallSite extends MutableCallSite {
     public JExpCallSite(JExpCallSiteType ct, MethodType mt, String arg) {
         super(mt);
         try {
-            MH_RELINK = LOOKUP.findVirtual(JExpCallSite.class, "relink",
-                methodType(Object.class, Object.class)).bindTo(this);
+            MH_RELINK = LOOKUP
+                .findVirtual(JExpCallSite.class, "relink", methodType(Object.class, Object.class))
+                .bindTo(this);
             MH_IS_INSTANCE = LOOKUP.findVirtual(Class.class, "isInstance",
                 methodType(boolean.class, Object.class));
             MH_MAP_GET = LOOKUP.findVirtual(Map.class, "get",
@@ -83,7 +82,7 @@ public class JExpCallSite extends MutableCallSite {
     }
 
     private void guard(MethodHandle target) {
-        setTarget(MethodHandles.guardWithTest(MH_IS_INSTANCE.bindTo(currentClazz), target,
-            MH_RELINK));
+        setTarget(
+            MethodHandles.guardWithTest(MH_IS_INSTANCE.bindTo(currentClazz), target, MH_RELINK));
     }
 }

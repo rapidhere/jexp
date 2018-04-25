@@ -60,9 +60,9 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
  */
 public class JarOptimizer {
 
-    static final Set<String> API = new HashSet<String>();
+    static final Set<String>         API       = new HashSet<String>();
     static final Map<String, String> HIERARCHY = new HashMap<String, String>();
-    static boolean nodebug = false;
+    static boolean                   nodebug   = false;
 
     public static void main(final String[] args) throws IOException {
         File f = new File(args[0]);
@@ -150,9 +150,9 @@ public class JarOptimizer {
         }
 
         @Override
-        public void visit(final int version, final int access,
-                final String name, final String signature,
-                final String superName, final String[] interfaces) {
+        public void visit(final int version, final int access, final String name,
+                          final String signature, final String superName,
+                          final String[] interfaces) {
             owner = name;
             if (owner.startsWith("java/")) {
                 System.out.println("class " + name + ' ' + superName);
@@ -160,8 +160,8 @@ public class JarOptimizer {
         }
 
         @Override
-        public FieldVisitor visitField(final int access, final String name,
-                final String desc, final String signature, final Object value) {
+        public FieldVisitor visitField(final int access, final String name, final String desc,
+                                       final String signature, final Object value) {
             if (owner.startsWith("java/")) {
                 System.out.println(owner + ' ' + name);
             }
@@ -169,9 +169,8 @@ public class JarOptimizer {
         }
 
         @Override
-        public MethodVisitor visitMethod(final int access, final String name,
-                final String desc, final String signature,
-                final String[] exceptions) {
+        public MethodVisitor visitMethod(final int access, final String name, final String desc,
+                                         final String signature, final String[] exceptions) {
             if (owner.startsWith("java/")) {
                 System.out.println(owner + ' ' + name + desc);
             }
@@ -190,28 +189,26 @@ public class JarOptimizer {
         }
 
         @Override
-        public void visit(final int version, final int access,
-                final String name, final String signature,
-                final String superName, final String[] interfaces) {
+        public void visit(final int version, final int access, final String name,
+                          final String signature, final String superName,
+                          final String[] interfaces) {
             owner = name;
         }
 
         @Override
-        public MethodVisitor visitMethod(final int access, final String name,
-                final String desc, final String signature,
-                final String[] exceptions) {
+        public MethodVisitor visitMethod(final int access, final String name, final String desc,
+                                         final String signature, final String[] exceptions) {
             method = name + desc;
             return new MethodVisitor(Opcodes.ASM5) {
                 @Override
-                public void visitFieldInsn(final int opcode,
-                        final String owner, final String name, final String desc) {
+                public void visitFieldInsn(final int opcode, final String owner, final String name,
+                                           final String desc) {
                     check(owner, name);
                 }
 
                 @Override
-                public void visitMethodInsn(final int opcode,
-                        final String owner, final String name,
-                        final String desc, final boolean itf) {
+                public void visitMethodInsn(final int opcode, final String owner, final String name,
+                                            final String desc, final boolean itf) {
                     check(owner, name + desc);
                 }
             };
@@ -226,9 +223,8 @@ public class JarOptimizer {
                     }
                     o = HIERARCHY.get(o);
                 }
-                System.out.println("WARNING: " + owner + ' ' + member
-                        + " called in " + this.owner + ' ' + method
-                        + " is not defined in JDK 1.3 API");
+                System.out.println("WARNING: " + owner + ' ' + member + " called in " + this.owner
+                                   + ' ' + method + " is not defined in JDK 1.3 API");
             }
         }
     }

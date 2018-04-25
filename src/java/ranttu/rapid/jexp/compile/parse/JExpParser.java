@@ -162,7 +162,8 @@ public class JExpParser {
 
                 // cast id to str
                 Token idToken = identifier.token;
-                Token strToken = new Token(TokenType.STRING, idToken.line, idToken.column, idToken.value);
+                Token strToken = new Token(TokenType.STRING, idToken.line, idToken.column,
+                    idToken.value);
 
                 exp = new MemberExpression(exp, new PrimaryExpression(strToken));
             }

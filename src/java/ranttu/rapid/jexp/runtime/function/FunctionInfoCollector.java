@@ -4,13 +4,13 @@
  */
 package ranttu.rapid.jexp.runtime.function;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * collect some function info
@@ -76,7 +76,7 @@ class FunctionInfoCollector {
                 case FRETURN:
                 case DRETURN:
                 case ARETURN:
-                    info.returnInsnCount ++;
+                    info.returnInsnCount++;
             }
         }
 

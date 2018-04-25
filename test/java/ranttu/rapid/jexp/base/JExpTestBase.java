@@ -1,13 +1,14 @@
 package ranttu.rapid.jexp.base;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.testng.TestNG;
-import org.testng.annotations.DataProvider;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+
+import org.testng.TestNG;
+import org.testng.annotations.DataProvider;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * base test class
@@ -18,8 +19,8 @@ abstract public class JExpTestBase extends TestNG {
     @DataProvider(name = "load-from-yaml")
     public Iterator<Object[]> loadFromYaml() throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        List<CaseData> data = mapper.readValue(TestUtil.getTestResource(getClass()), mapper
-            .getTypeFactory().constructCollectionType(List.class, CaseData.class));
+        List<CaseData> data = mapper.readValue(TestUtil.getTestResource(getClass()),
+            mapper.getTypeFactory().constructCollectionType(List.class, CaseData.class));
         for (CaseData caseData : data) {
             caseData.ctx = TestUtil.fillObject(caseData.ctx);
         }

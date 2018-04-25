@@ -49,7 +49,7 @@ public class MultiANewArrayInsnNode extends AbstractInsnNode {
     /**
      * Number of dimensions of the array to allocate.
      */
-    public int dims;
+    public int    dims;
 
     /**
      * Constructs a new {@link MultiANewArrayInsnNode}.

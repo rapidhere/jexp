@@ -4,10 +4,10 @@
  */
 package ranttu.rapid.jexp.compile;
 
-import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 
 /**
  * a tree of identifier

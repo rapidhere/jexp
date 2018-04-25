@@ -22,4 +22,9 @@ final public class DummyAccessor implements Accessor {
     public Object get(Object o, String key) {
         return null;
     }
+
+    @Override
+    public Object invoke(Object o, String methodName, Object... args) {
+        return null;
+    }
 }

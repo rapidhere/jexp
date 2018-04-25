@@ -42,7 +42,7 @@ public abstract class FieldVisitor {
      * The ASM API version implemented by this visitor. The value of this field
      * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
-    protected final int api;
+    protected final int    api;
 
     /**
      * The field visitor to which this visitor must delegate method calls. May
@@ -114,8 +114,8 @@ public abstract class FieldVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
+                                                 boolean visible) {
         if (api < Opcodes.ASM5) {
             throw new RuntimeException();
         }

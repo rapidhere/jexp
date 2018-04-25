@@ -29,11 +29,12 @@
  */
 package ranttu.rapid.jexp.external.org.objectweb.asm.xml;
 
+import org.xml.sax.Attributes;
+
 import ranttu.rapid.jexp.external.org.objectweb.asm.AnnotationVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.FieldVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.TypePath;
-import org.xml.sax.Attributes;
 
 /**
  * SAXFieldAdapter
@@ -51,17 +52,15 @@ public final class SAXFieldAdapter extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
-        return new SAXAnnotationAdapter(sa, "annotation", visible ? 1 : -1,
-                null, desc);
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+        return new SAXAnnotationAdapter(sa, "annotation", visible ? 1 : -1, null, desc);
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
-        return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1,
-                null, desc, typeRef, typePath);
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
+                                                 boolean visible) {
+        return new SAXAnnotationAdapter(sa, "typeAnnotation", visible ? 1 : -1, null, desc, typeRef,
+            typePath);
     }
 
     @Override

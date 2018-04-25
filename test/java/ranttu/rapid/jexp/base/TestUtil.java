@@ -4,10 +4,10 @@
  */
 package ranttu.rapid.jexp.base;
 
-import org.apache.commons.beanutils.PropertyUtils;
-
 import java.io.InputStream;
 import java.util.Map;
+
+import org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * @author rapid

@@ -45,17 +45,17 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
     /**
      * Invokedynamic name.
      */
-    public String name;
+    public String   name;
 
     /**
      * Invokedynamic descriptor.
      */
-    public String desc;
+    public String   desc;
 
     /**
      * Bootstrap method
      */
-    public Handle bsm;
+    public Handle   bsm;
 
     /**
      * Bootstrap constant arguments
@@ -74,8 +74,8 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
      * @param bsmArgs
      *            the boostrap constant arguments.
      */
-    public InvokeDynamicInsnNode(final String name, final String desc,
-            final Handle bsm, final Object... bsmArgs) {
+    public InvokeDynamicInsnNode(final String name, final String desc, final Handle bsm,
+                                 final Object... bsmArgs) {
         super(Opcodes.INVOKEDYNAMIC);
         this.name = name;
         this.desc = desc;
@@ -96,7 +96,6 @@ public class InvokeDynamicInsnNode extends AbstractInsnNode {
 
     @Override
     public AbstractInsnNode clone(final Map<LabelNode, LabelNode> labels) {
-        return new InvokeDynamicInsnNode(name, desc, bsm, bsmArgs)
-                .cloneAnnotations(this);
+        return new InvokeDynamicInsnNode(name, desc, bsm, bsmArgs).cloneAnnotations(this);
     }
 }

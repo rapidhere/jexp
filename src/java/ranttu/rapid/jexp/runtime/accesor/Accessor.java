@@ -20,4 +20,9 @@ public interface Accessor {
      */
     @SuppressWarnings("unused")
     Object get(Object o, String propName);
+
+    /**
+     * bounded invoke
+     */
+    Object invoke(Object o, String methodName, Object... args);
 }

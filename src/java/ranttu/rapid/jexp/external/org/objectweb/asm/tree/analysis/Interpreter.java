@@ -84,8 +84,7 @@ public abstract class Interpreter<V extends Value> {
      * @throws AnalyzerException
      *             if an error occured during the interpretation.
      */
-    public abstract V newOperation(AbstractInsnNode insn)
-            throws AnalyzerException;
+    public abstract V newOperation(AbstractInsnNode insn) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction that moves a value on the stack or to
@@ -103,8 +102,7 @@ public abstract class Interpreter<V extends Value> {
      * @throws AnalyzerException
      *             if an error occured during the interpretation.
      */
-    public abstract V copyOperation(AbstractInsnNode insn, V value)
-            throws AnalyzerException;
+    public abstract V copyOperation(AbstractInsnNode insn, V value) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with a single argument. This method is
@@ -124,8 +122,7 @@ public abstract class Interpreter<V extends Value> {
      * @throws AnalyzerException
      *             if an error occured during the interpretation.
      */
-    public abstract V unaryOperation(AbstractInsnNode insn, V value)
-            throws AnalyzerException;
+    public abstract V unaryOperation(AbstractInsnNode insn, V value) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with two arguments. This method is
@@ -148,8 +145,8 @@ public abstract class Interpreter<V extends Value> {
      * @throws AnalyzerException
      *             if an error occured during the interpretation.
      */
-    public abstract V binaryOperation(AbstractInsnNode insn, V value1, V value2)
-            throws AnalyzerException;
+    public abstract V binaryOperation(AbstractInsnNode insn, V value1,
+                                      V value2) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with three arguments. This method is
@@ -169,8 +166,8 @@ public abstract class Interpreter<V extends Value> {
      * @throws AnalyzerException
      *             if an error occured during the interpretation.
      */
-    public abstract V ternaryOperation(AbstractInsnNode insn, V value1,
-            V value2, V value3) throws AnalyzerException;
+    public abstract V ternaryOperation(AbstractInsnNode insn, V value1, V value2,
+                                       V value3) throws AnalyzerException;
 
     /**
      * Interprets a bytecode instruction with a variable number of arguments.
@@ -188,7 +185,7 @@ public abstract class Interpreter<V extends Value> {
      *             if an error occured during the interpretation.
      */
     public abstract V naryOperation(AbstractInsnNode insn,
-            List<? extends V> values) throws AnalyzerException;
+                                    List<? extends V> values) throws AnalyzerException;
 
     /**
      * Interprets a bytecode return instruction. This method is called for the
@@ -206,7 +203,7 @@ public abstract class Interpreter<V extends Value> {
      *             if an error occured during the interpretation.
      */
     public abstract void returnOperation(AbstractInsnNode insn, V value,
-            V expected) throws AnalyzerException;
+                                         V expected) throws AnalyzerException;
 
     /**
      * Merges two values. The merge operation must return a value that

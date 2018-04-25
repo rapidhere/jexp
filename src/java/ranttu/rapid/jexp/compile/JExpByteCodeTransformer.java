@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.compile;
 
+import java.util.List;
+
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.parse.ast.AstNode;
@@ -15,8 +17,6 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
-
-import java.util.List;
 
 /**
  * FIXME
@@ -109,7 +109,7 @@ public class JExpByteCodeTransformer implements Opcodes {
         @Override
         public void visitInsn(int opcode) {
             switch (opcode) {
-            // ~~~ return instructions
+                // ~~~ return instructions
                 case RETURN:
                     // cannot return void
                     $.opNotSupport(functionInfo, opcode);
@@ -153,7 +153,8 @@ public class JExpByteCodeTransformer implements Opcodes {
         }
 
         @Override
-        public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+        public void visitInvokeDynamicInsn(String name, String desc, Handle bsm,
+                                           Object... bsmArgs) {
             $.opNotSupport(functionInfo, INVOKEDYNAMIC);
         }
 
@@ -168,7 +169,8 @@ public class JExpByteCodeTransformer implements Opcodes {
         }
 
         @Override
-        public void visitFrame(int frame, int nLocal, Object[] locals, int nStack, Object[] stacks) {
+        public void visitFrame(int frame, int nLocal, Object[] locals, int nStack,
+                               Object[] stacks) {
             cmv.visitFrame(frame, nLocal, locals, nStack, stacks);
         }
 
@@ -204,7 +206,8 @@ public class JExpByteCodeTransformer implements Opcodes {
         }
 
         @Override
-        public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+        public void visitMethodInsn(int opcode, String owner, String name, String desc,
+                                    boolean itf) {
             cmv.visitMethodInsn(opcode, owner, name, desc, itf);
         }
     }

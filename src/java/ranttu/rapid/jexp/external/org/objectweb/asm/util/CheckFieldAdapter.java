@@ -74,34 +74,32 @@ public class CheckFieldAdapter extends FieldVisitor {
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation(final String desc,
-            final boolean visible) {
+    public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
         checkEnd();
         CheckMethodAdapter.checkDesc(desc, false);
         return new CheckAnnotationAdapter(super.visitAnnotation(desc, visible));
     }
 
     @Override
-    public AnnotationVisitor visitTypeAnnotation(final int typeRef,
-            final TypePath typePath, final String desc, final boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(final int typeRef, final TypePath typePath,
+                                                 final String desc, final boolean visible) {
         checkEnd();
         int sort = typeRef >>> 24;
         if (sort != TypeReference.FIELD) {
-            throw new IllegalArgumentException("Invalid type reference sort 0x"
-                    + Integer.toHexString(sort));
+            throw new IllegalArgumentException(
+                "Invalid type reference sort 0x" + Integer.toHexString(sort));
         }
         CheckClassAdapter.checkTypeRefAndPath(typeRef, typePath);
         CheckMethodAdapter.checkDesc(desc, false);
-        return new CheckAnnotationAdapter(super.visitTypeAnnotation(typeRef,
-                typePath, desc, visible));
+        return new CheckAnnotationAdapter(
+            super.visitTypeAnnotation(typeRef, typePath, desc, visible));
     }
 
     @Override
     public void visitAttribute(final Attribute attr) {
         checkEnd();
         if (attr == null) {
-            throw new IllegalArgumentException(
-                    "Invalid attribute (must not be null)");
+            throw new IllegalArgumentException("Invalid attribute (must not be null)");
         }
         super.visitAttribute(attr);
     }
@@ -116,7 +114,7 @@ public class CheckFieldAdapter extends FieldVisitor {
     private void checkEnd() {
         if (end) {
             throw new IllegalStateException(
-                    "Cannot call a visit method after visitEnd has been called");
+                "Cannot call a visit method after visitEnd has been called");
         }
     }
 }

@@ -44,16 +44,15 @@ public class SignatureRemapper extends SignatureVisitor {
 
     private final SignatureVisitor v;
 
-    private final Remapper remapper;
+    private final Remapper         remapper;
 
-    private Stack<String> classNames = new Stack<String>();
+    private Stack<String>          classNames = new Stack<String>();
 
     public SignatureRemapper(final SignatureVisitor v, final Remapper remapper) {
         this(Opcodes.ASM5, v, remapper);
     }
 
-    protected SignatureRemapper(final int api, final SignatureVisitor v,
-            final Remapper remapper) {
+    protected SignatureRemapper(final int api, final SignatureVisitor v, final Remapper remapper) {
         super(api);
         this.v = v;
         this.remapper = remapper;
@@ -72,8 +71,8 @@ public class SignatureRemapper extends SignatureVisitor {
         classNames.push(className);
         String remappedOuter = remapper.mapType(outerClassName) + '$';
         String remappedName = remapper.mapType(className);
-        int index = remappedName.startsWith(remappedOuter) ? remappedOuter
-                .length() : remappedName.lastIndexOf('$') + 1;
+        int index = remappedName.startsWith(remappedOuter) ? remappedOuter.length()
+            : remappedName.lastIndexOf('$') + 1;
         v.visitInnerClassType(remappedName.substring(index));
     }
 

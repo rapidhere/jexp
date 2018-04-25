@@ -6,13 +6,13 @@ package ranttu.rapid.jexp.compile.parse.ast;
  * @version $Id: AstType.java, v0.1 2017-07-28 3:04 PM dongwei.dq Exp $
  */
 public enum AstType {
-    PRIMARY_EXP,
+                     PRIMARY_EXP,
 
-    BINARY_EXP,
+                     BINARY_EXP,
 
-    UNARY_EXP,
+                     UNARY_EXP,
 
-    CALL_EXP,
+                     CALL_EXP,
 
-    MEMBER_EXP,
+                     MEMBER_EXP,
 }

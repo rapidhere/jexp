@@ -44,15 +44,15 @@ public class ConstantPool extends HashMap<Constant, Constant> {
 
     private static final long serialVersionUID = 1L;
 
-    private final Constant key1 = new Constant();
+    private final Constant    key1             = new Constant();
 
-    private final Constant key2 = new Constant();
+    private final Constant    key2             = new Constant();
 
-    private final Constant key3 = new Constant();
+    private final Constant    key3             = new Constant();
 
-    private final Constant key4 = new Constant();
+    private final Constant    key4             = new Constant();
 
-    private final Constant key5 = new Constant();
+    private final Constant    key5             = new Constant();
 
     public Constant newInteger(final int value) {
         key1.set(value);
@@ -137,9 +137,10 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         return result;
     }
 
-    public Constant newHandle(final int tag, final String owner,
-            final String name, final String desc, final boolean itf) {
-        key4.set((char) ('h' + tag - 1 + (itf && tag != Opcodes.H_INVOKEINTERFACE? 4: 0)), owner, name, desc);
+    public Constant newHandle(final int tag, final String owner, final String name,
+                              final String desc, final boolean itf) {
+        key4.set((char) ('h' + tag - 1 + (itf && tag != Opcodes.H_INVOKEINTERFACE ? 4 : 0)), owner,
+            name, desc);
         Constant result = get(key4);
         if (result == null) {
             if (tag <= Opcodes.H_PUTSTATIC) {
@@ -186,8 +187,7 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         }
     }
 
-    public Constant newField(final String owner, final String name,
-            final String desc) {
+    public Constant newField(final String owner, final String name, final String desc) {
         key3.set('G', owner, name, desc);
         Constant result = get(key3);
         if (result == null) {
@@ -199,8 +199,8 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         return result;
     }
 
-    public Constant newMethod(final String owner, final String name,
-            final String desc, final boolean itf) {
+    public Constant newMethod(final String owner, final String name, final String desc,
+                              final boolean itf) {
         key3.set(itf ? 'N' : 'M', owner, name, desc);
         Constant result = get(key3);
         if (result == null) {
@@ -212,14 +212,13 @@ public class ConstantPool extends HashMap<Constant, Constant> {
         return result;
     }
 
-    public Constant newInvokeDynamic(String name, String desc, Handle bsm,
-            Object... bsmArgs) {
+    public Constant newInvokeDynamic(String name, String desc, Handle bsm, Object... bsmArgs) {
         key5.set(name, desc, bsm, bsmArgs);
         Constant result = get(key5);
         if (result == null) {
             newNameType(name, desc);
-            newHandle(bsm.getTag(), bsm.getOwner(), bsm.getName(),
-                    bsm.getDesc(), bsm.isInterface());
+            newHandle(bsm.getTag(), bsm.getOwner(), bsm.getName(), bsm.getDesc(),
+                bsm.isInterface());
             for (int i = 0; i < bsmArgs.length; i++) {
                 newConst(bsmArgs[i]);
             }

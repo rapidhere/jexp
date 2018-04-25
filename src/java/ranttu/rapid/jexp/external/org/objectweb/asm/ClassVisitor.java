@@ -45,7 +45,7 @@ public abstract class ClassVisitor {
      * The ASM API version implemented by this visitor. The value of this field
      * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
-    protected final int api;
+    protected final int    api;
 
     /**
      * The class visitor to which this visitor must delegate method calls. May
@@ -107,8 +107,8 @@ public abstract class ClassVisitor {
      *            {@link Type#getInternalName() getInternalName}). May be
      *            <tt>null</tt>.
      */
-    public void visit(int version, int access, String name, String signature,
-            String superName, String[] interfaces) {
+    public void visit(int version, int access, String name, String signature, String superName,
+                      String[] interfaces) {
         if (cv != null) {
             cv.visit(version, access, name, signature, superName, interfaces);
         }
@@ -191,8 +191,8 @@ public abstract class ClassVisitor {
      * @return a visitor to visit the annotation values, or <tt>null</tt> if
      *         this visitor is not interested in visiting this annotation.
      */
-    public AnnotationVisitor visitTypeAnnotation(int typeRef,
-            TypePath typePath, String desc, boolean visible) {
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc,
+                                                 boolean visible) {
         if (api < Opcodes.ASM5) {
             throw new RuntimeException();
         }
@@ -232,8 +232,7 @@ public abstract class ClassVisitor {
      *            the access flags of the inner class as originally declared in
      *            the enclosing class.
      */
-    public void visitInnerClass(String name, String outerName,
-            String innerName, int access) {
+    public void visitInnerClass(String name, String outerName, String innerName, int access) {
         if (cv != null) {
             cv.visitInnerClass(name, outerName, innerName, access);
         }
@@ -266,8 +265,8 @@ public abstract class ClassVisitor {
      *         <tt>null</tt> if this class visitor is not interested in visiting
      *         these annotations and attributes.
      */
-    public FieldVisitor visitField(int access, String name, String desc,
-            String signature, Object value) {
+    public FieldVisitor visitField(int access, String name, String desc, String signature,
+                                   Object value) {
         if (cv != null) {
             return cv.visitField(access, name, desc, signature, value);
         }
@@ -299,8 +298,8 @@ public abstract class ClassVisitor {
      *         if this class visitor is not interested in visiting the code of
      *         this method.
      */
-    public MethodVisitor visitMethod(int access, String name, String desc,
-            String signature, String[] exceptions) {
+    public MethodVisitor visitMethod(int access, String name, String desc, String signature,
+                                     String[] exceptions) {
         if (cv != null) {
             return cv.visitMethod(access, name, desc, signature, exceptions);
         }

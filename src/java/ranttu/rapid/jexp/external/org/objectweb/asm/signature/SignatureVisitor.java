@@ -59,12 +59,12 @@ public abstract class SignatureVisitor {
     /**
      * Wildcard for an "extends" type argument.
      */
-    public final static char EXTENDS = '+';
+    public final static char EXTENDS    = '+';
 
     /**
      * Wildcard for a "super" type argument.
      */
-    public final static char SUPER = '-';
+    public final static char SUPER      = '-';
 
     /**
      * Wildcard for a normal type argument.
@@ -75,7 +75,7 @@ public abstract class SignatureVisitor {
      * The ASM API version implemented by this visitor. The value of this field
      * must be one of {@link Opcodes#ASM4} or {@link Opcodes#ASM5}.
      */
-    protected final int api;
+    protected final int      api;
 
     /**
      * Constructs a new {@link SignatureVisitor}.

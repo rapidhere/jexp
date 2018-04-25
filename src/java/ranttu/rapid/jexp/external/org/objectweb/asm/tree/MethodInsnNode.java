@@ -46,17 +46,17 @@ public class MethodInsnNode extends AbstractInsnNode {
      * The internal name of the method's owner class (see
      * {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type#getInternalName() getInternalName}).
      */
-    public String owner;
+    public String  owner;
 
     /**
      * The method's name.
      */
-    public String name;
+    public String  name;
 
     /**
      * The method's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
      */
-    public String desc;
+    public String  desc;
 
     /**
      * If the method's owner class if an interface.
@@ -80,8 +80,8 @@ public class MethodInsnNode extends AbstractInsnNode {
      *            the method's descriptor (see {@link ranttu.rapid.jexp.external.org.objectweb.asm.Type}).
      */
     @Deprecated
-    public MethodInsnNode(final int opcode, final String owner,
-            final String name, final String desc) {
+    public MethodInsnNode(final int opcode, final String owner, final String name,
+                          final String desc) {
         this(opcode, owner, name, desc, opcode == Opcodes.INVOKEINTERFACE);
     }
 
@@ -103,8 +103,8 @@ public class MethodInsnNode extends AbstractInsnNode {
      * @param itf
      *            if the method's owner class is an interface.
      */
-    public MethodInsnNode(final int opcode, final String owner,
-            final String name, final String desc, final boolean itf) {
+    public MethodInsnNode(final int opcode, final String owner, final String name,
+                          final String desc, final boolean itf) {
         super(opcode);
         this.owner = owner;
         this.name = name;

@@ -64,45 +64,45 @@ class Constant {
      * H_INVOKESTATIC      6     q    true
      * H_INVOKESPECIAL     7     r    true
      */
-    char type;
+    char     type;
 
     /**
      * Value of this item, for an integer item.
      */
-    int intVal;
+    int      intVal;
 
     /**
      * Value of this item, for a long item.
      */
-    long longVal;
+    long     longVal;
 
     /**
      * Value of this item, for a float item.
      */
-    float floatVal;
+    float    floatVal;
 
     /**
      * Value of this item, for a double item.
      */
-    double doubleVal;
+    double   doubleVal;
 
     /**
      * First part of the value of this item, for items that do not hold a
      * primitive value.
      */
-    String strVal1;
+    String   strVal1;
 
     /**
      * Second part of the value of this item, for items that do not hold a
      * primitive value.
      */
-    String strVal2;
+    String   strVal2;
 
     /**
      * Third part of the value of this item, for items that do not hold a
      * primitive value.
      */
-    Object objVal3;
+    Object   objVal3;
 
     /**
      * InvokeDynamic's constant values.
@@ -112,7 +112,7 @@ class Constant {
     /**
      * The hash code value of this constant pool item.
      */
-    int hashCode;
+    int      hashCode;
 
     Constant() {
     }
@@ -190,30 +190,28 @@ class Constant {
      * @param strVal3
      *            third part of the value of this item.
      */
-    void set(final char type, final String strVal1, final String strVal2,
-            final String strVal3) {
+    void set(final char type, final String strVal1, final String strVal2, final String strVal3) {
         this.type = type;
         this.strVal1 = strVal1;
         this.strVal2 = strVal2;
         this.objVal3 = strVal3;
         switch (type) {
-        case 's':
-        case 'S':
-        case 'C':
-        case 't':
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
-            return;
-        case 'T':
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode());
-            return;
+            case 's':
+            case 'S':
+            case 'C':
+            case 't':
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode());
+                return;
+            case 'T':
+                hashCode = 0x7FFFFFFF & (type + strVal1.hashCode() * strVal2.hashCode());
+                return;
             // case 'G':
             // case 'M':
             // case 'N':
             // case 'h' ... 'r':
-        default:
-            hashCode = 0x7FFFFFFF & (type + strVal1.hashCode()
-                    * strVal2.hashCode() * strVal3.hashCode());
+            default:
+                hashCode = 0x7FFFFFFF
+                           & (type + strVal1.hashCode() * strVal2.hashCode() * strVal3.hashCode());
         }
     }
 
@@ -229,8 +227,7 @@ class Constant {
      * @param bsmArgs
      *            bootstrap method constant arguments.
      */
-    void set(final String name, final String desc, final Handle bsm,
-            final Object[] bsmArgs) {
+    void set(final String name, final String desc, final Handle bsm, final Object[] bsmArgs) {
         this.type = 'y';
         this.strVal1 = name;
         this.strVal2 = desc;
@@ -246,47 +243,48 @@ class Constant {
 
     void write(final ClassWriter cw) {
         switch (type) {
-        case 'I':
-            cw.newConst(intVal);
-            break;
-        case 'J':
-            cw.newConst(longVal);
-            break;
-        case 'F':
-            cw.newConst(floatVal);
-            break;
-        case 'D':
-            cw.newConst(doubleVal);
-            break;
-        case 'S':
-            cw.newConst(strVal1);
-            break;
-        case 's':
-            cw.newUTF8(strVal1);
-            break;
-        case 'C':
-            cw.newClass(strVal1);
-            break;
-        case 'T':
-            cw.newNameType(strVal1, strVal2);
-            break;
-        case 'G':
-            cw.newField(strVal1, strVal2, (String) objVal3);
-            break;
-        case 'M':
-            cw.newMethod(strVal1, strVal2, (String) objVal3, false);
-            break;
-        case 'N':
-            cw.newMethod(strVal1, strVal2, (String) objVal3, true);
-            break;
-        case 'y':
-            cw.newInvokeDynamic(strVal1, strVal2, (Handle) objVal3, objVals);
-            break;
-        case 't':
-            cw.newMethodType(strVal1);
-            break;
-        default:  // 'h' ... 'r' : handle
-            cw.newHandle(type - 'h' + 1 - ((type >= 'q')? 4: 0), strVal1, strVal2, (String) objVal3, type >= 'p');
+            case 'I':
+                cw.newConst(intVal);
+                break;
+            case 'J':
+                cw.newConst(longVal);
+                break;
+            case 'F':
+                cw.newConst(floatVal);
+                break;
+            case 'D':
+                cw.newConst(doubleVal);
+                break;
+            case 'S':
+                cw.newConst(strVal1);
+                break;
+            case 's':
+                cw.newUTF8(strVal1);
+                break;
+            case 'C':
+                cw.newClass(strVal1);
+                break;
+            case 'T':
+                cw.newNameType(strVal1, strVal2);
+                break;
+            case 'G':
+                cw.newField(strVal1, strVal2, (String) objVal3);
+                break;
+            case 'M':
+                cw.newMethod(strVal1, strVal2, (String) objVal3, false);
+                break;
+            case 'N':
+                cw.newMethod(strVal1, strVal2, (String) objVal3, true);
+                break;
+            case 'y':
+                cw.newInvokeDynamic(strVal1, strVal2, (Handle) objVal3, objVals);
+                break;
+            case 't':
+                cw.newMethodType(strVal1);
+                break;
+            default: // 'h' ... 'r' : handle
+                cw.newHandle(type - 'h' + 1 - ((type >= 'q') ? 4 : 0), strVal1, strVal2,
+                    (String) objVal3, type >= 'p');
         }
     }
 
@@ -298,32 +296,31 @@ class Constant {
         Constant c = (Constant) o;
         if (c.type == type) {
             switch (type) {
-            case 'I':
-                return c.intVal == intVal;
-            case 'J':
-                return c.longVal == longVal;
-            case 'F':
-                return Float.compare(c.floatVal, floatVal) == 0;
-            case 'D':
-                return Double.compare(c.doubleVal, doubleVal) == 0;
-            case 's':
-            case 'S':
-            case 'C':
-            case 't':
-                return c.strVal1.equals(strVal1);
-            case 'T':
-                return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2);
-            case 'y':
-                return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2)
-                        && c.objVal3.equals(objVal3)
-                        && Arrays.equals(c.objVals, objVals);
+                case 'I':
+                    return c.intVal == intVal;
+                case 'J':
+                    return c.longVal == longVal;
+                case 'F':
+                    return Float.compare(c.floatVal, floatVal) == 0;
+                case 'D':
+                    return Double.compare(c.doubleVal, doubleVal) == 0;
+                case 's':
+                case 'S':
+                case 'C':
+                case 't':
+                    return c.strVal1.equals(strVal1);
+                case 'T':
+                    return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2);
+                case 'y':
+                    return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2)
+                           && c.objVal3.equals(objVal3) && Arrays.equals(c.objVals, objVals);
                 // case 'G':
                 // case 'M':
                 // case 'N':
                 // case 'h' ... 'r':
-            default:
-                return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2)
-                        && c.objVal3.equals(objVal3);
+                default:
+                    return c.strVal1.equals(strVal1) && c.strVal2.equals(strVal2)
+                           && c.objVal3.equals(objVal3);
             }
         }
         return false;

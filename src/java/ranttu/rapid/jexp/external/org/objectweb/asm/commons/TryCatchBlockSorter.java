@@ -54,15 +54,15 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.tree.TryCatchBlockNode;
  */
 public class TryCatchBlockSorter extends MethodNode {
 
-    public TryCatchBlockSorter(final MethodVisitor mv, final int access,
-            final String name, final String desc, final String signature,
-            final String[] exceptions) {
+    public TryCatchBlockSorter(final MethodVisitor mv, final int access, final String name,
+                               final String desc, final String signature,
+                               final String[] exceptions) {
         this(Opcodes.ASM5, mv, access, name, desc, signature, exceptions);
     }
 
-    protected TryCatchBlockSorter(final int api, final MethodVisitor mv,
-            final int access, final String name, final String desc,
-            final String signature, final String[] exceptions) {
+    protected TryCatchBlockSorter(final int api, final MethodVisitor mv, final int access,
+                                  final String name, final String desc, final String signature,
+                                  final String[] exceptions) {
         super(api, access, name, desc, signature, exceptions);
         this.mv = mv;
     }
