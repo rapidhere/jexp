@@ -14,6 +14,7 @@ import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
 import ranttu.rapid.jexp.compile.PropertyTree;
 import ranttu.rapid.jexp.compile.parse.TokenType;
+import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
@@ -497,6 +498,21 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                         getMethodDescriptor(getType(String.class), getType(Object.class)), false);
             });
         }
+    }
+
+    @Override
+    protected void visit(ArrayExpression exp) {
+        mv.visitTypeInsn(NEW, getInternalName(ArrayList.class));
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, getInternalName(ArrayList.class), "<init>", "()V", false);
+
+        exp.items.forEach(item -> {
+            mv.visitInsn(DUP);
+            visit(item);
+            mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(List.class), "add",
+                    getMethodDescriptor(getType(boolean.class), getType(Object.class)), true);
+            mv.visitInsn(POP);
+        });
     }
 
     /**

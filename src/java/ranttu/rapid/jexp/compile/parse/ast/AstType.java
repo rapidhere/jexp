@@ -16,4 +16,6 @@ public enum AstType {
     CALL_EXP,
 
     MEMBER_EXP,
+
+    ARRAY_EXP,
 }

@@ -56,3 +56,20 @@
       - 7
     b: 2
   res: 5
+
+- desc: constant invoke
+  exp: '"hello world".hashCode()'
+  res: 1794106052
+
+- desc: constant invoke 2
+  exp: '["hello", "world" + "!"].get(1)'
+  res: world!
+
+- desc: constant invoke 3
+  exp: '["one" + a, "two" + b, "three" + c].get(d)'
+  ctx:
+    a: 1
+    b: 2
+    c: 3
+    d: 1
+  res: two2

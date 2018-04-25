@@ -10,6 +10,7 @@ import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.TypeUtil;
 import ranttu.rapid.jexp.compile.PropertyTree;
 import ranttu.rapid.jexp.compile.parse.TokenType;
+import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
@@ -21,6 +22,8 @@ import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
+
+import java.util.List;
 
 /**
  * do some prepare jobs
@@ -264,5 +267,13 @@ public class PreparePass extends NoReturnPass {
         // currently member expression is always not a constant
         member.isConstant = false;
         member.valueType = Type.getType(Object.class);
+    }
+
+    @Override
+    protected void visit(ArrayExpression exp) {
+        exp.isConstant = false;
+        exp.valueType = Type.getType(List.class);
+        
+        exp.items.forEach(this::visit);
     }
 }

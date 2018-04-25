@@ -5,6 +5,7 @@
 package ranttu.rapid.jexp.compile.pass;
 
 import ranttu.rapid.jexp.common.AstUtil;
+import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
@@ -33,6 +34,11 @@ public class AccessTreeMarkPass extends NoReturnPass {
             visit(exp.owner);
             visit(exp.propertyName);
         }
+    }
+
+    @Override
+    protected void visit(ArrayExpression exp) {
+        exp.items.forEach(this::visit);
     }
 
     @Override

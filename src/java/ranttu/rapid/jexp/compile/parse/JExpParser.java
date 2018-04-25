@@ -1,7 +1,9 @@
 package ranttu.rapid.jexp.compile.parse;
 
 import lombok.experimental.var;
+import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
+import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
@@ -57,6 +59,11 @@ import java.util.Stack;
  * FLOAT
  * STRING
  * IDENTIFIER
+ * ARRAY_EXP
+ * <p>
+ * ARRAY_EXP |=
+ * NIL
+ * ARRAY_EXP, EXP
  *
  * @author rapidhere@gmail.com
  * @version $Id: JExpParser.java, v0.1 2017-07-28 2:58 PM dongwei.dq Exp $
@@ -153,13 +160,14 @@ public class JExpParser {
             // static member expression
             if (t.is(TokenType.DOT)) {
                 next();
+                var token = peek();
                 var identifier = parsePrimary();
-                if (!identifier.token.is(TokenType.IDENTIFIER)) {
-                    throw new UnexpectedToken(identifier.token);
+                if (!AstUtil.isIdentifier(identifier)) {
+                    throw new UnexpectedToken(token);
                 }
 
                 // cast id to str
-                Token idToken = identifier.token;
+                Token idToken = ((PrimaryExpression) identifier).token;
                 Token strToken = new Token(TokenType.STRING, idToken.line, idToken.column,
                         idToken.value);
 
@@ -228,9 +236,41 @@ public class JExpParser {
         return pars;
     }
 
-    private PrimaryExpression parsePrimary() {
-        var t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.FLOAT);
-        return new PrimaryExpression(t);
+    private List<ExpressionNode> parseItems() {
+        List<ExpressionNode> items = new ArrayList<>();
+
+        var t = peek();
+        // meet ']', break
+        if (t.is(TokenType.RIGHT_BRACKET)) {
+            next();
+            return items;
+        }
+
+        while (true) {
+            items.add(parseExp());
+
+            t = next(TokenType.RIGHT_BRACKET, TokenType.COMMA);
+            if (t.is(TokenType.RIGHT_BRACKET)) {
+                break;
+            }
+        }
+
+        return items;
+    }
+
+    private ExpressionNode parsePrimary() {
+        var t = peek();
+
+        // i.e., an array expression
+        if (t.is(TokenType.LEFT_BRACKET)) {
+            next();
+            return new ArrayExpression(parseItems());
+        }
+        // common primary expression
+        else {
+            t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.FLOAT);
+            return new PrimaryExpression(t);
+        }
     }
 
     private Token peek() {

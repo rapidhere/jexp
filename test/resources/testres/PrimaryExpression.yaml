@@ -92,3 +92,9 @@
   ctx:
     class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
   res: false
+
+- desc: array exp
+  exp: '["hello", "world"]'
+  res:
+    - hello
+    - world
