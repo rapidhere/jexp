@@ -146,7 +146,7 @@ final public class AccessorFactory implements Opcodes {
                         method.getName(), getMethodDescriptor(method), false);
                 }
 
-                wrapReturn(mv, method);
+                wrapToWrapper(mv, method);
                 mv.visitInsn(ARETURN);
             }, () -> {
                 mv.visitInsn(ACONST_NULL);
@@ -167,6 +167,7 @@ final public class AccessorFactory implements Opcodes {
 
         buildHashTable(mv, groupByHashCode(methodMap), (method) -> {
             mv.visitVarInsn(ALOAD, 1);
+            mv.visitTypeInsn(CHECKCAST, getInternalName(klass));
             var parameterTypes = method.getParameterTypes();
 
             for (int i = 0; i < parameterTypes.length; i++) {
@@ -176,7 +177,9 @@ final public class AccessorFactory implements Opcodes {
                 mv.visitInsn(AALOAD);
 
                 // convert parameter
-                mv.visitTypeInsn(CHECKCAST, getInternalName(parameterTypes[i]));
+                if (!wrapToPrimitive(mv, parameterTypes[i])) {
+                    mv.visitTypeInsn(CHECKCAST, getInternalName(parameterTypes[i]));
+                }
             }
 
             if (method.getDeclaringClass().isInterface()) {
@@ -187,9 +190,11 @@ final public class AccessorFactory implements Opcodes {
                     getMethodDescriptor(method), false);
             }
 
-            wrapReturn(mv, method);
+            wrapToWrapper(mv, method);
             mv.visitInsn(ARETURN);
         }, () -> {
+            mv.visitVarInsn(ALOAD, 2);
+            mv.visitLdcInsn(getInternalName(klass));
             mv.visitMethodInsn(INVOKESTATIC, getInternalName(RuntimeUtil.class), "noSuchMethod",
                 getMethodDescriptor(getType(Object.class), getType(String.class),
                     getType(String.class)),
@@ -252,34 +257,81 @@ final public class AccessorFactory implements Opcodes {
         failed.run();
     }
 
-    private void wrapReturn(MethodVisitor mv, Method m) {
+    /**
+     * wrapper type -> primitive type
+     *
+     * @return wrapped or not
+     */
+    private boolean wrapToPrimitive(MethodVisitor mv, Class targetType) {
+        if (targetType == boolean.class) {
+            wrapperToPrimitive(mv, boolean.class, Boolean.class);
+            return true;
+        } else if (targetType == char.class) {
+            wrapperToPrimitive(mv, char.class, Character.class);
+            return true;
+        } else if (targetType == byte.class) {
+            wrapperToPrimitive(mv, byte.class, Byte.class);
+            return true;
+        } else if (targetType == short.class) {
+            wrapperToPrimitive(mv, short.class, Short.class);
+            return true;
+        } else if (targetType == int.class) {
+            wrapperToPrimitive(mv, int.class, Integer.class);
+            return true;
+        } else if (targetType == long.class) {
+            wrapperToPrimitive(mv, long.class, Long.class);
+            return true;
+        } else if (targetType == float.class) {
+            wrapperToPrimitive(mv, float.class, Float.class);
+            return true;
+        } else if (targetType == double.class) {
+            wrapperToPrimitive(mv, double.class, Double.class);
+            return true;
+        } else {
+            // for other non-primitive types, simply do nothing
+            return false;
+        }
+    }
+
+    /**
+     * primitive type -> wrapper type
+     */
+    private void wrapToWrapper(MethodVisitor mv, Method m) {
         Class retType = m.getReturnType();
         if (retType == void.class) {
             mv.visitInsn(ACONST_NULL);
         } else if (retType == boolean.class) {
-            wrapPrimitive(mv, boolean.class, Boolean.class);
+            primitiveToWrapper(mv, boolean.class, Boolean.class);
         } else if (retType == char.class) {
-            wrapPrimitive(mv, char.class, Character.class);
+            primitiveToWrapper(mv, char.class, Character.class);
         } else if (retType == byte.class) {
-            wrapPrimitive(mv, byte.class, Byte.class);
+            primitiveToWrapper(mv, byte.class, Byte.class);
         } else if (retType == short.class) {
-            wrapPrimitive(mv, short.class, Short.class);
+            primitiveToWrapper(mv, short.class, Short.class);
         } else if (retType == int.class) {
-            wrapPrimitive(mv, int.class, Integer.class);
+            primitiveToWrapper(mv, int.class, Integer.class);
         } else if (retType == long.class) {
-            wrapPrimitive(mv, long.class, Long.class);
+            primitiveToWrapper(mv, long.class, Long.class);
         } else if (retType == float.class) {
-            wrapPrimitive(mv, float.class, Float.class);
+            primitiveToWrapper(mv, float.class, Float.class);
         } else if (retType == double.class) {
-            wrapPrimitive(mv, double.class, Double.class);
+            primitiveToWrapper(mv, double.class, Double.class);
         }
 
         // for other non-primitive types, simply do nothing
     }
 
-    private void wrapPrimitive(MethodVisitor mv, Class primitiveType, Class warpType) {
+    private void primitiveToWrapper(MethodVisitor mv, Class primitiveType, Class warpType) {
         mv.visitMethodInsn(INVOKESTATIC, getInternalName(warpType), "valueOf",
             getMethodDescriptor(getType(warpType), getType(primitiveType)), false);
+    }
+
+    private void wrapperToPrimitive(MethodVisitor mv, Class primitiveType,
+                                    @SuppressWarnings("unused") Class warpType) {
+        mv.visitTypeInsn(CHECKCAST, getInternalName(Number.class));
+        mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Number.class),
+            primitiveType.getSimpleName() + "Value", getMethodDescriptor(getType(primitiveType)),
+            false);
     }
 
     private Map<Integer, Map<String, Method>> groupByHashCode(Map<String, Method> methods) {
