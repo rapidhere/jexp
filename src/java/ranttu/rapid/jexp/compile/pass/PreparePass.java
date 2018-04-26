@@ -7,7 +7,7 @@ package ranttu.rapid.jexp.compile.pass;
 import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
-import ranttu.rapid.jexp.common.TypeUtil;
+import ranttu.rapid.jexp.common.Types;
 import ranttu.rapid.jexp.compile.PropertyTree;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
@@ -22,8 +22,6 @@ import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
-
-import java.util.List;
 
 /**
  * do some prepare jobs
@@ -44,26 +42,28 @@ public class PreparePass extends NoReturnPass {
 
     @Override
     protected void visit(PrimaryExpression primary) {
-        primary.isConstant = true;
         var t = primary.token;
 
         switch (t.type) {
             case STRING:
+                primary.isConstant = true;
                 primary.valueType = Type.getType(String.class);
                 primary.constantValue = t.getString();
                 return;
             case INTEGER:
+                primary.isConstant = true;
                 primary.valueType = Type.INT_TYPE;
                 primary.constantValue = t.getInt();
                 return;
             case FLOAT:
+                primary.isConstant = true;
                 primary.valueType = Type.DOUBLE_TYPE;
                 primary.constantValue = t.getDouble();
                 return;
             case IDENTIFIER:
                 // i.e. a direct identifier load
-                primary.valueType = Type.getType(Object.class);
                 primary.isConstant = false;
+                primary.valueType = Type.getType(Object.class);
 
                 // build id tree
                 primary.isStatic = true;
@@ -83,8 +83,8 @@ public class PreparePass extends NoReturnPass {
         //~~~ infer ret type
         // for String
         if (exp.op.is(TokenType.PLUS)
-                && (TypeUtil.isString(exp.left.valueType) || TypeUtil.isString(exp.right.valueType))) {
-            exp.valueType = Type.getType(String.class);
+                && (Types.isString(exp.left.valueType) || Types.isString(exp.right.valueType))) {
+            exp.valueType = Types.JEXP_STRING;
         }
         // number
         else {
@@ -94,14 +94,14 @@ public class PreparePass extends NoReturnPass {
             }
 
             // TODO: @dongwei.dq, refine for wrapper types
-            if (!TypeUtil.isNumber(exp.left.valueType) || !TypeUtil.isNumber(exp.right.valueType)) {
+            if (!Types.isNumber(exp.left.valueType) || !Types.isNumber(exp.right.valueType)) {
                 // i.e., determine at runtime
-                exp.valueType = Type.getType(Object.class);
+                exp.valueType = Types.JEXP_GENERIC;
             } else {
-                if (TypeUtil.isFloat(exp.left.valueType) || TypeUtil.isFloat(exp.right.valueType)) {
-                    exp.valueType = Type.DOUBLE_TYPE;
+                if (Types.isFloat(exp.left.valueType) || Types.isFloat(exp.right.valueType)) {
+                    exp.valueType = Types.JEXP_FLOAT;
                 } else {
-                    exp.valueType = Type.INT_TYPE;
+                    exp.valueType = Types.JEXP_INT;
                 }
             }
         }
@@ -110,11 +110,11 @@ public class PreparePass extends NoReturnPass {
         if (exp.left.isConstant && exp.right.isConstant) {
             exp.isConstant = true;
 
-            if (TypeUtil.isString(exp.valueType)) {
-                exp.constantValue = exp.left.getStringValue() + exp.right.getStringValue();
-            } else if (TypeUtil.isFloat(exp.valueType)) {
-                double leftValue = exp.left.getDoubleValue();
-                double rightValue = exp.right.getDoubleValue();
+            if (Types.isString(exp.valueType)) {
+                exp.constantValue = exp.left.stringConstant() + exp.right.stringConstant();
+            } else if (Types.isFloat(exp.valueType)) {
+                double leftValue = exp.left.floatConstant();
+                double rightValue = exp.right.floatConstant();
 
                 switch (exp.op.type) {
                     case PLUS:
@@ -134,8 +134,8 @@ public class PreparePass extends NoReturnPass {
                         break;
                 }
             } else {
-                int leftValue = exp.left.getIntValue();
-                int rightValue = exp.right.getIntValue();
+                int leftValue = exp.left.intConstant();
+                int rightValue = exp.right.intConstant();
 
                 switch (exp.op.type) {
                     case PLUS:
@@ -160,6 +160,7 @@ public class PreparePass extends NoReturnPass {
 
     @Override
     protected void visit(CallExpression func) {
+        //~~~ no lib direct call
         if (AstUtil.isIdentifier(func.caller)) {
             var functionName = AstUtil.asId(func.caller);
             var infoOptional = JExpFunctionFactory.getInfo(functionName);
@@ -170,7 +171,10 @@ public class PreparePass extends NoReturnPass {
                 throw new UnknownFunction(functionName);
             }
 
-        } else if (!asLibInvoke(func)) {
+        }
+        //~~~ lib direct call
+        else if (!asLibInvoke(func)) {
+            //~~~ bounded call
             prepareBoundedInvoke(func);
         }
     }
@@ -249,7 +253,7 @@ public class PreparePass extends NoReturnPass {
 
         // member expression fold
         if (member.propertyName.isConstant && member.owner instanceof PropertyAccessNode) {
-            PropertyAccessNode owner = (PropertyAccessNode) member.owner;
+            var owner = (PropertyAccessNode) member.owner;
 
             if (owner.isStatic) {
                 member.isStatic = true;
@@ -257,7 +261,7 @@ public class PreparePass extends NoReturnPass {
         }
 
         if (member.owner instanceof PropertyAccessNode) {
-            PropertyAccessNode owner = (PropertyAccessNode) member.owner;
+            var owner = (PropertyAccessNode) member.owner;
             context.propertyTree.add(owner.propertyNode, member,
                     AstUtil.asConstantString(member.propertyName));
         } else {
@@ -266,14 +270,14 @@ public class PreparePass extends NoReturnPass {
 
         // currently member expression is always not a constant
         member.isConstant = false;
-        member.valueType = Type.getType(Object.class);
+        member.valueType = Types.JEXP_GENERIC;
     }
 
     @Override
     protected void visit(ArrayExpression exp) {
         exp.isConstant = false;
-        exp.valueType = Type.getType(List.class);
-        
+        exp.valueType = Types.JEXP_ARRAY;
+
         exp.items.forEach(this::visit);
     }
 }

@@ -1,5 +1,7 @@
 package ranttu.rapid.jexp.compile.parse.ast;
 
+import ranttu.rapid.jexp.common.$;
+
 /**
  * a ast node
  *
@@ -15,6 +17,8 @@ abstract public class ExpressionNode {
 
     /**
      * the result value type of this expression
+     *
+     * @see ranttu.rapid.jexp.common.Types
      */
     public ranttu.rapid.jexp.external.org.objectweb.asm.Type valueType;
 
@@ -38,15 +42,18 @@ abstract public class ExpressionNode {
     }
 
     //~~~ constant value getter
-    public int getIntValue() {
+    public int intConstant() {
+        $.should(isConstant);
         return ((Number) constantValue).intValue();
     }
 
-    public double getDoubleValue() {
+    public double floatConstant() {
+        $.should(isConstant);
         return ((Number) constantValue).doubleValue();
     }
 
-    public String getStringValue() {
+    public String stringConstant() {
+        $.should(isConstant);
         return String.valueOf(constantValue);
     }
 }

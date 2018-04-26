@@ -10,6 +10,9 @@ import ranttu.rapid.jexp.compile.parse.Token;
  */
 @Type(AstType.PRIMARY_EXP)
 public class PrimaryExpression extends PropertyAccessNode {
+    /**
+     * the token hold by this primary expression
+     */
     final public Token token;
 
     public PrimaryExpression(Token token) {

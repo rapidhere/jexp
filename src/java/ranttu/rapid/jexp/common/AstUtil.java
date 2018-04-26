@@ -25,7 +25,6 @@ public class AstUtil {
 
     public String asId(ExpressionNode astNode) {
         $.should(isIdentifier(astNode));
-
         return ((PrimaryExpression) astNode).token.getString();
     }
 
@@ -36,15 +35,13 @@ public class AstUtil {
 
     public String asExactString(ExpressionNode astNode) {
         $.should(isExactString(astNode));
-
         return ((PrimaryExpression) astNode).token.getString();
     }
 
+    /**
+     * NOTE: can use after the constant property is resolved
+     */
     public String asConstantString(ExpressionNode astNode) {
-        if (astNode.isConstant) {
-            return String.valueOf(astNode.constantValue);
-        } else {
-            return null;
-        }
+        return astNode.isConstant ? String.valueOf(astNode.constantValue) : null;
     }
 }

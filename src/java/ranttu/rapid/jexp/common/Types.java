@@ -8,6 +8,8 @@ import lombok.experimental.UtilityClass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 
+import java.util.List;
+
 /**
  * Type utils
  *
@@ -15,13 +17,25 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
  * @version $Id: Type.java, v0.1 2017-08-24 11:48 AM dongwei.dq Exp $
  */
 @UtilityClass
-public class TypeUtil {
+public class Types {
+    //~~~ common type constants
+    public static Type JEXP_FLOAT = Type.DOUBLE_TYPE;
+
+    public static Type JEXP_INT = Type.INT_TYPE;
+
+    public static Type JEXP_STRING = Type.getType(String.class);
+
+    public static Type JEXP_ARRAY = Type.getType(List.class);
+
+    public static Type JEXP_GENERIC = Type.getType(Object.class);
+
+    //~~~ helper functions
     public boolean isString(Type t) {
-        return !isPrimitive(t) && "java/lang/String".equals(t.getInternalName());
+        return JEXP_STRING.equals(t);
     }
 
     public boolean isFloat(Type t) {
-        return t == Type.DOUBLE_TYPE;
+        return JEXP_FLOAT.equals(t);
     }
 
     public boolean isNumber(Type t) {
@@ -29,7 +43,7 @@ public class TypeUtil {
     }
 
     public boolean isInt(Type t) {
-        return t == Type.INT_TYPE;
+        return JEXP_INT.equals(t);
     }
 
     public Type getPrimitive(Class c) {

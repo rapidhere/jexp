@@ -6,7 +6,7 @@ package ranttu.rapid.jexp.compile.pass;
 
 import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
-import ranttu.rapid.jexp.common.TypeUtil;
+import ranttu.rapid.jexp.common.Types;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
@@ -153,11 +153,10 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     private void prepareAccessorSlotInvoker(String slot) {
         String invokerName = slot + "Invoke";
-        var mv = cw
-                .visitMethod(
-                        ACC_PRIVATE + ACC_SYNTHETIC, invokerName, getMethodDescriptor(getType(Object.class),
-                                getType(Object.class), getType(String.class), getType(Object[].class)),
-                        null, null);
+        var mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, invokerName,
+                getMethodDescriptor(getType(Object.class),
+                        getType(Object.class), getType(String.class), getType(Object[].class)),
+                null, null);
 
         //~~~ fit accessor
         mv.visitVarInsn(ALOAD, 0);
@@ -355,7 +354,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 // field init
                 conMv.visitVarInsn(ALOAD, 0);
                 conMv.visitLdcInsn(val);
-                mathOpValConvert(conMv, TypeUtil.getPrimitive(val.getClass()));
+                mathOpValConvert(conMv, Types.getPrimitive(val.getClass()));
                 conMv.visitFieldInsn(PUTFIELD, context.classInternalName, newSlot,
                         getDescriptor(val.getClass()));
 
@@ -389,14 +388,14 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @SuppressWarnings("Duplicates")
     protected void visit(BinaryExpression exp) {
         // for float type
-        if (TypeUtil.isFloat(exp.valueType)) {
+        if (Types.isFloat(exp.valueType)) {
             visit(exp.left);
-            if (TypeUtil.isInt(exp.left.valueType)) {
+            if (Types.isInt(exp.left.valueType)) {
                 mv.visitInsn(I2D);
             }
 
             visit(exp.right);
-            if (TypeUtil.isInt(exp.right.valueType)) {
+            if (Types.isInt(exp.right.valueType)) {
                 mv.visitInsn(I2D);
             }
 
@@ -419,7 +418,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             }
         }
         // for int type
-        else if (TypeUtil.isInt(exp.valueType)) {
+        else if (Types.isInt(exp.valueType)) {
             visit(exp.left);
             visit(exp.right);
 
@@ -526,16 +525,16 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void mathOpValConvert(MethodVisitor mv, Type valueType) {
-        if (TypeUtil.isInt(valueType)) {
+        if (Types.isInt(valueType)) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
                     "(I)Ljava/lang/Integer;", false);
-        } else if (TypeUtil.isFloat(valueType)) {
+        } else if (Types.isFloat(valueType)) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",
                     false);
         } else if (valueType == Type.BOOLEAN_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
                     "(Z)Ljava/lang/Boolean;", false);
-        } else if (TypeUtil.isType(valueType, Object.class)) {
+        } else if (Types.isType(valueType, Object.class)) {
             mv.visitInsn(DUP);
             Label l = new Label();
             mv.visitTypeInsn(INSTANCEOF, getInternalName(StringBuilder.class));
@@ -544,7 +543,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                     getMethodDescriptor(getType(String.class)), false);
             mv.visitLabel(l);
             mv.visitFrame(F_SAME1, 0, null, 1,
-                    new Object[]{TypeUtil.getFrameDesc(Object.class)});
+                    new Object[]{Types.getFrameDesc(Object.class)});
         }
     }
 
@@ -574,7 +573,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             // call
             mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
-                    info.method.getName(), Type.getMethodDescriptor(info.method), false);
+                    info.method.getName(), getMethodDescriptor(info.method), false);
         }
     }
 }

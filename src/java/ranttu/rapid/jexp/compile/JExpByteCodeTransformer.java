@@ -5,7 +5,7 @@
 package ranttu.rapid.jexp.compile;
 
 import ranttu.rapid.jexp.common.$;
-import ranttu.rapid.jexp.common.TypeUtil;
+import ranttu.rapid.jexp.common.Types;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
@@ -62,7 +62,7 @@ public class JExpByteCodeTransformer implements Opcodes {
         if (functionInfo.returnInsnCount > 1) {
             cmv.visitLabel(endLabel);
             cmv.visitFrame(F_SAME1, 0, null, 1,
-                    new Object[]{TypeUtil.getFrameDesc(functionInfo.method.getReturnType())});
+                    new Object[]{Types.getFrameDesc(functionInfo.method.getReturnType())});
         }
     }
 
