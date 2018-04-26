@@ -98,3 +98,11 @@
   res:
     - hello
     - world
+
+- desc: misc
+  exp: 'a[["key0", "key1"].get(1)]'
+  ctx:
+    a:
+      key0: hello
+      key1: world
+  res: world
