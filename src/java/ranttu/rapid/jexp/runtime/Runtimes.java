@@ -30,7 +30,7 @@ public class Runtimes {
      */
     public boolean booleanValue(Object o) {
         if (o instanceof Boolean) {
-            return (boolean) o;
+            return (Boolean) o;
         } else if (o instanceof Number) {
             return ((Number) o).intValue() != 0;
         } else if (o instanceof String) {

@@ -99,6 +99,30 @@
     - hello
     - world
 
+- desc: and 1
+  exp: '0 and "hello world"'
+  res: 0
+
+- desc: and 2
+  exp: '1 && "hello world"'
+  res: "hello world"
+
+- desc: and 3
+  exp: 'someVal && b'
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: -9798
+
+- desc: or 1
+  exp: '0 or "hello world"'
+  res: "hello world"
+
+- desc: or 2
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  exp: 'a || b'
+  res: 12312312
+
 - desc: misc
   exp: 'a[["key0", "key1"].get(1)]'
   ctx:

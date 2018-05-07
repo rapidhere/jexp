@@ -28,6 +28,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
+import ranttu.rapid.jexp.runtime.Runtimes;
 import ranttu.rapid.jexp.runtime.accesor.Accessor;
 import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
 import ranttu.rapid.jexp.runtime.accesor.DummyAccessor;
@@ -387,6 +388,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     @SuppressWarnings("Duplicates")
     protected void visit(BinaryExpression exp) {
+        if (exp.op.is(TokenType.OR) || exp.op.is(TokenType.AND)) {
+            onCondOp(exp);
+            return;
+        }
+
         // for float type
         if (Types.isFloat(exp.valueType)) {
             visit(exp.left);
@@ -466,6 +472,34 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             }
         }
     }
+
+    private void onCondOp(BinaryExpression exp) {
+        visit(exp.left);
+        mv.visitInsn(DUP);
+        // call Runtimes.booleanValue
+        mv.visitMethodInsn(INVOKESTATIC, getInternalName(Runtimes.class), "booleanValue",
+                getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
+
+        switch (exp.op.type) {
+            case OR:
+                var trueLabel = new Label();
+                mv.visitJumpInsn(IFNE, trueLabel);
+                mv.visitInsn(POP);
+                visit(exp.right);
+                mv.visitLabel(trueLabel);
+                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{Types.getFrameDesc(Object.class)});
+                break;
+            case AND:
+                var falseLabel = new Label();
+                mv.visitJumpInsn(IFEQ, falseLabel);
+                mv.visitInsn(POP);
+                visit(exp.right);
+                mv.visitLabel(falseLabel);
+                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{Types.getFrameDesc(Object.class)});
+                break;
+        }
+    }
+
 
     @Override
     protected void visit(CallExpression func) {

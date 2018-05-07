@@ -50,6 +50,13 @@ public enum TokenType {
     MODULAR(12, true),
 
     /**
+     * COND
+     */
+    OR(10, true),
+
+    AND(10, true),
+
+    /**
      * fake
      */
     FAKE(Integer.MIN_VALUE, false);

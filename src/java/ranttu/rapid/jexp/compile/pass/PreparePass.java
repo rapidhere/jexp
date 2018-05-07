@@ -20,6 +20,7 @@ import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
+import ranttu.rapid.jexp.runtime.Runtimes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
@@ -86,6 +87,14 @@ public class PreparePass extends NoReturnPass {
                 && (Types.isString(exp.left.valueType) || Types.isString(exp.right.valueType))) {
             exp.valueType = Types.JEXP_STRING;
         }
+        // for cond
+        else if (exp.op.is(TokenType.OR) || exp.op.is(TokenType.AND)) {
+            if (exp.left.valueType.equals(exp.right.valueType)) {
+                exp.valueType = exp.left.valueType;
+            } else {
+                exp.valueType = Types.JEXP_GENERIC;
+            }
+        }
         // number
         else {
             if ($.notIn(exp.op.type, TokenType.PLUS, TokenType.SUBTRACT, TokenType.MULTIPLY,
@@ -110,49 +119,73 @@ public class PreparePass extends NoReturnPass {
         if (exp.left.isConstant && exp.right.isConstant) {
             exp.isConstant = true;
 
-            if (Types.isString(exp.valueType)) {
-                exp.constantValue = exp.left.stringConstant() + exp.right.stringConstant();
-            } else if (Types.isFloat(exp.valueType)) {
-                double leftValue = exp.left.floatConstant();
-                double rightValue = exp.right.floatConstant();
+            // for cond
+            if (exp.op.is(TokenType.OR) || exp.op.is(TokenType.AND)) {
+                var leftValue = exp.left.constantValue;
+                var rightValue = exp.right.constantValue;
 
                 switch (exp.op.type) {
-                    case PLUS:
-                        exp.constantValue = leftValue + rightValue;
+                    case OR:
+                        exp.constantValue = Runtimes.booleanValue(leftValue) ? leftValue : rightValue;
                         break;
-                    case SUBTRACT:
-                        exp.constantValue = leftValue - rightValue;
-                        break;
-                    case MULTIPLY:
-                        exp.constantValue = leftValue * rightValue;
-                        break;
-                    case DIVIDE:
-                        exp.constantValue = leftValue / rightValue;
-                        break;
-                    case MODULAR:
-                        exp.constantValue = leftValue % rightValue;
+                    case AND:
+                        exp.constantValue = Runtimes.booleanValue(leftValue) ? rightValue : leftValue;
                         break;
                 }
-            } else {
-                int leftValue = exp.left.intConstant();
-                int rightValue = exp.right.intConstant();
 
-                switch (exp.op.type) {
-                    case PLUS:
-                        exp.constantValue = leftValue + rightValue;
-                        break;
-                    case SUBTRACT:
-                        exp.constantValue = leftValue - rightValue;
-                        break;
-                    case MULTIPLY:
-                        exp.constantValue = leftValue * rightValue;
-                        break;
-                    case DIVIDE:
-                        exp.constantValue = leftValue / rightValue;
-                        break;
-                    case MODULAR:
-                        exp.constantValue = leftValue % rightValue;
-                        break;
+                // re infer the type
+                if (exp.constantValue == null) {
+                    exp.valueType = Types.JEXP_GENERIC;
+                } else {
+                    exp.valueType = Type.getType(exp.constantValue.getClass());
+                }
+            }
+            // for math
+            else {
+                if (Types.isString(exp.valueType)) {
+                    exp.constantValue = exp.left.stringConstant() + exp.right.stringConstant();
+                } else if (Types.isFloat(exp.valueType)) {
+                    var leftValue = exp.left.floatConstant();
+                    var rightValue = exp.right.floatConstant();
+
+                    switch (exp.op.type) {
+                        case PLUS:
+                            exp.constantValue = leftValue + rightValue;
+                            break;
+                        case SUBTRACT:
+                            exp.constantValue = leftValue - rightValue;
+                            break;
+                        case MULTIPLY:
+                            exp.constantValue = leftValue * rightValue;
+                            break;
+                        case DIVIDE:
+                            exp.constantValue = leftValue / rightValue;
+                            break;
+                        case MODULAR:
+                            exp.constantValue = leftValue % rightValue;
+                            break;
+                    }
+                } else {
+                    int leftValue = exp.left.intConstant();
+                    int rightValue = exp.right.intConstant();
+
+                    switch (exp.op.type) {
+                        case PLUS:
+                            exp.constantValue = leftValue + rightValue;
+                            break;
+                        case SUBTRACT:
+                            exp.constantValue = leftValue - rightValue;
+                            break;
+                        case MULTIPLY:
+                            exp.constantValue = leftValue * rightValue;
+                            break;
+                        case DIVIDE:
+                            exp.constantValue = leftValue / rightValue;
+                            break;
+                        case MODULAR:
+                            exp.constantValue = leftValue % rightValue;
+                            break;
+                    }
                 }
             }
         }

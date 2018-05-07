@@ -40,6 +40,23 @@ OctIntegerLiteral = 0[0-9]+
 %%
 
 <YYINITIAL> {
+  /* operators */
+  "+"                            { return token(TokenType.PLUS, yytext()); }
+  "-"                            { return token(TokenType.SUBTRACT, yytext()); }
+  "*"                            { return token(TokenType.MULTIPLY, yytext()); }
+  "/"                            { return token(TokenType.DIVIDE, yytext()); }
+  "%"                            { return token(TokenType.MODULAR, yytext()); }
+  "("                            { return token(TokenType.LEFT_PARENTHESIS, yytext()); }
+  "||"                           { return token(TokenType.OR, yytext()); }
+  "or"                           { return token(TokenType.OR, yytext()); }
+  "&&"                           { return token(TokenType.AND, yytext()); }
+  "and"                          { return token(TokenType.AND, yytext()); }
+  ")"                            { return token(TokenType.RIGHT_PARENTHESIS, yytext()); }
+  ","                            { return token(TokenType.COMMA, yytext()); }
+  "."                            { return token(TokenType.DOT, yytext()); }
+  "["                            { return token(TokenType.LEFT_BRACKET, yytext()); }
+  "]"                            { return token(TokenType.RIGHT_BRACKET, yytext()); }
+
   /* identifiers */
   [a-zA-Z\_][a-zA-Z0-9\_]*       { return token(TokenType.IDENTIFIER, yytext()); }
 
@@ -50,19 +67,6 @@ OctIntegerLiteral = 0[0-9]+
   {OctIntegerLiteral}            { return token(TokenType.INTEGER, Integer.parseInt(yytext(), 8)); }
 
   \"                             { string.setLength(0); yybegin(STRING); }
-
-  /* operators */
-  "+"                            { return token(TokenType.PLUS, yytext()); }
-  "-"                            { return token(TokenType.SUBTRACT, yytext()); }
-  "*"                            { return token(TokenType.MULTIPLY, yytext()); }
-  "/"                            { return token(TokenType.DIVIDE, yytext()); }
-  "%"                            { return token(TokenType.MODULAR, yytext()); }
-  "("                            { return token(TokenType.LEFT_PARENTHESIS, yytext()); }
-  ")"                            { return token(TokenType.RIGHT_PARENTHESIS, yytext()); }
-  ","                            { return token(TokenType.COMMA, yytext()); }
-  "."                            { return token(TokenType.DOT, yytext()); }
-  "["                            { return token(TokenType.LEFT_BRACKET, yytext()); }
-  "]"                            { return token(TokenType.RIGHT_BRACKET, yytext()); }
 
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
