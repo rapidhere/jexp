@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.runtime.accesor;
 
+import ranttu.rapid.jexp.runtime.Runtimes;
+
 /**
  * the accessor that always failed
  *
@@ -11,6 +13,7 @@ package ranttu.rapid.jexp.runtime.accesor;
  * @version $Id: DummyAccessor.java, v 0.1 2017年10月20日 7:26 PM rapid Exp $
  */
 final public class DummyAccessor implements Accessor {
+    @SuppressWarnings("unused")
     public static final DummyAccessor ACCESSOR = new DummyAccessor();
 
     @Override
@@ -25,6 +28,7 @@ final public class DummyAccessor implements Accessor {
 
     @Override
     public Object invoke(Object o, String methodName, Object... args) {
-        return null;
+        return Runtimes.noSuchMethod(methodName,
+                o != null ? o.getClass().getName() : "null");
     }
 }

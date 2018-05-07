@@ -2,11 +2,13 @@
   jexpExpression: (((1000.0+100*99-(600-3*15)/(((68.0-9)-3)*2-100)+10023%7*71)))
   aviatorExpression: (((1000.0+100*99-(600-3*15)/(((68.0-9)-3)*2-100)+10023%7*71)))
   mvelExpression: (((1000.0+100*99-(600-3*15)/(((68.0-9)-3)*2-100)+10023%7*71)))
+  expressQlExpression: (((1000.0+100*99-(600-3*15)/(((68.0-9)-3)*2-100)+10023%7*71)))
 
 - description: simple mapped var
   jexpExpression: a + b * c - d
   aviatorExpression: a + b * c - d
   mvelExpression: a + b * c - d
+  expressQlExpression: a + b * c - d
   env:
     a: 12
     b: 123
@@ -17,6 +19,7 @@
   jexpExpression: data.a + data.b * data.c
   aviatorExpression: data.a + data.b * data.c
   mvelExpression: data.a + data.b * data.c
+  expressQlExpression: 1
   env:
     data:
       class: 'ranttu.rapid.jexp.data.SimpleContext'
@@ -28,6 +31,7 @@
   jexpExpression: data.o.o.o.o.o.o.a + data.o.o.o.o.o.o.b * data.o.o.o.o.o.o.c
   aviatorExpression: data.o.o.o.o.o.o.a + data.o.o.o.o.o.o.b * data.o.o.o.o.o.o.c
   mvelExpression: data.o.o.o.o.o.o.a + data.o.o.o.o.o.o.b * data.o.o.o.o.o.o.c
+  expressQlExpression: 1
   env:
     data:
       class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
@@ -36,6 +40,7 @@
   jexpExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   aviatorExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   mvelExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
+  expressQlExpression: a + a + a + a + a + a + a * b * b * b * b * b * b * b * b * b
   env:
     a: 10
     b: 20
@@ -44,6 +49,7 @@
   jexpExpression: a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + "。"
   aviatorExpression: a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + "。"
   mvelExpression: a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + "。"
+  expressQlExpression: a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + ", " + a + " " + b + "。"
   env:
     a: "hello"
     b: "world"
@@ -52,6 +58,7 @@
   jexpExpression: a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b
   aviatorExpression: a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b
   mvelExpression: a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b
+  expressQlExpression: a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b + a + b
   env:
     a: "hello"
     b: "world"
@@ -60,6 +67,7 @@
   jexpExpression:  c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)
   aviatorExpression: c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)
   mvelExpression: c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)
+  expressQlExpression: c + c + a + b + a + b + (c + c + a + b + a + b) + (c + c + a + b + a + b)
   env:
     a: "hello"
     b: "world"
@@ -69,5 +77,6 @@
   jexpExpression: a.length()
   aviatorExpression: string.length(a)
   mvelExpression: a.length()
+  expressQlExpression: a.length()
   env:
     a: "some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string some very very long string "

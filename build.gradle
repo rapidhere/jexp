@@ -42,6 +42,7 @@ dependencies {
     /** for benchmark */
     testCompile 'com.googlecode.aviator:aviator:3.1.0'
     testCompile 'org.mvel:mvel2:2.3.2.Final'
+    testCompile 'com.alibaba:QLExpress:3.2.0'
 }
 
 test {

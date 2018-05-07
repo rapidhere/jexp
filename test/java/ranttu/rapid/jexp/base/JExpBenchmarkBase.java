@@ -4,6 +4,20 @@
  */
 package ranttu.rapid.jexp.base;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.googlecode.aviator.AviatorEvaluator;
+import com.googlecode.aviator.Expression;
+import com.googlecode.aviator.Options;
+import com.ql.util.express.DefaultContext;
+import com.ql.util.express.ExpressRunner;
+import com.ql.util.express.InstructionSet;
+import org.mvel2.MVEL;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+import ranttu.rapid.jexp.JExp;
+import ranttu.rapid.jexp.compile.JExpExpression;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,19 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.mvel2.MVEL;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.Expression;
-import com.googlecode.aviator.Options;
-
-import ranttu.rapid.jexp.JExp;
-import ranttu.rapid.jexp.compile.JExpExpression;
 
 /**
  * @author rapid
@@ -61,6 +62,7 @@ abstract public class JExpBenchmarkBase {
                 add(new JExpRunner());
                 add(new AviatorRunner());
                 add(new MvelRunner());
+                add(new QLExpressRunner());
             }
         };
 
@@ -94,6 +96,8 @@ abstract public class JExpBenchmarkBase {
         public String aviatorExpression;
 
         public String mvelExpression;
+
+        public String expressQlExpression;
 
         public Object env;
 
@@ -191,6 +195,38 @@ abstract public class JExpBenchmarkBase {
         @Override
         protected Object innerRun(Object env) {
             return MVEL.executeExpression(compiledStub, env);
+        }
+    }
+
+    protected static class QLExpressRunner extends BenchmarkRunner<InstructionSet> {
+        private ExpressRunner runner = new ExpressRunner(false, false);
+
+        @Override
+        protected String getExpression(BenchmarkCaseData caseData) {
+            return caseData.expressQlExpression;
+        }
+
+        @Override
+        protected InstructionSet innerCompile(String expression) {
+            try {
+                return runner.getInstructionSetFromLocalCache(expression);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected Object innerRun(Object env) {
+            DefaultContext context = new DefaultContext();
+            if (env != null) {
+                context.putAll((Map) env);
+            }
+            try {
+                return runner.execute(compiledStub, context, null, false, false, null);
+            } catch (Throwable ignore) {
+                return null;
+            }
         }
     }
 

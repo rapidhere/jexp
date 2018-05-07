@@ -12,7 +12,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
-import ranttu.rapid.jexp.runtime.RuntimeUtil;
+import ranttu.rapid.jexp.runtime.Runtimes;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -195,7 +195,7 @@ final public class AccessorFactory implements Opcodes {
         }, () -> {
             mv.visitVarInsn(ALOAD, 2);
             mv.visitLdcInsn(getInternalName(klass));
-            mv.visitMethodInsn(INVOKESTATIC, getInternalName(RuntimeUtil.class), "noSuchMethod",
+            mv.visitMethodInsn(INVOKESTATIC, getInternalName(Runtimes.class), "noSuchMethod",
                     getMethodDescriptor(getType(Object.class), getType(String.class),
                             getType(String.class)),
                     false);
