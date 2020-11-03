@@ -93,11 +93,39 @@
     class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
   res: false
 
-- desc: array exp
+- desc: list exp
   exp: '["hello", "world"]'
   res:
     - hello
     - world
+
+- desc: list exp get
+  exp: '["hello", "world"][0]'
+  res: hello
+
+- desc: list exp invoke
+  exp: '["hello", "world"].size()'
+  res: 2
+
+- desc: list exp embedded
+  exp: '["hello", "world", [1, 2, 3]][2][0]'
+  res: 1
+
+- desc: int arr
+  exp: 'int_arr()[1]'
+  res: 2
+
+- desc: double arr
+  exp: 'double_arr()[1]'
+  res: 2.2
+
+- desc: boolean arr
+  exp: 'boolean_arr()[1]'
+  res: false
+
+- desc: complex arr
+  exp: 'complex_arr()[3][4]'
+  res: s5
 
 - desc: and 1
   exp: '0 and "hello world"'

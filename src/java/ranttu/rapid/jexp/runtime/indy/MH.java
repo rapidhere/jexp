@@ -14,6 +14,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -42,6 +43,11 @@ class MH {
      * @see java.util.Map#get(Object)
      */
     public final MethodHandle MAP_GET;
+
+    /**
+     * @see java.util.List#get(int)
+     */
+    public final MethodHandle LIST_GET;
 
     /**
      * @see MH#mapGetOrFieldNotFound(Map, Object)
@@ -152,18 +158,18 @@ class MH {
         return o.getClass() == klass;
     }
 
-    public Object mapGetOrFieldNotFound(Map<?, ?> map, Object key) throws NoSuchFieldException {
+    public Object mapGetOrFieldNotFound(Map<?, ?> map, Object key) {
         var val = map.get(key);
         if (val == null) {
-            throw new NoSuchFieldException(String.valueOf(key));
+            throw new NoSuchFieldError(String.valueOf(key));
         }
         return val;
     }
 
-    public Object mapGetOrMethodNotFound(Map<?, ?> map, Object key) throws NoSuchMethodException {
+    public Object mapGetOrMethodNotFound(Map<?, ?> map, Object key) {
         var val = map.get(key);
         if (val == null) {
-            throw new NoSuchMethodException(String.valueOf(key));
+            throw new NoSuchMethodError(String.valueOf(key));
         }
         return val;
     }
@@ -175,6 +181,8 @@ class MH {
                 methodType(boolean.class, Object.class));
             MAP_GET = LOOKUP.findVirtual(Map.class, "get",
                 methodType(Object.class, Object.class));
+            LIST_GET = LOOKUP.findVirtual(List.class, "get",
+                methodType(Object.class, int.class));
             IS_OF_CLASS_OR_NULL = LOOKUP.findStatic(MH.class, "isOfClassOrNull",
                 methodType(boolean.class, Class.class, Object.class));
             MAP_GET_OR_FIELD_NOT_FOUND = LOOKUP.findStatic(MH.class, "mapGetOrFieldNotFound",

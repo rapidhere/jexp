@@ -435,12 +435,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             visit(exp.owner);
             invokeAccessorGetter(
                 exp.propertyNode.slotNo,
-                () -> {
-                    visit(exp.propertyName);
-                    // to string
-                    mv.visitMethodInsn(INVOKESTATIC, getInternalName(String.class), "valueOf",
-                        getMethodDescriptor(getType(String.class), getType(Object.class)), false);
-                });
+                () -> visit(exp.propertyName));
         }
     }
 

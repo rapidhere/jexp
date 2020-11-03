@@ -10,6 +10,7 @@ import lombok.experimental.var;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.invoke.MethodType.methodType;
@@ -50,12 +51,53 @@ import static java.lang.invoke.MethodType.methodType;
             throw new NullPointerException();
         }
 
-        // for map instances, use map getter to get properties
+        // for map instances, use map get method
+        // for list instances, use list get method
+        // for array instances, use array element get
         // for other objects, access getter method
-        MethodHandle mh = o instanceof Map ? fitMap() : fitObject(o.getClass());
+        MethodHandle mh;
+
+        if (o instanceof Map) {
+            mh = fitMap();
+        } else if (o instanceof List) {
+            mh = fitList();
+        } else if (o.getClass().isArray()) {
+            mh = fitArray(o.getClass());
+        } else {
+            mh = fitObject(o.getClass());
+        }
 
         relink(mh);
         return getTarget().invoke(o, key);
+    }
+
+    private MethodHandle fitArray(Class<?> arrClass) {
+        // escape gate: drop first exception
+        var eg = MethodHandles.dropArguments(thisEscapeGate, 0, Throwable.class);
+
+        // resolve array class
+        Class<?> targetArrClass;
+        if (arrClass.getComponentType().isPrimitive()) {
+            targetArrClass = arrClass;
+        } else {
+            targetArrClass = Object[].class;
+        }
+
+        // anything that is not a array, will trigger the escape gate
+        return MethodHandles.catchException(
+            MethodHandles.arrayElementGetter(targetArrClass)
+                .asType(thisEscapeGate.type()),
+            ClassCastException.class, eg);
+    }
+
+    private MethodHandle fitList() {
+        // escape gate: drop first exception
+        var eg = MethodHandles.dropArguments(thisEscapeGate, 0, Throwable.class);
+
+        // anything that is not a list, will trigger the escape gate
+        return MethodHandles.catchException(
+            MH.LIST_GET.asType(thisEscapeGate.type()),
+            ClassCastException.class, eg);
     }
 
     private MethodHandle fitMap() {

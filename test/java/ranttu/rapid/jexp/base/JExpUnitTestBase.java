@@ -7,8 +7,9 @@ package ranttu.rapid.jexp.base;
 import org.testng.AssertJUnit;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
-
 import ranttu.rapid.jexp.JExp;
+import ranttu.rapid.jexp.compile.CompileOption;
+import ranttu.rapid.jexp.compile.JExpExpression;
 
 /**
  * @author rapid
@@ -22,7 +23,13 @@ public class JExpUnitTestBase extends JExpTestBase {
             throw new SkipException("skipped by case data mark");
         }
 
-        Object res = JExp.eval(caseData.exp, caseData.ctx);
+        CompileOption op = new CompileOption();
+        op.debugInfo = false;
+        op.treatGetterNoSideEffect = true;
+
+        JExpExpression exp = JExp.compile(caseData.exp, op);
+        Object res = exp.execute(caseData.ctx);
+
         AssertJUnit.assertEquals(caseData.res, res);
     }
 }
