@@ -178,7 +178,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 getInternalName(Object.class),
                 new String[]{getInternalName(JExpExpression.class)});
 
-            cw.visitSource("<jexp-expression>", null);
+            String debugSourceInfo = null;
+            if (context.option.debugInfo) {
+                debugSourceInfo = context.rawExpression;
+            }
+            cw.visitSource("<jexp-expression>", debugSourceInfo);
 
             // construct method
             conMv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);

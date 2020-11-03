@@ -43,6 +43,7 @@ public class JExpCompiler {
         ExpressionNode ast = JExpParser.parse(expression);
         CompilingContext compilingContext = new CompilingContext();
         compilingContext.option = option;
+        compilingContext.rawExpression = expression;
 
         // prepares
         new PreparePass().apply(ast, compilingContext);

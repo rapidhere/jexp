@@ -21,6 +21,11 @@ public class CompilingContext {
     public CompileOption option;
 
     /**
+     * the raw expression string
+     */
+    public String rawExpression;
+
+    /**
      * compiling result
      */
     public JExpExpression compiledStub;

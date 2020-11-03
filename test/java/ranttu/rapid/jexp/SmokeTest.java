@@ -33,7 +33,7 @@ public class SmokeTest {
         Assert.assertEquals(2, exp.execute(o));
         Assert.assertEquals(new double[] {1.3}, exp.execute(o));
 
-        JExpExpression exp2 = JExp.compile("rand_arr()[1][0]", compileOption);
+        JExpExpression exp2 = JExp.compile("rand_arr()[1][100]", compileOption);
         Assert.assertEquals(1.3, exp2.execute(0));
     }
 }
