@@ -299,7 +299,7 @@ public class PreparePass extends NoReturnPass {
             context.propertyTree.add(owner.propertyNode, member,
                 AstUtil.asConstantString(member.propertyName));
         } else {
-            context.propertyTree.addToRoot(member, AstUtil.asConstantString(member.propertyName));
+            context.propertyTree.freePropertyNode(member, AstUtil.asConstantString(member.propertyName));
         }
 
         // currently member expression is always not a constant

@@ -87,7 +87,7 @@ class MH {
                         m.setAccessible(true);
                         // convert to spreader invoke
                         MethodHandle mh = LOOKUP.unreflect(m)
-                            .asSpreader(Object[].class, 1);
+                            .asSpreader(Object[].class, m.getParameterCount());
                         methods.put(m.getName(), mh);
                     }
 

@@ -5,6 +5,7 @@
 package ranttu.rapid.jexp.compile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
@@ -33,13 +34,23 @@ public class PropertyTree {
      */
     public void add(PropertyNode parent, PropertyAccessNode astNode, String id) {
         astNode.propertyNode = parent.children.computeIfAbsent(id, key -> {
-            PropertyNode newNode = new PropertyNode();
+            var newNode = new PropertyNode();
             newNode.identifier = id;
             newNode.isRoot = false;
             newNode.slotNo = JExpIndyFactory.nextSlotNo();
 
             return newNode;
         });
+    }
+
+    public void freePropertyNode(PropertyAccessNode astNode, String id) {
+        var newNode = new PropertyNode();
+        newNode.identifier = id;
+        newNode.isRoot = false;
+        newNode.slotNo = JExpIndyFactory.nextSlotNo();
+        newNode.isDetached = true;
+
+        astNode.propertyNode = newNode;
     }
 
     /**
@@ -61,9 +72,20 @@ public class PropertyTree {
 
         public boolean isRoot = true;
 
+        public boolean isDetached = false;
+
         public boolean isAccessPoint;
 
         public int variableIndex;
+
+        public int needDupChildrenCount() {
+            int cnt = 0;
+            for (var child : children.values()) {
+                cnt += (child.identifier == null ? 0 : 1);
+            }
+
+            return cnt;
+        }
 
         private void visit(TreeVisitor tv) {
             tv.visit(this);

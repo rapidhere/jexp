@@ -17,7 +17,7 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test
+    @Test(enabled = false)
     public void test0() {
         JExpFunctionFactory.register(TestFunctions.class);
         Object o = new ImmutableRecursiveContext();
@@ -25,7 +25,7 @@ public class SmokeTest {
         CompileOption compileOption = new CompileOption();
         compileOption.debugInfo = true;
 
-        JExpExpression exp = JExp.compile("o['a']", compileOption);
+        JExpExpression exp = JExp.compile("a().empty", compileOption);
         Assert.assertEquals(12312312, exp.execute(o));
     }
 }

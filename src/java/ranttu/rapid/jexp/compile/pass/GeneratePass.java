@@ -152,7 +152,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             }
 
             // dup for each child
-            int dupSize = idNode.children.size() + (idNode.isAccessPoint ? 1 : 0);
+            int dupSize = idNode.needDupChildrenCount() + (idNode.isAccessPoint ? 1 : 0);
             for (int i = 1; i < dupSize; i++) {
                 mv.visitInsn(DUP);
             }
