@@ -4,7 +4,6 @@
  */
 package ranttu.rapid.jexp.runtime;
 
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
 import java.util.Collection;
@@ -17,14 +16,6 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @UtilityClass
 public class Runtimes {
-    /**
-     * throw a no such method error
-     */
-    @SneakyThrows
-    public Object noSuchMethod(String methodName, String className) {
-        throw new NoSuchMethodException(className + "#" + methodName);
-    }
-
     /**
      * calculate the boolean value of a object
      */
