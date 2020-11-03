@@ -17,15 +17,16 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test(enabled = false)
+    @Test()
     public void test0() {
         JExpFunctionFactory.register(TestFunctions.class);
         Object o = new ImmutableRecursiveContext();
 
         CompileOption compileOption = new CompileOption();
         compileOption.debugInfo = true;
+        compileOption.treatGetterNoSideEffect = true;
 
-        JExpExpression exp = JExp.compile("o.a", compileOption);
-        Assert.assertEquals(12312312, exp.execute(o));
+        JExpExpression exp = JExp.compile("[1, 2].a()", compileOption);
+        Assert.assertEquals(2, exp.execute(o));
     }
 }

@@ -89,7 +89,7 @@ import static java.lang.invoke.MethodType.methodType;
             methodType(Object.class, Object.class, MethodHandle.class), 1, 0);
 
         // step 1: propertyName -> getterMH
-        var propGetterMH = MH.MAP_GET
+        var propGetterMH = MH.MAP_GET_OR_FIELD_NOT_FOUND
             .asType(methodType(MethodHandle.class, Map.class, Object.class))
             .bindTo(propertyHandles);
 

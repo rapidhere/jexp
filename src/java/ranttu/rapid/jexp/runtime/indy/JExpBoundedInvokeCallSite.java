@@ -70,7 +70,7 @@ import static java.lang.invoke.MethodType.methodType;
             1, 0, 2);
 
         // step1: find method through map
-        var methodGetMH = MH.MAP_GET
+        var methodGetMH = MH.MAP_GET_OR_METHOD_NOT_FOUND
             .asType(methodType(MethodHandle.class, Map.class, Object.class))
             .bindTo(MH.getAllMethods(invokee.getClass()));
 

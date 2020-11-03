@@ -6,6 +6,7 @@ package ranttu.rapid.jexp.runtime.indy;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import lombok.experimental.var;
 import ranttu.rapid.jexp.common.StringUtil;
 
 import java.lang.invoke.MethodHandle;
@@ -41,6 +42,16 @@ class MH {
      * @see java.util.Map#get(Object)
      */
     public final MethodHandle MAP_GET;
+
+    /**
+     * @see MH#mapGetOrFieldNotFound(Map, Object)
+     */
+    public final MethodHandle MAP_GET_OR_FIELD_NOT_FOUND;
+
+    /**
+     * @see MH#mapGetOrMethodNotFound(Map, Object)
+     */
+    public final MethodHandle MAP_GET_OR_METHOD_NOT_FOUND;
 
     /**
      * @see MH#isOfClassOrNull(Class, Object)
@@ -141,6 +152,22 @@ class MH {
         return o.getClass() == klass;
     }
 
+    public Object mapGetOrFieldNotFound(Map<?, ?> map, Object key) throws NoSuchFieldException {
+        var val = map.get(key);
+        if (val == null) {
+            throw new NoSuchFieldException(String.valueOf(key));
+        }
+        return val;
+    }
+
+    public Object mapGetOrMethodNotFound(Map<?, ?> map, Object key) throws NoSuchMethodException {
+        var val = map.get(key);
+        if (val == null) {
+            throw new NoSuchMethodException(String.valueOf(key));
+        }
+        return val;
+    }
+
     //~~~ init methodHandles
     static {
         try {
@@ -150,6 +177,10 @@ class MH {
                 methodType(Object.class, Object.class));
             IS_OF_CLASS_OR_NULL = LOOKUP.findStatic(MH.class, "isOfClassOrNull",
                 methodType(boolean.class, Class.class, Object.class));
+            MAP_GET_OR_FIELD_NOT_FOUND = LOOKUP.findStatic(MH.class, "mapGetOrFieldNotFound",
+                methodType(Object.class, Map.class, Object.class));
+            MAP_GET_OR_METHOD_NOT_FOUND = LOOKUP.findStatic(MH.class, "mapGetOrMethodNotFound",
+                methodType(Object.class, Map.class, Object.class));
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
