@@ -64,16 +64,7 @@ public class CompilingContext {
     public int variableCount = 0;
 
     //~~~ accessor management
-    /**
-     * accessor count
-     */
-    public int accessorSlotCount = 0;
-
     public int nextVariableIndex() {
         return variableCount++;
-    }
-
-    public String nextAccessorSlot() {
-        return "accessor$" + accessorSlotCount++;
     }
 }
