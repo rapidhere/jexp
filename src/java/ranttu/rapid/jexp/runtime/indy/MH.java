@@ -84,6 +84,8 @@ class MH {
 
                     for (Method m : klass.getMethods()) {
                         // TODO: support private method access
+                        // TODO: support static method access
+                        // TODO: support varargs method access
                         m.setAccessible(true);
                         // convert to spreader invoke
                         MethodHandle mh = LOOKUP.unreflect(m)
