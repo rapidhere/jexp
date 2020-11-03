@@ -6,9 +6,6 @@ package ranttu.rapid.jexp.compile;
  */
 public class CompileOption {
     //~~~ constants
-    public static final String CURRENT_JAVA_VERSION = System
-        .getProperty("java.specification.version").trim();
-
     public static final String JAVA_VERSION_17 = "1.7";
 
     //~~~ options
@@ -22,6 +19,11 @@ public class CompileOption {
      * turn on debug info or not
      */
     public boolean debugInfo = false;
+
+    /**
+     * property getters treated as no-side-effects
+     */
+    public boolean treatGetterNoSideEffect = false;
 
     /**
      * whether inlining functions on need

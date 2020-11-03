@@ -131,6 +131,10 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void prepareAccessTree() {
+        if (!context.option.treatGetterNoSideEffect) {
+            return;
+        }
+
         appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
 
         context.propertyTree.visit(idNode -> {
@@ -278,7 +282,15 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         if (exp.token.is(TokenType.IDENTIFIER)) {
-            accessOnTree(exp);
+            if (context.option.treatGetterNoSideEffect) {
+                accessOnTree(exp);
+            } else {
+                loadContext();
+                invokeAccessorGetter(
+                    exp.propertyNode.slotNo,
+                    () -> mv.visitLdcInsn(exp.propertyNode.identifier)
+                );
+            }
         }
     }
 
@@ -415,7 +427,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     protected void visit(MemberExpression exp) {
         // for static member expression
-        if (exp.isStatic) {
+        if (context.option.treatGetterNoSideEffect && exp.isStatic) {
             accessOnTree(exp);
         }
         // for dynamic member expression
@@ -452,6 +464,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
      */
     private void accessOnTree(PropertyAccessNode astNode) {
         $.should(astNode.isStatic);
+        $.should(context.option.treatGetterNoSideEffect);
 
         PropertyTree.PropertyNode propertyNode = astNode.propertyNode;
         mv.visitVarInsn(ALOAD, propertyNode.variableIndex);

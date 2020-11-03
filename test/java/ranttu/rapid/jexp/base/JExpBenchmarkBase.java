@@ -16,9 +16,11 @@ import org.mvel2.MVEL;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
+import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpExpression;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,9 +33,9 @@ import java.util.Map;
  * @version $Id: JExpBenchmarkBase.java, v 0.1 2017年10月01日 10:25 AM rapid Exp $
  */
 abstract public class JExpBenchmarkBase {
-    private static final int        TURN_LENGTH = 10;
+    private static final int TURN_LENGTH = 10;
 
-    private static final int        TURN_COUNT  = 20;
+    private static final int TURN_COUNT = 20;
 
     private Map<String, List<Long>> turnCostMap;
 
@@ -57,23 +59,24 @@ abstract public class JExpBenchmarkBase {
     }
 
     private void runTurn(BenchmarkCaseData caseData) {
-        List<BenchmarkRunner> runnerList = new ArrayList<BenchmarkRunner>() {
+        List<BenchmarkRunner<?>> runnerList = new ArrayList<BenchmarkRunner<?>>() {
             {
                 add(new JExpRunner());
+                add(new JExpRunnerOptimized());
                 add(new AviatorRunner());
                 add(new MvelRunner());
                 add(new QLExpressRunner());
             }
         };
 
-        for (BenchmarkRunner runner : runnerList) {
+        for (BenchmarkRunner<?> runner : runnerList) {
             runner.compile(caseData);
             runner.prepare();
         }
 
         Collections.shuffle(runnerList);
 
-        for (BenchmarkRunner runner : runnerList) {
+        for (BenchmarkRunner<?> runner : runnerList) {
             List<Long> turnCost = turnCostMap.computeIfAbsent(runner.getName(), key -> {
                 ArrayList<Long> result = new ArrayList<>(TURN_LENGTH);
                 for (int i = 0; i < TURN_LENGTH; i++) {
@@ -144,7 +147,6 @@ abstract public class JExpBenchmarkBase {
         protected abstract Object innerRun(Object env);
     }
 
-    @SuppressWarnings("unused")
     protected static class JExpRunner extends BenchmarkRunner<JExpExpression> {
         @Override
         protected String getExpression(BenchmarkCaseData caseData) {
@@ -154,6 +156,29 @@ abstract public class JExpBenchmarkBase {
         @Override
         protected JExpExpression innerCompile(String expression) {
             return JExp.compile(expression);
+        }
+
+        @Override
+        protected Object innerRun(Object env) {
+            return compiledStub.execute(env);
+        }
+    }
+
+    protected static class JExpRunnerOptimized extends BenchmarkRunner<JExpExpression> {
+        static CompileOption option = new CompileOption();
+
+        static {
+            option.treatGetterNoSideEffect = true;
+        }
+
+        @Override
+        protected String getExpression(BenchmarkCaseData caseData) {
+            return caseData.jexpExpression;
+        }
+
+        @Override
+        protected JExpExpression innerCompile(String expression) {
+            return JExp.compile(expression, option);
         }
 
         @Override
@@ -181,14 +206,14 @@ abstract public class JExpBenchmarkBase {
         }
     }
 
-    protected static class MvelRunner extends BenchmarkRunner {
+    protected static class MvelRunner extends BenchmarkRunner<Serializable> {
         @Override
         protected String getExpression(BenchmarkCaseData caseData) {
             return caseData.mvelExpression;
         }
 
         @Override
-        protected Object innerCompile(String expression) {
+        protected Serializable innerCompile(String expression) {
             return MVEL.compileExpression(expression);
         }
 
@@ -215,7 +240,7 @@ abstract public class JExpBenchmarkBase {
             }
         }
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         protected Object innerRun(Object env) {
             DefaultContext context = new DefaultContext();
@@ -250,7 +275,7 @@ abstract public class JExpBenchmarkBase {
 
             @Override
             public Object[] next() {
-                return new Object[] { iter.next() };
+                return new Object[]{iter.next()};
             }
         };
     }

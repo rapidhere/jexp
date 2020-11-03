@@ -25,7 +25,7 @@ public class SmokeTest {
         CompileOption compileOption = new CompileOption();
         compileOption.debugInfo = true;
 
-        JExpExpression exp = JExp.compile("a().empty", compileOption);
+        JExpExpression exp = JExp.compile("o.a", compileOption);
         Assert.assertEquals(12312312, exp.execute(o));
     }
 }
