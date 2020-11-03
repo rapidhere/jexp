@@ -34,5 +34,5 @@ public class CallExpression extends ExpressionNode {
     /**
      * for bounded invoke, there will be a accessor slot
      */
-    public String accessorSlot;
+    public int slotNo;
 }

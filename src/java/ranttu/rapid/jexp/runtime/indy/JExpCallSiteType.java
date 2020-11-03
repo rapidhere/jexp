@@ -13,18 +13,21 @@ import ranttu.rapid.jexp.common.$;
 public enum JExpCallSiteType {
     /**
      * get a property
+     * arguments: [propertyOwner, propertyName]
      */
-    GET_PROP("GP"),
+    GET_PROP("GET_PROP"),
 
     /**
      * unbounded invoke
      */
-    UB_INVOKE("UI"),
+    UB_INVOKE("UB_INVOKE"),
 
     /**
      * bounded invoke
+     * arguments: [methodOwner, methodName, arg...]
      */
-    BD_INVOKE("BI"),;
+    BD_INVOKE("BD_INVOKE"),;
+
     /**
      * the method name string
      */

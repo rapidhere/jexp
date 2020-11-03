@@ -13,6 +13,7 @@ import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
 import ranttu.rapid.jexp.compile.PropertyTree;
+import ranttu.rapid.jexp.compile.constant.DebugNo;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
@@ -29,11 +30,10 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.runtime.Runtimes;
-import ranttu.rapid.jexp.runtime.accesor.Accessor;
-import ranttu.rapid.jexp.runtime.accesor.AccessorFactory;
-import ranttu.rapid.jexp.runtime.accesor.DummyAccessor;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
+import ranttu.rapid.jexp.runtime.indy.JExpCallSiteType;
+import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +85,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         visitClass();
 
         // prepare access tree
-        prepareAccessorSlot();
         prepareAccessTree();
 
         // visit execute method
@@ -131,112 +130,9 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         return "constant$" + context.constantCount++;
     }
 
-    private void prepareAccessorSlot() {
-        for (int i = 0; i < context.accessorSlotCount; i++) {
-            String slot = "accessor$" + i;
-
-            // add a field to the impl
-            cw.visitField(ACC_PRIVATE + ACC_SYNTHETIC, slot, getDescriptor(Accessor.class), null,
-                    null);
-
-            // add field init
-            conMv.visitVarInsn(ALOAD, 0);
-            conMv.visitFieldInsn(GETSTATIC, getInternalName(DummyAccessor.class), "ACCESSOR",
-                    getDescriptor(DummyAccessor.class));
-            conMv.visitFieldInsn(PUTFIELD, context.classInternalName, slot,
-                    getDescriptor(Accessor.class));
-
-            prepareAccessorSlotFitter(slot);
-            prepareAccessorSlotGetter(slot);
-            prepareAccessorSlotInvoker(slot);
-        }
-    }
-
-    private void prepareAccessorSlotInvoker(String slot) {
-        String invokerName = slot + "Invoke";
-        var mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, invokerName,
-                getMethodDescriptor(getType(Object.class),
-                        getType(Object.class), getType(String.class), getType(Object[].class)),
-                null, null);
-
-        //~~~ fit accessor
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, slot + "Fit",
-                getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false);
-
-        //~~~ invoke
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitVarInsn(ALOAD, 3);
-        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "invoke",
-                getMethodDescriptor(getType(Object.class), getType(Object.class), getType(String.class),
-                        getType(Object[].class)),
-                true);
-        mv.visitInsn(ARETURN);
-
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
-    private void prepareAccessorSlotGetter(String slot) {
-        String getterName = slot + "Get";
-        var mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, getterName, getMethodDescriptor(
-                getType(Object.class), getType(Object.class), getType(String.class)), null, null);
-
-        //~~~ fit accessor
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, slot + "Fit",
-                getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false);
-
-        //~~~ get
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "get",
-                "(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;", true);
-        mv.visitInsn(ARETURN);
-
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
-    private void prepareAccessorSlotFitter(String slot) {
-        String fitterName = slot + "Fit";
-        var mv = cw.visitMethod(ACC_PRIVATE + ACC_SYNTHETIC, fitterName,
-                getMethodDescriptor(getType(Accessor.class), getType(Object.class)), null, null);
-        var successLabel = new Label();
-
-        // check isSatisfied
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, context.classInternalName, slot, getDescriptor(Accessor.class));
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(Accessor.class), "isSatisfied",
-                "(Ljava/lang/Object;)Z", true);
-        mv.visitJumpInsn(IFNE, successLabel);
-
-        // failed, change accessor
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESTATIC, getInternalName(AccessorFactory.class), "getAccessor",
-                getMethodDescriptor(getType(Accessor.class), getType(Object.class)), false);
-        mv.visitFieldInsn(PUTFIELD, context.classInternalName, slot, getDescriptor(Accessor.class)); // [ object ]
-
-        // put accessor on stack
-        mv.visitLabel(successLabel);
-        mv.visitFrame(F_SAME, 0, null, 0, null);
-
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, context.classInternalName, slot, getDescriptor(Accessor.class)); // [ object, accessor ]
-
-        // return accessor
-        mv.visitInsn(ARETURN);
-
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-    }
-
     private void prepareAccessTree() {
+        appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
+
         context.propertyTree.visit(idNode -> {
             // for root node, load context on stack
             if (idNode.isRoot) {
@@ -251,7 +147,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 if (idNode.identifier == null) {
                     return;
                 }
-                invokeAccessorGetter(idNode.accessorSlot, () -> mv.visitLdcInsn(idNode.identifier));
+                invokeAccessorGetter(idNode.slotNo,
+                    () -> mv.visitLdcInsn(idNode.identifier));
             }
 
             // dup for each child
@@ -266,13 +163,17 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 mv.visitVarInsn(ASTORE, idNode.variableIndex);
             }
         });
+
+        appendDebugInfo(DebugNo.ACC_TREE_PREPARE_END);
     }
 
     private void visitClass() {
-        if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_16)) {
-            cw.visit(V1_6, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, context.classInternalName, null,
-                    getInternalName(Object.class),
-                    new String[]{getInternalName(JExpExpression.class)});
+        if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_17)) {
+
+            cw.visit(V1_7, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, context.classInternalName, null,
+                getInternalName(Object.class),
+                new String[]{getInternalName(JExpExpression.class)});
+
             cw.visitSource("<jexp-expression>", null);
 
             // construct method
@@ -280,27 +181,23 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             conMv.visitCode();
             conMv.visitVarInsn(ALOAD, 0);
             conMv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V",
-                    false);
+                false);
 
             // `execute` method
             mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
-                    getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
+                getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
             mv.visitParameter("this", 0);
             mv.visitParameter("context", 0);
             mv.visitCode();
         } else {
             throw new JExpCompilingException(
-                    "unknown java version" + context.option.targetJavaVersion);
+                "unknown java version" + context.option.targetJavaVersion);
         }
     }
 
-    private void invokeAccessorInvoker(String accessorSlot, CallExpression func) {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(SWAP);
-
-        //~~~ then, call invoke method
+    private void invokeAccessorInvoker(int slotNo, CallExpression func) {
         // put method name
-        mv.visitLdcInsn(func.methodName); // [ accessor, object, methodName ]
+        mv.visitLdcInsn(func.methodName); // [ object, methodName ]
 
         // put arguments
         mv.visitLdcInsn(func.parameters.size());
@@ -312,20 +209,20 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitInsn(AASTORE);
         }
 
-        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, accessorSlot + "Invoke",
-                getMethodDescriptor(getType(Object.class), getType(Object.class), getType(String.class),
-                        getType(Object[].class)),
-                false);
+        mv.visitInvokeDynamicInsn(
+            JExpCallSiteType.BD_INVOKE.name(),
+            "(Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;",
+            JExpIndyFactory.INDY_FACTORY_HANDLE, slotNo);
     }
 
-    private void invokeAccessorGetter(String accessorSlot, Runnable invokePropertyName) {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(SWAP);
+    private void invokeAccessorGetter(int slotNo, Runnable invokePropertyName) {
+        // [propertyOwner] -> [propertyOwner, propertyName]
         invokePropertyName.run();
-        mv.visitMethodInsn(INVOKESPECIAL, context.classInternalName, accessorSlot + "Get",
-                getMethodDescriptor(getType(Object.class), getType(Object.class),
-                        getType(String.class)),
-                false);
+
+        mv.visitInvokeDynamicInsn(
+            JExpCallSiteType.GET_PROP.name(),
+            "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+            JExpIndyFactory.INDY_FACTORY_HANDLE, slotNo);
     }
 
     @Override
@@ -350,14 +247,14 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
                 // field
                 cw.visitField(ACC_SYNTHETIC + ACC_PRIVATE, newSlot, getDescriptor(val.getClass()),
-                        null, null);
+                    null, null);
 
                 // field init
                 conMv.visitVarInsn(ALOAD, 0);
                 conMv.visitLdcInsn(val);
                 mathOpValConvert(conMv, Types.getPrimitive(val.getClass()));
                 conMv.visitFieldInsn(PUTFIELD, context.classInternalName, newSlot,
-                        getDescriptor(val.getClass()));
+                    getDescriptor(val.getClass()));
 
                 return newSlot;
             });
@@ -365,7 +262,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             // get field
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, context.classInternalName, slot,
-                    getDescriptor(val.getClass()));
+                getDescriptor(val.getClass()));
         }
         // unknown constant
         else {
@@ -478,7 +375,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         mv.visitInsn(DUP);
         // call Runtimes.booleanValue
         mv.visitMethodInsn(INVOKESTATIC, getInternalName(Runtimes.class), "booleanValue",
-                getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
+            getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
 
         switch (exp.op.type) {
             case OR:
@@ -511,7 +408,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             visit(func.caller);
 
             // call
-            invokeAccessorInvoker(func.accessorSlot, func);
+            invokeAccessorInvoker(func.slotNo, func);
         }
     }
 
@@ -524,12 +421,14 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // for dynamic member expression
         else {
             visit(exp.owner);
-            invokeAccessorGetter(exp.propertyNode.accessorSlot, () -> {
-                visit(exp.propertyName);
-                // to string
-                mv.visitMethodInsn(INVOKESTATIC, getInternalName(String.class), "valueOf",
+            invokeAccessorGetter(
+                exp.propertyNode.slotNo,
+                () -> {
+                    visit(exp.propertyName);
+                    // to string
+                    mv.visitMethodInsn(INVOKESTATIC, getInternalName(String.class), "valueOf",
                         getMethodDescriptor(getType(String.class), getType(Object.class)), false);
-            });
+                });
         }
     }
 
@@ -543,7 +442,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitInsn(DUP);
             visit(item);
             mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(List.class), "add",
-                    getMethodDescriptor(getType(boolean.class), getType(Object.class)), true);
+                getMethodDescriptor(getType(boolean.class), getType(Object.class)), true);
             mv.visitInsn(POP);
         });
     }
@@ -561,23 +460,23 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     private void mathOpValConvert(MethodVisitor mv, Type valueType) {
         if (Types.isInt(valueType)) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
-                    "(I)Ljava/lang/Integer;", false);
+                "(I)Ljava/lang/Integer;", false);
         } else if (Types.isFloat(valueType)) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",
-                    false);
+                false);
         } else if (valueType == Type.BOOLEAN_TYPE) {
             mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
-                    "(Z)Ljava/lang/Boolean;", false);
+                "(Z)Ljava/lang/Boolean;", false);
         } else if (Types.isType(valueType, Object.class)) {
             mv.visitInsn(DUP);
             Label l = new Label();
             mv.visitTypeInsn(INSTANCEOF, getInternalName(StringBuilder.class));
             mv.visitJumpInsn(IFEQ, l);
             mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "toString",
-                    getMethodDescriptor(getType(String.class)), false);
+                getMethodDescriptor(getType(String.class)), false);
             mv.visitLabel(l);
             mv.visitFrame(F_SAME1, 0, null, 1,
-                    new Object[]{Types.getFrameDesc(Object.class)});
+                new Object[]{Types.getFrameDesc(Object.class)});
         }
     }
 
@@ -607,7 +506,15 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             // call
             mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
-                    info.method.getName(), getMethodDescriptor(info.method), false);
+                info.method.getName(), getMethodDescriptor(info.method), false);
+        }
+    }
+
+    private void appendDebugInfo(DebugNo debugNo) {
+        if (context.option.debugInfo) {
+            var lb = new Label();
+            mv.visitLabel(lb);
+            mv.visitLineNumber(debugNo.getFlag(), lb);
         }
     }
 }

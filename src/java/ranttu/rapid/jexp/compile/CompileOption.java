@@ -7,9 +7,7 @@ package ranttu.rapid.jexp.compile;
 public class CompileOption {
     //~~~ constants
     public static final String CURRENT_JAVA_VERSION = System
-            .getProperty("java.specification.version").trim();
-
-    public static final String JAVA_VERSION_16 = "1.6";
+        .getProperty("java.specification.version").trim();
 
     public static final String JAVA_VERSION_17 = "1.7";
 
@@ -18,7 +16,12 @@ public class CompileOption {
      * the compiled target java version
      * default to current jvm version
      */
-    public String targetJavaVersion = JAVA_VERSION_16;
+    public String targetJavaVersion = JAVA_VERSION_17;
+
+    /**
+     * turn on debug info or not
+     */
+    public boolean debugInfo = false;
 
     /**
      * whether inlining functions on need

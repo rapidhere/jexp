@@ -32,7 +32,7 @@ final public class JExpLang {
     @JExpFunction(lib = "lang", name = "get_prop")
     public static Object getProperty(Object o, String name) throws Throwable {
         if (o instanceof Map) {
-            return ((Map) o).get(name);
+            return ((Map<?, ?>) o).get(name);
         } else {
             return PropertyUtils.getProperty(o, name);
         }

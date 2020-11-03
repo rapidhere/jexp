@@ -2,6 +2,7 @@ package ranttu.rapid.jexp.runtime.function;
 
 import lombok.experimental.var;
 import org.apache.commons.io.IOUtils;
+import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
 import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
@@ -116,7 +117,7 @@ final public class JExpFunctionFactory {
     }
 
     // load class byte code from class
-    private static byte[] loadClassByteCode(Class klass) {
+    private static byte[] loadClassByteCode(Class<?> klass) {
         // get klass file path
         var classPath = klass.getName().replace(".", "/") + ".class";
 
@@ -124,6 +125,7 @@ final public class JExpFunctionFactory {
         var ins = JExpFunctionFactory.class.getClassLoader().getResourceAsStream(classPath);
 
         try {
+            $.should(ins != null);
             return IOUtils.toByteArray(ins);
         } catch (IOException e) {
             throw new JExpFunctionLoadException("failed to load class file " + classPath, e);

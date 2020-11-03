@@ -6,6 +6,7 @@ package ranttu.rapid.jexp.compile;
 
 import lombok.RequiredArgsConstructor;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
+import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +20,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PropertyTree {
     private PropertyNode root = new PropertyNode();
-
-    final private CompilingContext compilingContext;
 
     /**
      * add to root
@@ -37,7 +36,7 @@ public class PropertyTree {
             PropertyNode newNode = new PropertyNode();
             newNode.identifier = id;
             newNode.isRoot = false;
-            newNode.accessorSlot = compilingContext.nextAccessorSlot();
+            newNode.slotNo = JExpIndyFactory.nextSlotNo();
 
             return newNode;
         });
@@ -56,7 +55,7 @@ public class PropertyTree {
     public static class PropertyNode {
         public String identifier;
 
-        public String accessorSlot;
+        public int slotNo;
 
         public Map<String, PropertyNode> children = new HashMap<>();
 

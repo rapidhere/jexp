@@ -36,9 +36,9 @@ public class Runtimes {
         } else if (o instanceof String) {
             return ((String) o).length() != 0;
         } else if (o instanceof Collection) {
-            return !((Collection) o).isEmpty();
+            return !((Collection<?>) o).isEmpty();
         } else if (o instanceof Map) {
-            return !((Map) o).isEmpty();
+            return !((Map<?, ?>) o).isEmpty();
         } else {
             return o != null;
         }

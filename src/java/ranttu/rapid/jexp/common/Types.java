@@ -46,7 +46,7 @@ public class Types {
         return JEXP_INT.equals(t);
     }
 
-    public Type getPrimitive(Class c) {
+    public Type getPrimitive(Class<?> c) {
         if (c == Integer.class) {
             return Type.INT_TYPE;
         } else if (c == Boolean.class) {
@@ -95,7 +95,7 @@ public class Types {
         }
     }
 
-    public boolean isPrimitive(Class c) {
+    public boolean isPrimitive(Class<?> c) {
         return isPrimitive(Type.getType(c));
     }
 
@@ -116,11 +116,11 @@ public class Types {
         }
     }
 
-    public boolean isType(Type t, Class c) {
+    public boolean isType(Type t, Class<?> c) {
         return t.getClassName().equals(c.getName());
     }
 
-    public Object getFrameDesc(Class c) {
+    public Object getFrameDesc(Class<?> c) {
         Type t = Type.getType(c);
         switch (t.getSort()) {
             case Type.BOOLEAN:

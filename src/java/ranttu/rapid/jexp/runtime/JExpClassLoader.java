@@ -9,7 +9,7 @@ import ranttu.rapid.jexp.JExp;
 public class JExpClassLoader extends ClassLoader {
     @SuppressWarnings("unchecked")
     public static <T> Class<T> define(String name, byte[] b) {
-        return cl.defineClass(name, b);
+        return (Class<T>) cl.defineClass(name, b);
     }
 
     private static JExpClassLoader cl = new JExpClassLoader(JExp.class.getClassLoader());
@@ -19,7 +19,7 @@ public class JExpClassLoader extends ClassLoader {
         super(parent);
     }
 
-    private Class defineClass(String name, byte[] b) {
+    private Class<?> defineClass(String name, byte[] b) {
         return defineClass(name, b, 0, b.length);
     }
 }

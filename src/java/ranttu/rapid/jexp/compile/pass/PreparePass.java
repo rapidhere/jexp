@@ -23,6 +23,7 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.Runtimes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
+import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
 /**
  * do some prepare jobs
@@ -38,7 +39,7 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 public class PreparePass extends NoReturnPass {
     @Override
     protected void prepare() {
-        context.propertyTree = new PropertyTree(context);
+        context.propertyTree = new PropertyTree();
     }
 
     @Override
@@ -84,7 +85,7 @@ public class PreparePass extends NoReturnPass {
         //~~~ infer ret type
         // for String
         if (exp.op.is(TokenType.PLUS)
-                && (Types.isString(exp.left.valueType) || Types.isString(exp.right.valueType))) {
+            && (Types.isString(exp.left.valueType) || Types.isString(exp.right.valueType))) {
             exp.valueType = Types.JEXP_STRING;
         }
         // for cond
@@ -98,7 +99,7 @@ public class PreparePass extends NoReturnPass {
         // number
         else {
             if ($.notIn(exp.op.type, TokenType.PLUS, TokenType.SUBTRACT, TokenType.MULTIPLY,
-                    TokenType.DIVIDE, TokenType.MODULAR)) {
+                TokenType.DIVIDE, TokenType.MODULAR)) {
                 $.notSupport("unknown binary op: " + exp.op);
             }
 
@@ -260,7 +261,7 @@ public class PreparePass extends NoReturnPass {
         func.caller = callerMember.owner;
 
         func.isBounded = true;
-        func.accessorSlot = context.nextAccessorSlot();
+        func.slotNo = JExpIndyFactory.nextSlotNo();
         func.isConstant = false;
         func.valueType = Type.getType(Object.class);
         func.methodName = AstUtil.asExactString(callerMember.propertyName);
@@ -296,7 +297,7 @@ public class PreparePass extends NoReturnPass {
         if (member.owner instanceof PropertyAccessNode) {
             var owner = (PropertyAccessNode) member.owner;
             context.propertyTree.add(owner.propertyNode, member,
-                    AstUtil.asConstantString(member.propertyName));
+                AstUtil.asConstantString(member.propertyName));
         } else {
             context.propertyTree.addToRoot(member, AstUtil.asConstantString(member.propertyName));
         }

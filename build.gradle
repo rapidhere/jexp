@@ -34,6 +34,8 @@ dependencies {
     compile 'commons-io:commons-io:2.5'
     compile 'commons-beanutils:commons-beanutils:1.9.3'
 
+    testCompileOnly 'org.projectlombok:lombok:1.16.20'
+    testApt "org.projectlombok:lombok:1.16.20"
     testCompile 'org.testng:testng:6.11'
     testCompile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
     testCompile 'com.fasterxml.jackson.core:jackson-core:2.8.8'

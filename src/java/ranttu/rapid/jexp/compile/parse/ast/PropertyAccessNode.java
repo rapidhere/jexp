@@ -23,7 +23,4 @@ public abstract class PropertyAccessNode extends ExpressionNode {
      */
     public boolean isStatic = false;
 
-    public String getAccessorSlot() {
-        return propertyNode.accessorSlot;
-    }
 }

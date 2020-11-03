@@ -59,7 +59,7 @@ final public class JExp {
 
     // ~~~
     // only for common test usage
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         // option
         var option = new CompileOption();
         option.inlineFunction = false;
