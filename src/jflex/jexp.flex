@@ -35,7 +35,8 @@ DecIntegerLiteral = 0 | [1-9][0-9]*
 HexIntegerLiteral = 0[xX][0-9]+
 OctIntegerLiteral = 0[0-9]+
 
-%state STRING
+%state STRING_DOUBLE_QUOTE
+%state STRING_SINGLE_QUOTE
 
 %%
 
@@ -66,13 +67,14 @@ OctIntegerLiteral = 0[0-9]+
   {HexIntegerLiteral}            { return token(TokenType.INTEGER, Integer.parseInt(yytext().substring(2), 16)); }
   {OctIntegerLiteral}            { return token(TokenType.INTEGER, Integer.parseInt(yytext(), 8)); }
 
-  \"                             { string.setLength(0); yybegin(STRING); }
+  \"                             { string.setLength(0); yybegin(STRING_DOUBLE_QUOTE); }
+  \'                             { string.setLength(0); yybegin(STRING_SINGLE_QUOTE); }
 
   /* whitespace */
   {WhiteSpace}                   { /* ignore */ }
 }
 
-<STRING> {
+<STRING_DOUBLE_QUOTE> {
   \"                             {
                                    yybegin(YYINITIAL);
                                    return token(TokenType.STRING, string.toString());
@@ -80,6 +82,17 @@ OctIntegerLiteral = 0[0-9]+
   [^\n\r\"\\]+                   { string.append( yytext() ); }
   \\t                            { string.append('\t'); }
   \\\"                           { string.append('\"'); }
+  \\                             { string.append('\\'); }
+}
+
+<STRING_SINGLE_QUOTE> {
+  \'                             {
+                                   yybegin(YYINITIAL);
+                                   return token(TokenType.STRING, string.toString());
+                                 }
+  [^\n\r\'\\]+                   { string.append( yytext() ); }
+  \\t                            { string.append('\t'); }
+  \\\'                           { string.append('\''); }
   \\                             { string.append('\\'); }
 }
 

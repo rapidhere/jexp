@@ -10,6 +10,14 @@
   exp: '"hello \ world"'
   res: 'hello \ world'
 
+- desc: single quote string
+  exp: "'hello world'"
+  res: hello world
+
+- desc: string escaping 3
+  exp: "'hello \\' world'"
+  res: "hello ' world"
+
 - desc: integer literal
   exp: 10000000
   res: 10000000
