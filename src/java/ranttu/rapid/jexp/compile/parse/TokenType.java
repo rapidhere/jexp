@@ -32,6 +32,12 @@ public enum TokenType {
 
     RIGHT_BRACKET,
 
+    LEFT_BRACE,
+
+    RIGHT_BRACE,
+
+    POINTER,
+
     COMMA,
 
     DOT,

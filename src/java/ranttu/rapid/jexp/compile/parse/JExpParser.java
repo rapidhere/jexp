@@ -4,9 +4,12 @@ import lombok.experimental.var;
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.CommaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
+import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
@@ -19,6 +22,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * the parser
@@ -29,6 +33,12 @@ import java.util.Stack;
  * MEMBER_EXP
  * FUNCTION_EXP
  * PRIMARY_EXP
+ * LAMBDA_EXP
+ * COMMA_EXP
+ * <p>
+ * COMMA_EXP |=
+ * EXP
+ * EXP,COMMA_EXP
  * <p>
  * BINARY_EXP |=
  * UNARY_EXP + UNARY_EXP
@@ -41,6 +51,7 @@ import java.util.Stack;
  * MEMBER_EXP
  * FUNCTION_EXP
  * PRIMARY_EXP
+ * LAMBDA_EXP
  * (EXP)
  * <p>
  * MEMBER_EXP |=
@@ -50,8 +61,16 @@ import java.util.Stack;
  * FUNCTION_EXP |=
  * UNARY_EXP(ARGUMENT_LIST)
  * <p>
+ * LAMBDA_EXP |=
+ * (IDENTIFIER_LIST)=>EXP
+ * (IDENTIFIER_LIST)=>{EXP}
+ * <p>
+ * IDENTIFIER_LIST |=
+ * NIL
+ * IDENTIFIER_LIST, IDENTIFIER
+ * <p>
  * ARGUMENT_LIST |=
- * <NIL>
+ * NIL
  * ARGUMENT_LIST, EXP
  * <p>
  * PRIMARY_EXP |=
@@ -101,7 +120,23 @@ public class JExpParser {
     }
 
     private ExpressionNode parseExp() {
-        return parseBinary();
+        var res = new ArrayList<ExpressionNode>();
+
+        do {
+            res.add(parseBinary());
+            var t = peekOrNull();
+
+            if (t == null || !t.is(TokenType.COMMA)) {
+                break;
+            }
+            next(TokenType.COMMA);
+        } while (true);
+
+        if (res.size() == 1) {
+            return res.get(0);
+        } else {
+            return new CommaExpression(res);
+        }
     }
 
     private ExpressionNode parseBinary() {
@@ -169,7 +204,7 @@ public class JExpParser {
                 // cast id to str
                 Token idToken = ((PrimaryExpression) identifier).token;
                 Token strToken = new Token(TokenType.STRING, idToken.line, idToken.column,
-                        idToken.value);
+                    idToken.value);
 
                 exp = new MemberExpression(exp, new PrimaryExpression(strToken));
             }
@@ -182,7 +217,34 @@ public class JExpParser {
             // function expression
             else if (t.is(TokenType.LEFT_PARENTHESIS)) {
                 next();
-                exp = new CallExpression(exp, parseParameters());
+                exp = new CallExpression(exp, parseItems(TokenType.RIGHT_PARENTHESIS));
+            }
+            // lambda expression
+            else if (t.is(TokenType.POINTER)) {
+                next();
+                List<String> pars;
+                if (exp.is(AstType.PRIMARY_EXP)) {
+                    pars = new ArrayList<>();
+                    if (!AstUtil.isIdentifier(exp)) {
+                        throw new UnexpectedToken(t);
+                    }
+                    pars.add(AstUtil.asId(exp));
+                } else if (exp.is(AstType.COMMA_EXP)) {
+                    //noinspection ConstantConditions
+                    pars = ((CommaExpression) exp).expressions.stream()
+                        .map(AstUtil::asId).collect(Collectors.toList());
+                } else {
+                    throw new UnexpectedToken(t);
+                }
+
+                t = peek();
+                if (t.is(TokenType.LEFT_BRACE)) {
+                    next();
+                    var items = parseItems(TokenType.RIGHT_BRACE);
+                    exp = new LambdaExpression(pars, new CommaExpression(items));
+                } else {
+                    exp = new LambdaExpression(pars, parseExp());
+                }
             }
             // or, parse is end
             else {
@@ -205,57 +267,36 @@ public class JExpParser {
         if (t.is(TokenType.LEFT_PARENTHESIS)) {
             // eat up `(`
             next();
-            var exp = parseExp();
-            // eat up `)`
-            next(TokenType.RIGHT_PARENTHESIS);
-            return exp;
+            List<ExpressionNode> exps = parseItems(TokenType.RIGHT_PARENTHESIS);
+
+            if (exps.size() == 1) {
+                return exps.get(0);
+            } else {
+                return new CommaExpression(exps);
+            }
         } else {
             return parsePrimary();
         }
     }
 
-    private List<ExpressionNode> parseParameters() {
-        List<ExpressionNode> pars = new ArrayList<>();
-
+    private List<ExpressionNode> parseItems(TokenType endTokenType) {
         var t = peek();
-        // meet ')', break
-        if (t.is(TokenType.RIGHT_PARENTHESIS)) {
+        // meet end, break
+        if (t.is(endTokenType)) {
             next();
+            return new ArrayList<>();
+        }
+
+        // parse as a comma expression
+        ExpressionNode exp = parseExp();
+        next(endTokenType);
+        if (exp.is(AstType.COMMA_EXP)) {
+            return ((CommaExpression) exp).expressions;
+        } else {
+            List<ExpressionNode> pars = new ArrayList<>();
+            pars.add(exp);
             return pars;
         }
-
-        while (true) {
-            pars.add(parseExp());
-
-            t = next(TokenType.RIGHT_PARENTHESIS, TokenType.COMMA);
-            if (t.is(TokenType.RIGHT_PARENTHESIS)) {
-                break;
-            }
-        }
-
-        return pars;
-    }
-
-    private List<ExpressionNode> parseItems() {
-        List<ExpressionNode> items = new ArrayList<>();
-
-        var t = peek();
-        // meet ']', break
-        if (t.is(TokenType.RIGHT_BRACKET)) {
-            next();
-            return items;
-        }
-
-        while (true) {
-            items.add(parseExp());
-
-            t = next(TokenType.RIGHT_BRACKET, TokenType.COMMA);
-            if (t.is(TokenType.RIGHT_BRACKET)) {
-                break;
-            }
-        }
-
-        return items;
     }
 
     private ExpressionNode parsePrimary() {
@@ -264,7 +305,7 @@ public class JExpParser {
         // i.e., an array expression
         if (t.is(TokenType.LEFT_BRACKET)) {
             next();
-            return new ArrayExpression(parseItems());
+            return new ArrayExpression(parseItems(TokenType.RIGHT_BRACKET));
         }
         // common primary expression
         else {

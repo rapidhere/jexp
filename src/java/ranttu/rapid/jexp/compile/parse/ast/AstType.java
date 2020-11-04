@@ -18,4 +18,8 @@ public enum AstType {
     MEMBER_EXP,
 
     ARRAY_EXP,
+
+    LAMBDA_EXP,
+
+    COMMA_EXP
 }

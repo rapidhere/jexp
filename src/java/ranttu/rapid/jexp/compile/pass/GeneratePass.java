@@ -23,6 +23,7 @@ import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
+import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
@@ -511,6 +512,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             // inline the function
             JExpByteCodeTransformer.transform(info, this, mv, args, context);
         } else {
+            if (args.size() != info.method.getParameterCount()) {
+                throw new JExpFunctionLoadException(info.name + " has " + info.method.getParameterCount() +
+                    " parameters, but give " + args.size());
+            }
+
             // load stack
             for (ExpressionNode astNode : args) {
                 visitOnStack(astNode);
