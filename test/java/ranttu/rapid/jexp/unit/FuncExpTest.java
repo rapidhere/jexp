@@ -5,58 +5,17 @@
 package ranttu.rapid.jexp.unit;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
 import ranttu.rapid.jexp.JExpExpression;
-import ranttu.rapid.jexp.base.JExpTestBase;
-import ranttu.rapid.jexp.compile.CompileOption;
+import ranttu.rapid.jexp.base.ManualUnitTestBase;
 import ranttu.rapid.jexp.data.ImmutableRecursiveContext;
-import ranttu.rapid.jexp.data.TestFunctions;
-import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
 /**
  * @author rapid
  * @version : FuncExpTest.java, v 0.1 2020-11-03 10:50 PM rapid Exp $
  */
-public class FuncExpTest extends JExpTestBase {
-    static CompileOption compileOption = new CompileOption();
-
-    static {
-        compileOption.debugInfo = true;
-        compileOption.treatGetterNoSideEffect = true;
-    }
-
-    @BeforeClass
-    public void registerTestFunctions() {
-        try {
-            JExpFunctionFactory.register(TestFunctions.class);
-        } catch (Exception ignored) {
-        }
-    }
-
-    @Test
-    public void testArrAccess() {
-        JExpExpression exp = JExp.compile("rand_arr()[1]", compileOption);
-
-        Assert.assertEquals(2, exp.execute(null));
-        Assert.assertEquals(1.2, exp.execute(null));
-        Assert.assertEquals(2, exp.execute(null));
-        Assert.assertEquals(new double[]{1.3}, exp.execute(null));
-
-        JExpExpression exp2 = JExp.compile("rand_arr()[1][0]", compileOption);
-        Assert.assertEquals(1.3, exp2.execute(0));
-    }
-
-    @Test
-    public void testArrAccessMore() {
-        Assert.assertEquals(Byte.valueOf("2"), JExp.eval("byte_arr()[1]", null));
-        Assert.assertEquals(Short.valueOf("2"), JExp.eval("short_arr()[1]", null));
-        Assert.assertEquals(Character.valueOf('\02'), JExp.eval("char_arr()[1]", null));
-        Assert.assertEquals(Long.valueOf(2), JExp.eval("long_arr()[1]", null));
-        Assert.assertEquals((float) 2.2, JExp.eval("float_arr()[1]", null));
-    }
-
+public class FuncExpTest extends ManualUnitTestBase {
     @Test
     public void testArrOutOfIndex() {
         JExpExpression exp = JExp.compile("int_arr()[100]", compileOption);

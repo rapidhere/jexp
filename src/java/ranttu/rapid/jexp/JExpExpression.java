@@ -1,6 +1,6 @@
 package ranttu.rapid.jexp;
 
-import java.util.Set;
+import lombok.experimental.var;
 
 /**
  * compiled jexp expression
@@ -17,10 +17,15 @@ public interface JExpExpression {
      */
     Object execute(Object context);
 
+    //~~~ helper
+
     /**
-     * get all variable names of this expression
+     * a convenience for default execute method
      *
-     * @return a set of variable names
+     * @see JExpExpression#execute(Object)
      */
-    Set<String> getVariableNames();
+    default <T> T exec(Object context) {
+        @SuppressWarnings("unchecked") var res = (T) execute(context);
+        return res;
+    }
 }

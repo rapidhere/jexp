@@ -6,9 +6,6 @@ package ranttu.rapid.jexp.compile;
 
 import ranttu.rapid.jexp.JExpExpression;
 
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * a jexp expression that return constant value
  *
@@ -31,10 +28,5 @@ public class JExpImmutableExpression implements JExpExpression {
     @Override
     public Object execute(Object context) {
         return val;
-    }
-
-    @Override
-    public Set<String> getVariableNames() {
-        return Collections.emptySet();
     }
 }

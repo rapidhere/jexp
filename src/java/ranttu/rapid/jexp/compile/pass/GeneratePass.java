@@ -11,7 +11,9 @@ import ranttu.rapid.jexp.common.Types;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
+import ranttu.rapid.jexp.compile.JExpCompiler;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
+import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.constant.DebugNo;
 import ranttu.rapid.jexp.compile.parse.TokenType;
@@ -37,8 +39,12 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 import ranttu.rapid.jexp.runtime.indy.JExpCallSiteType;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getDescriptor;
@@ -54,70 +60,76 @@ import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
  */
 public class GeneratePass extends NoReturnPass implements Opcodes {
     /**
-     * class writer
+     * @see GenerateContext#cw
      */
     private ClassWriter cw;
 
     /**
-     * execute method visitor
+     * @see GenerateContext#mv
      */
     private MethodVisitor mv;
 
     /**
-     * constructor method visitor
+     * @see GenerateContext#conMv
      */
     private MethodVisitor conMv;
 
-    public GeneratePass() {
-        this.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-    }
+    /**
+     * generate context stack
+     */
+    private Deque<GenerateContext> ctxStack = new ArrayDeque<>(16);
 
     @Override
-    public void apply(ExpressionNode root, CompilingContext context) {
+    public void apply(ExpressionNode root, CompilingContext compilingContext) {
         if (root.isConstant) {
-            context.compiledStub = JExpImmutableExpression.of(root.constantValue);
+            compilingContext.compiledStub = JExpImmutableExpression.of(root.constantValue);
             return;
         }
 
-        this.context = context;
+        //~~~ public init
+        this.compilingContext = compilingContext;
+
+        //~~~ generate context init
+        var ctx = newCtx(JExpCompiler.nextName(), compilingContext.names);
         // reserved 2
-        this.context.variableCount = 2;
-        // push names
-        nameStack.push(context.names);
+        ctx.variableCount = 2;
 
-        // prepare class
-        visitClass();
+        // run in context
+        ctx.wrap(() -> {
+            // prepare class
+            visitClass();
 
-        // prepare access tree
-        prepareAccessTree();
+            // prepare access tree
+            prepareAccessTree();
 
-        // visit execute method
-        visit(root);
+            // visit execute method
+            visit(root);
 
-        // end of execute method
-        mathOpValConvert(mv, root.valueType);
-        mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+            // end of execute method
+            mathOpValConvert(mv, root.valueType);
+            mv.visitInsn(ARETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
 
-        // end of construct
-        conMv.visitInsn(RETURN);
-        conMv.visitMaxs(0, 0);
-        conMv.visitEnd();
+            // end of construct
+            conMv.visitInsn(RETURN);
+            conMv.visitMaxs(0, 0);
+            conMv.visitEnd();
 
-        // end of all visit
-        cw.visitEnd();
+            // end of all visit
+            cw.visitEnd();
+        });
 
         // generate
         // write class
         byte[] byteCodes = cw.toByteArray();
 
         // for debug
-        $.printClass(context.className, byteCodes);
+        $.printClass(ctx.className, byteCodes);
 
         try {
-            Class<JExpExpression> klass = JExpClassLoader.define(context.className, byteCodes);
-            context.compiledStub = klass.newInstance();
+            Class<JExpExpression> klass = JExpClassLoader.define(ctx.className, byteCodes);
+            compilingContext.compiledStub = klass.newInstance();
         } catch (Exception e) {
             throw new JExpCompilingException("error when instance compiled class", e);
         }
@@ -131,17 +143,17 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private String nextConstantSlot() {
-        return "constant$" + context.constantCount++;
+        return "constant$" + ctx().constantCount++;
     }
 
     private void prepareAccessTree() {
-        if (!context.option.treatGetterNoSideEffect) {
+        if (!compilingContext.option.treatGetterNoSideEffect) {
             return;
         }
 
         appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
 
-        names().visitTree(idNode -> {
+        ctx().names.visitTree(idNode -> {
             // for root node, load context on stack
             if (idNode.isRoot) {
                 // for a empty tree, do nothing
@@ -168,7 +180,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             // if this a access point, dup and store
             if (idNode.isStatic()) {
-                idNode.variableIndex = context.nextVariableIndex();
+                idNode.variableIndex = ctx().nextVariableIndex();
                 mv.visitVarInsn(ASTORE, idNode.variableIndex);
             }
         });
@@ -177,34 +189,33 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void visitClass() {
-        if (context.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_17)) {
-
-            cw.visit(V1_7, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, context.classInternalName, null,
+        if (compilingContext.option.targetJavaVersion.equals(CompileOption.JAVA_VERSION_17)) {
+            cw.visit(V1_7, ACC_SYNTHETIC + ACC_SUPER + ACC_PUBLIC, ctx().classInternalName, null,
                 getInternalName(Object.class),
                 new String[]{getInternalName(JExpExpression.class)});
 
             String debugSourceInfo = null;
-            if (context.option.debugInfo) {
-                debugSourceInfo = context.rawExpression;
+            if (compilingContext.option.debugInfo) {
+                debugSourceInfo = compilingContext.rawExpression;
             }
             cw.visitSource("<jexp-expression>", debugSourceInfo);
 
             // construct method
-            conMv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+            ctx().conMv = conMv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
             conMv.visitCode();
             conMv.visitVarInsn(ALOAD, 0);
             conMv.visitMethodInsn(INVOKESPECIAL, getInternalName(Object.class), "<init>", "()V",
                 false);
 
             // `execute` method
-            mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
+            ctx().mv = mv = cw.visitMethod(ACC_SYNTHETIC + ACC_PUBLIC, "execute",
                 getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
             mv.visitParameter("this", 0);
             mv.visitParameter("context", 0);
             mv.visitCode();
         } else {
             throw new JExpCompilingException(
-                "unknown java version" + context.option.targetJavaVersion);
+                "unknown java version" + compilingContext.option.targetJavaVersion);
         }
     }
 
@@ -255,7 +266,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
         // integer, double, store in slot
         else if (val instanceof Integer || val instanceof Double || val instanceof Boolean) {
-            String slot = context.constantSlots.computeIfAbsent(val, v -> {
+            String slot = ctx().constantSlots.computeIfAbsent(val, v -> {
                 String newSlot = nextConstantSlot();
 
                 // field
@@ -266,7 +277,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                 conMv.visitVarInsn(ALOAD, 0);
                 conMv.visitLdcInsn(val);
                 mathOpValConvert(conMv, Types.getPrimitive(val.getClass()));
-                conMv.visitFieldInsn(PUTFIELD, context.classInternalName, newSlot,
+                conMv.visitFieldInsn(PUTFIELD, ctx().classInternalName, newSlot,
                     getDescriptor(val.getClass()));
 
                 return newSlot;
@@ -274,7 +285,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
             // get field
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitFieldInsn(GETFIELD, context.classInternalName, slot,
+            mv.visitFieldInsn(GETFIELD, ctx().classInternalName, slot,
                 getDescriptor(val.getClass()));
         }
         // unknown constant
@@ -291,7 +302,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         if (exp.token.is(TokenType.IDENTIFIER)) {
-            if (context.option.treatGetterNoSideEffect) {
+            if (compilingContext.option.treatGetterNoSideEffect) {
                 accessOnTree(exp);
             } else {
                 loadContext();
@@ -436,7 +447,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     @Override
     protected void visit(MemberExpression exp) {
         // for static member expression
-        if (context.option.treatGetterNoSideEffect && exp.isStatic) {
+        if (compilingContext.option.treatGetterNoSideEffect && exp.isStatic) {
             accessOnTree(exp);
         }
         // for dynamic member expression
@@ -465,7 +476,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(LambdaExpression exp) {
-
     }
 
     /**
@@ -473,7 +483,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
      */
     private void accessOnTree(PropertyAccessNode astNode) {
         $.should(astNode.isStatic);
-        $.should(context.option.treatGetterNoSideEffect);
+        $.should(compilingContext.option.treatGetterNoSideEffect);
 
         PropertyNode propertyNode = astNode.propertyNode;
         mv.visitVarInsn(ALOAD, propertyNode.variableIndex);
@@ -517,9 +527,9 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void applyFunction(FunctionInfo info, List<ExpressionNode> args) {
-        if (info.inline && context.option.inlineFunction) {
+        if (info.inline && compilingContext.option.inlineFunction) {
             // inline the function
-            JExpByteCodeTransformer.transform(info, this, mv, args, context);
+            JExpByteCodeTransformer.transform(info, this, mv, args, compilingContext);
         } else {
             if (args.size() != info.method.getParameterCount()) {
                 throw new JExpFunctionLoadException(info.name + " has " + info.method.getParameterCount() +
@@ -538,10 +548,106 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void appendDebugInfo(DebugNo debugNo) {
-        if (context.option.debugInfo) {
+        if (compilingContext.option.debugInfo) {
             var lb = new Label();
             mv.visitLabel(lb);
             mv.visitLineNumber(debugNo.getFlag(), lb);
+        }
+    }
+
+    //~~~ generate context helper
+    private GenerateContext ctx() {
+        return ctxStack.peek();
+    }
+
+    private void resetShortCuts() {
+        if (ctxStack.isEmpty()) {
+            return;
+        }
+
+        cw = ctx().cw;
+        mv = ctx().mv;
+        conMv = ctx().conMv;
+    }
+
+    private GenerateContext newCtx(String className, NameClosure names) {
+        var ctx = new GenerateContext();
+        ctx.className = className;
+        ctx.classInternalName = className.replace('.', '/');
+        ctx.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ctx.names = names;
+
+        return ctx;
+    }
+
+    /**
+     * the generate context
+     */
+    private class GenerateContext {
+        //~~~ names
+        public NameClosure names;
+
+        //~~~ compiling class name
+        /**
+         * the standard class name
+         */
+        public String className;
+
+        /**
+         * internal class name
+         */
+        public String classInternalName;
+
+        //~~~ asm
+        /**
+         * class writer
+         */
+        private ClassWriter cw;
+
+        /**
+         * execute method visitor
+         */
+        private MethodVisitor mv;
+
+        /**
+         * constructor method visitor
+         */
+        private MethodVisitor conMv;
+
+        //~~~ compiling constants
+        /**
+         * constant slots count
+         */
+        public int constantCount = 0;
+
+        /**
+         * constant slots map
+         */
+        public Map<Object, String> constantSlots = new HashMap<>();
+
+        //~~~ compiling variables
+        /**
+         * number of variables
+         */
+        public int variableCount = 0;
+
+        //~~~ helpers
+        public int nextVariableIndex() {
+            return variableCount++;
+        }
+
+        /**
+         * run runnable in this ctx
+         */
+        public void wrap(Runnable runnable) {
+            try {
+                ctxStack.push(this);
+                resetShortCuts();
+                runnable.run();
+            } finally {
+                ctxStack.pop();
+                resetShortCuts();
+            }
         }
     }
 }

@@ -6,7 +6,6 @@ package ranttu.rapid.jexp.compile.pass;
 
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.CompilingContext;
-import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
@@ -15,23 +14,18 @@ import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 /**
  * @author dongwei.dq
  * @version $Id: NoReturnPass.java, v0.1 2017-08-24 6:08 PM dongwei.dq Exp $
  */
 public abstract class NoReturnPass implements Pass {
-    protected CompilingContext context;
-
-    protected Deque<NameClosure> nameStack = new ArrayDeque<>();
+    protected CompilingContext compilingContext;
 
     @Override
     public void apply(ExpressionNode astNode, CompilingContext context) {
-        this.context = context;
+        this.compilingContext = context;
         prepare();
-        in(context.names, () -> visit(astNode));
+        visit(astNode);
     }
 
     protected void prepare() {
@@ -60,19 +54,6 @@ public abstract class NoReturnPass implements Pass {
                 break;
             default:
                 $.notSupport(astNode.type);
-        }
-    }
-
-    protected NameClosure names() {
-        return nameStack.peek();
-    }
-
-    protected void in(NameClosure names, Runnable runnable) {
-        try {
-            nameStack.push(names);
-            runnable.run();
-        } finally {
-            nameStack.pop();
         }
     }
 

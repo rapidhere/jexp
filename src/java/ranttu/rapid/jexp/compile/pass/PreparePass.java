@@ -26,6 +26,9 @@ import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 /**
  * do some prepare jobs
  * include:
@@ -38,9 +41,15 @@ import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
  * @version $Id: TypeInferPass.java, v0.1 2017-08-24 6:06 PM dongwei.dq Exp $
  */
 public class PreparePass extends NoReturnPass {
+    /**
+     * closures
+     */
+    protected Deque<NameClosure> nameStack = new ArrayDeque<>();
+
     @Override
     protected void prepare() {
-        context.names = new NameClosure(null);
+        compilingContext.names = new NameClosure(null);
+        nameStack.push(compilingContext.names);
     }
 
     @Override
@@ -334,5 +343,19 @@ public class PreparePass extends NoReturnPass {
         exp.names = names;
 
         in(names, () -> visit(exp.body));
+    }
+
+    //~~ name helpers
+    protected NameClosure names() {
+        return nameStack.peek();
+    }
+
+    private void in(NameClosure names, Runnable runnable) {
+        try {
+            nameStack.push(names);
+            runnable.run();
+        } finally {
+            nameStack.pop();
+        }
     }
 }

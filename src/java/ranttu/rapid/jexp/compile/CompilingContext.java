@@ -7,9 +7,6 @@ package ranttu.rapid.jexp.compile;
 import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.compile.closure.NameClosure;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * the compiling context
  *
@@ -33,41 +30,10 @@ public class CompilingContext {
      */
     public JExpExpression compiledStub;
 
-    //~~~ compiling class name
-    /**
-     * the standard class name
-     */
-    public String className;
-
-    /**
-     * internal class name
-     */
-    public String classInternalName;
-
-    //~~~ compiling constants
-    /**
-     * constant slots count
-     */
-    public int constantCount = 0;
-
-    /**
-     * constant slots map
-     */
-    public Map<Object, String> constantSlots = new HashMap<>();
 
     //~~~ compiling variables
     /**
-     * names
+     * the root name closure
      */
     public NameClosure names;
-
-    /**
-     * number of variables
-     */
-    public int variableCount = 0;
-
-    //~~~ accessor management
-    public int nextVariableIndex() {
-        return variableCount++;
-    }
 }

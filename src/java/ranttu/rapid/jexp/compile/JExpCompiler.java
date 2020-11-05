@@ -49,14 +49,12 @@ public class JExpCompiler {
         new PreparePass().apply(ast, compilingContext);
 
         // generate byte codes
-        compilingContext.className = nextName();
-        compilingContext.classInternalName = compilingContext.className.replace('.', '/');
         new GeneratePass().apply(ast, compilingContext);
 
         return compilingContext.compiledStub;
     }
 
-    private String nextName() {
+    public static String nextName() {
         return "ranttu.rapid.jexp.JExpCompiledExpression$" + nameCount++;
     }
 }
