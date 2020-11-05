@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.compile;
 
+import ranttu.rapid.jexp.JExpExpression;
+
 import java.util.Collections;
 import java.util.Set;
 

@@ -8,8 +8,8 @@ import org.testng.AssertJUnit;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
+import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.compile.CompileOption;
-import ranttu.rapid.jexp.compile.JExpExpression;
 
 /**
  * @author rapid

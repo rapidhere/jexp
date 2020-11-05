@@ -16,8 +16,8 @@ import org.mvel2.MVEL;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.JExp;
+import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.compile.CompileOption;
-import ranttu.rapid.jexp.compile.JExpExpression;
 
 import java.io.IOException;
 import java.io.Serializable;

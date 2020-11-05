@@ -3,10 +3,6 @@ package ranttu.rapid.jexp;
 import lombok.experimental.var;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.JExpCompiler;
-import ranttu.rapid.jexp.compile.JExpExpression;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * The jExp facade
@@ -55,28 +51,5 @@ final public class JExp {
     public static JExpExpression compile(String expression, CompileOption compileOption) {
         var compiler = new JExpCompiler(compileOption);
         return compiler.compile(expression);
-    }
-
-    // ~~~
-    // only for common test usage
-    public static void main(String[] args) {
-        // option
-        var option = new CompileOption();
-        option.inlineFunction = false;
-        var expression = compile("obj.get(key)", option);
-
-        var context = new HashMap<String, Object>();
-        var map0 = new HashMap<String, String>();
-        map0.put("hello", "world");
-        context.put("obj", map0);
-        context.put("key", "hello");
-        System.out.println(expression.execute(context));
-
-        var arr0 = new ArrayList<String>();
-        arr0.add("hello");
-        arr0.add("world");
-        context.put("obj", arr0);
-        context.put("key", 0);
-        System.out.println(expression.execute(context));
     }
 }

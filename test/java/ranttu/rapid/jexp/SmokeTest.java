@@ -6,7 +6,6 @@ package ranttu.rapid.jexp;
 
 import org.testng.annotations.Test;
 import ranttu.rapid.jexp.compile.CompileOption;
-import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.data.ImmutableRecursiveContext;
 import ranttu.rapid.jexp.data.TestFunctions;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;

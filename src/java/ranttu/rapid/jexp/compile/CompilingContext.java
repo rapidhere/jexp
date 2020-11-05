@@ -4,6 +4,7 @@
  */
 package ranttu.rapid.jexp.compile;
 
+import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.compile.closure.NameClosure;
 
 import java.util.HashMap;

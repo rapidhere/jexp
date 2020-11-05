@@ -1,4 +1,4 @@
-package ranttu.rapid.jexp.compile;
+package ranttu.rapid.jexp;
 
 import java.util.Set;
 

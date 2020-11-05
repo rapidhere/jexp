@@ -5,12 +5,12 @@
 package ranttu.rapid.jexp.compile.pass;
 
 import lombok.experimental.var;
+import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.Types;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
-import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
 import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.constant.DebugNo;

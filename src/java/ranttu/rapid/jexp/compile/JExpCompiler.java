@@ -1,5 +1,6 @@
 package ranttu.rapid.jexp.compile;
 
+import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.compile.parse.JExpParser;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
