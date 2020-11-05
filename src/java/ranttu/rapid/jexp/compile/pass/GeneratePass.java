@@ -564,7 +564,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                     mv.visitVarInsn(ALOAD, 1);
                     mv.visitLdcInsn(idNode.functionParameterIndex);
                     mv.visitInsn(AALOAD);
-                    mv.visitVarInsn(ASTORE, idNode.variableIndex);
                 }
                 // otherwise, from closure, and store closure in local variable
                 else {
@@ -580,8 +579,9 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
                     mv.visitVarInsn(ALOAD, 0);
                     mv.visitFieldInsn(GETFIELD,
                         ctx.classInternalName, closureFieldName, "Ljava/lang/Object;");
-                    mv.visitVarInsn(ASTORE, idNode.variableIndex);
                 }
+                // store in local
+                mv.visitVarInsn(ASTORE, idNode.variableIndex);
 
                 // when optimizing on, dup on stack
                 if (compilingContext.option.treatGetterNoSideEffect) {
