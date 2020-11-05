@@ -81,3 +81,25 @@
 - desc: simple lambda 2
   exp: 'lang.run_func((a, b) => {a + b}, ["hello", "world"])'
   res: helloworld
+
+- desc: lambda closure 1
+  exp: 'lang.run_func((b) => {a + b}, ["hello"])'
+  ctx:
+    a: "world"
+    b: "nima"
+  res: worldhello
+
+- desc: lambda closure 2
+  exp: 'a + lang.run_func((b) => {a + b}, ["hello"]) + b'
+  ctx:
+    a: "world"
+    b: "nima"
+  res: worldworldhellonima
+
+- desc: lambda closure 3
+  exp: 'lang.run_func(lang.run_func((b) => { (a) => {a - b - c} }, [2]), [1])'
+  ctx:
+    a: 2142141
+    b: -1312341
+    c: 77777
+  res: -77778

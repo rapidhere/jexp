@@ -28,8 +28,9 @@ public class SmokeTest {
         compileOption.debugInfo = true;
         compileOption.treatGetterNoSideEffect = true;
 
-        JExpExpression exp = JExp.compile("(a, b) => { a + b }", compileOption);
-        JExpFunctionHandle func = exp.exec(o);
-        System.out.println((Object) func.exec(1 , 2));
+        JExpExpression exp = JExp.compile("(b) => { (a) => {a + b + c} }", compileOption);
+        JExpFunctionHandle funcOuter = exp.exec(o);
+        JExpFunctionHandle funcInner = funcOuter.exec(2);
+        System.out.println((Object) funcInner.exec(1));
     }
 }

@@ -25,7 +25,6 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
-import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
@@ -153,7 +152,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
         ctx().names.visitStaticPathOnTree(idNode -> {
             // for root node, load context on stack
-            if (idNode.isRoot) {
+            if (idNode.isRoot()) {
                 // for a empty tree, do nothing
                 if (!idNode.children.isEmpty()) {
                     loadContext();
@@ -166,13 +165,10 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             }
 
             // dup for each child
-            int dupSize = idNode.needDupChildrenCount() + (idNode.isStatic() ? 1 : 0);
-            for (int i = 1; i < dupSize; i++) {
-                mv.visitInsn(DUP);
-            }
+            dupN(idNode.needDupChildrenCount() + (idNode.isRoot() ? 0 : 1) - 1);
 
             // if this a access point, store
-            if (!idNode.isRoot) {
+            if (!idNode.isRoot()) {
                 idNode.variableIndex = ctx().nextVariableIndex();
                 mv.visitVarInsn(ASTORE, idNode.variableIndex);
             }
@@ -293,15 +289,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
 
         if (exp.token.is(TokenType.IDENTIFIER)) {
-            if (compilingContext.option.treatGetterNoSideEffect) {
-                accessOnTree(exp);
-            } else {
-                loadContext();
-                invokeAccessorGetter(
-                    exp.getSlotNo(),
-                    () -> mv.visitLdcInsn(exp.propertyNode.identifier)
-                );
-            }
+            $.should(exp.isStatic);
+            loadIdentifierValueOnStack(exp.propertyNode);
         }
     }
 
@@ -437,9 +426,14 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(MemberExpression exp) {
-        // for static member expression
         if (compilingContext.option.treatGetterNoSideEffect && exp.isStatic) {
-            accessOnTree(exp);
+            $.should(exp.propertyNode != null && exp.propertyNode.variableIndex >= 0);
+        }
+
+        // for static member expression
+        if (exp.propertyNode != null && exp.propertyNode.variableIndex >= 0) {
+            $.should(exp.isStatic);
+            accessViaLocalVariable(exp.propertyNode);
         }
         // for dynamic member expression
         else {
@@ -470,6 +464,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         var ctx = newCtx(GCtxType.FUNC_BODY, JExpCompiler.nextFunctionName(), exp.names);
         // reserved
         ctx.variableCount = 2 + exp.parameters.size();
+        // init function parameter variable index
+        for (String parId : exp.parameters) {
+            var node = exp.names.getLocalName(parId);
+            node.variableIndex = node.functionParameterIndex + 2;
+        }
 
         Class<JExpFunctionHandle> klass = ctx.wrap(() -> {
             //~~~ prepare class
@@ -523,11 +522,29 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             return defineClass();
         });
 
+        // NOTE:
+        // keep in mind, the shortcuts mv, cw, conMv is now parent context!!!
+
         // after function prepared, put function instance on stack
         mv.visitTypeInsn(NEW, Type.getInternalName(klass));
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL
             , Type.getInternalName(klass), "<init>", "()V", false);
+
+        // set closure arguments
+        for (var idNode : ctx.names.properties.values()) {
+            // filter closure node
+            if (idNode.closureIndex < 0) {
+                continue;
+            }
+
+            mv.visitInsn(DUP);
+            // find from parent
+            loadIdentifierValueOnStack(ctx.names.parent.getLocalName(idNode.identifier));
+            // set field
+            mv.visitFieldInsn(PUTFIELD, ctx.classInternalName, "closure$" + idNode.closureIndex,
+                "Ljava/lang/Object;");
+        }
     }
 
     private void prepareFunctionExpressionMethod(GenerateContext ctx) {
@@ -536,31 +553,91 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         // put arguments on stack
         ctx.names.visitStaticPathOnTree((idNode) -> {
             // omit root node
-            if (idNode.isRoot) {
+            if (idNode.isRoot()) {
                 return;
             }
 
-            // for function parameters, store in local variables
-            if (idNode.isFunctionParameter) {
-                var index = idNode.variableIndex - 2;
-                mv.visitVarInsn(ALOAD, 1);
-                mv.visitLdcInsn(index);
-                mv.visitInsn(AALOAD);
+            // first level properties
+            if (idNode.parent.isRoot()) {
+                // for function parameters, store in local variables
+                if (idNode.isFunctionParameter) {
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitLdcInsn(idNode.functionParameterIndex);
+                    mv.visitInsn(AALOAD);
+                    mv.visitVarInsn(ASTORE, idNode.variableIndex);
+                }
+                // otherwise, from closure, and store closure in local variable
+                else {
+                    idNode.closureIndex = ctx.nextClosureNameCount();
+                    idNode.variableIndex = ctx.nextVariableIndex();
+                    var closureFieldName = "closure$" + idNode.closureIndex;
+
+                    // prepare closure field
+                    cw.visitField(ACC_SYNTHETIC + ACC_PUBLIC,
+                        closureFieldName, "Ljava/lang/Object;", null, null);
+
+                    // get closure value
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitFieldInsn(GETFIELD,
+                        ctx.classInternalName, closureFieldName, "Ljava/lang/Object;");
+                    mv.visitVarInsn(ASTORE, idNode.variableIndex);
+                }
+
+                // when optimizing on, dup on stack
+                if (compilingContext.option.treatGetterNoSideEffect) {
+                    if (idNode.needDupChildrenCount() > 0) {
+                        mv.visitVarInsn(ALOAD, idNode.variableIndex);
+                        dupN(idNode.needDupChildrenCount() - 1);
+                    }
+                }
+            }
+            // for other nodes, visit via member-exp
+            // when optimizing off, don't need to do this
+            else if (compilingContext.option.treatGetterNoSideEffect) {
+                // put on stack
+                invokeAccessorGetter(idNode.slotNo,
+                    () -> mv.visitLdcInsn(idNode.identifier));
+                // dup for each child
+                // one more for access point
+                dupN(idNode.needDupChildrenCount());
+
+                // store access point
+                idNode.variableIndex = ctx().nextVariableIndex();
                 mv.visitVarInsn(ASTORE, idNode.variableIndex);
-            } else {
-                $.notSupport("not supported yet");
             }
         });
+    }
+
+    private void dupN(int n) {
+        for (int i = 0; i < n; i++) {
+            mv.visitInsn(DUP);
+        }
+    }
+
+    private void loadIdentifierValueOnStack(PropertyNode propertyNode) {
+        if (compilingContext.option.treatGetterNoSideEffect) {
+            $.should(propertyNode.variableIndex >= 0);
+        }
+
+        if (propertyNode.variableIndex >= 0) {
+            accessViaLocalVariable(propertyNode);
+        } else if (ctx().type == GCtxType.ROOT_EXP) {
+            loadContext();
+            invokeAccessorGetter(
+                propertyNode.slotNo,
+                () -> mv.visitLdcInsn(propertyNode.identifier)
+            );
+        }
+        // for function body, should all load via variable index
+        else {
+            $.shouldNotReach();
+        }
     }
 
     /**
      * access a property on access tree
      */
-    private void accessOnTree(PropertyAccessNode astNode) {
-        $.should(astNode.isStatic);
-        $.should(compilingContext.option.treatGetterNoSideEffect);
-
-        PropertyNode propertyNode = astNode.propertyNode;
+    private void accessViaLocalVariable(PropertyNode propertyNode) {
         mv.visitVarInsn(ALOAD, propertyNode.variableIndex);
     }
 
@@ -733,9 +810,18 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
          */
         public int variableCount = 0;
 
+        /**
+         * number of closure parameters
+         */
+        public int closureNameCount = 0;
+
         //~~~ helpers
         public int nextVariableIndex() {
             return variableCount++;
+        }
+
+        public int nextClosureNameCount() {
+            return closureNameCount++;
         }
 
         /**

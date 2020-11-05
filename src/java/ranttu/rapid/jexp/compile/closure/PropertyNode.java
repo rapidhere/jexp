@@ -27,6 +27,11 @@ public class PropertyNode {
     public String identifier;
 
     /**
+     * parent of this node
+     */
+    public PropertyNode parent;
+
+    /**
      * the access slot
      *
      * @see ranttu.rapid.jexp.runtime.indy.JExpIndyFactory#nextSlotNo
@@ -39,19 +44,24 @@ public class PropertyNode {
     public Map<String, PropertyNode> children = new HashMap<>();
 
     /**
-     * whether this node is root or not
-     */
-    public boolean isRoot = true;
-
-    /**
      * the variable index for this node
      */
-    public int variableIndex;
+    public int variableIndex = -1;
+
+    /**
+     * the closure index of this node
+     */
+    public int closureIndex = -1;
 
     /**
      * is this a function parameter
      */
     public boolean isFunctionParameter = false;
+
+    /**
+     * the index when this node is the parameter of a function
+     */
+    public int functionParameterIndex = -1;
 
     /**
      * related closure of this property
@@ -75,6 +85,13 @@ public class PropertyNode {
         }
 
         return cnt;
+    }
+
+    /**
+     * test this node is root or not
+     */
+    public boolean isRoot() {
+        return parent == null;
     }
 
     /**

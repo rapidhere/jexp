@@ -51,6 +51,13 @@ public class NameClosure {
     }
 
     /**
+     * get name only in this scope
+     */
+    public PropertyNode getLocalName(String id) {
+        return properties.get(id);
+    }
+
+    /**
      * declare a name under this scope
      */
     public PropertyNode declareName(String id) {
@@ -58,7 +65,7 @@ public class NameClosure {
             throw new DuplicatedName(id);
         }
 
-        var node = newNode(id);
+        var node = newNode(id, rootNode);
         properties.put(id, node);
 
         return node;
@@ -75,16 +82,23 @@ public class NameClosure {
             var prevNode = rootNode.children.put(id, node);
             $.should(prevNode == null || prevNode == node);
             return node;
-        }
-        // for root closure, declare the name, add access to propertyTree
-        else if (parent == null) {
-            var node = addNameAccess(rootNode, id);
-            properties.put(id, node);
-            return node;
-        }
-        // otherwise, name is access via parent closure
-        else {
-            return parent.addNameAccess(id);
+        } else {
+            // for root closure, declare the name, add access to propertyTree
+            if (parent == null) {
+                var node = addNameAccess(rootNode, id);
+                properties.put(id, node);
+                return node;
+            }
+            // otherwise, name is access via parent closure
+            else {
+                // declare a name access on parent path
+                parent.addNameAccess(id);
+
+                // add name access in current closure
+                var node = addNameAccess(rootNode, id);
+                properties.put(id, node);
+                return node;
+            }
         }
     }
 
@@ -92,7 +106,7 @@ public class NameClosure {
      * add a name access to a owner
      */
     public PropertyNode addNameAccess(PropertyNode owner, String id) {
-        return owner.children.computeIfAbsent(id, this::newNode);
+        return owner.children.computeIfAbsent(id, k -> newNode(id, owner));
     }
 
     /**
@@ -100,7 +114,7 @@ public class NameClosure {
      */
     public void visitStaticPathOnTree(Consumer<PropertyNode> v) {
         rootNode.visit(propertyNode -> {
-            if (propertyNode.isRoot || propertyNode.isStatic()) {
+            if (propertyNode.isRoot() || propertyNode.isStatic()) {
                 v.accept(propertyNode);
                 return true;
             } else {
@@ -110,10 +124,10 @@ public class NameClosure {
     }
 
     //~~~ impl
-    private PropertyNode newNode(String id) {
+    private PropertyNode newNode(String id, PropertyNode parent) {
         var newNode = new PropertyNode(this);
         newNode.identifier = id;
-        newNode.isRoot = false;
+        newNode.parent = parent;
         newNode.slotNo = JExpIndyFactory.nextSlotNo();
 
         return newNode;
