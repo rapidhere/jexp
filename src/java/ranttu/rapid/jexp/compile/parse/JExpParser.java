@@ -1,6 +1,7 @@
 package ranttu.rapid.jexp.compile.parse;
 
 import lombok.experimental.var;
+import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.compile.jflex.Lexer;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
@@ -236,12 +237,15 @@ public class JExpParser {
                 } else {
                     throw new UnexpectedToken(t);
                 }
-
-                t = peek();
-                if (t.is(TokenType.LEFT_BRACE)) {
+                
+                if (peek().is(TokenType.LEFT_BRACE)) {
                     next();
                     var items = parseItems(TokenType.RIGHT_BRACE);
-                    exp = new LambdaExpression(pars, new CommaExpression(items));
+                    if (items.size() != 1) {
+                        $.notSupport("comma expression or empty expression");
+                    }
+
+                    exp = new LambdaExpression(pars, items.get(0));
                 } else {
                     exp = new LambdaExpression(pars, parseExp());
                 }

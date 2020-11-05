@@ -6,12 +6,17 @@ package ranttu.rapid.jexp.compile.pass;
 
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.compile.CompilingContext;
+import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
+import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * @author dongwei.dq
@@ -20,11 +25,13 @@ import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 public abstract class NoReturnPass implements Pass {
     protected CompilingContext context;
 
+    protected Deque<NameClosure> nameStack = new ArrayDeque<>();
+
     @Override
     public void apply(ExpressionNode astNode, CompilingContext context) {
         this.context = context;
         prepare();
-        visit(astNode);
+        in(context.names, () -> visit(astNode));
     }
 
     protected void prepare() {
@@ -48,8 +55,24 @@ public abstract class NoReturnPass implements Pass {
             case ARRAY_EXP:
                 visit((ArrayExpression) astNode);
                 break;
+            case LAMBDA_EXP:
+                visit((LambdaExpression) astNode);
+                break;
             default:
                 $.notSupport(astNode.type);
+        }
+    }
+
+    protected NameClosure names() {
+        return nameStack.peek();
+    }
+
+    protected void in(NameClosure names, Runnable runnable) {
+        try {
+            nameStack.push(names);
+            runnable.run();
+        } finally {
+            nameStack.pop();
         }
     }
 
@@ -62,4 +85,6 @@ public abstract class NoReturnPass implements Pass {
     protected abstract void visit(MemberExpression exp);
 
     protected abstract void visit(ArrayExpression exp);
+
+    protected abstract void visit(LambdaExpression exp);
 }

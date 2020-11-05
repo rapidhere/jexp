@@ -2,7 +2,6 @@ package ranttu.rapid.jexp.compile;
 
 import ranttu.rapid.jexp.compile.parse.JExpParser;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
-import ranttu.rapid.jexp.compile.pass.AccessTreeMarkPass;
 import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.compile.pass.PreparePass;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
@@ -47,7 +46,6 @@ public class JExpCompiler {
 
         // prepares
         new PreparePass().apply(ast, compilingContext);
-        new AccessTreeMarkPass().apply(ast, compilingContext);
 
         // generate byte codes
         compilingContext.className = nextName();

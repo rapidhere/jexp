@@ -6,6 +6,7 @@ package ranttu.rapid.jexp.compile.parse.ast;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import ranttu.rapid.jexp.compile.closure.NameClosure;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LambdaExpression extends ExpressionNode {
     /**
-     * parameter
+     * parameter, all is identifier
      */
     @NonNull
     public List<String> parameters;
@@ -29,4 +30,9 @@ public class LambdaExpression extends ExpressionNode {
      */
     @NonNull
     public ExpressionNode body;
+
+    /**
+     * names under this closure
+     */
+    public NameClosure names;
 }

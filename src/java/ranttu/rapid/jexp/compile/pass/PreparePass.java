@@ -8,13 +8,14 @@ import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.Types;
-import ranttu.rapid.jexp.compile.PropertyTree;
+import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
+import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -39,7 +40,7 @@ import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 public class PreparePass extends NoReturnPass {
     @Override
     protected void prepare() {
-        context.propertyTree = new PropertyTree();
+        context.names = new NameClosure(null);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class PreparePass extends NoReturnPass {
 
                 // build id tree
                 primary.isStatic = true;
-                context.propertyTree.addToRoot(primary, AstUtil.asId(primary));
+                primary.propertyNode = context.names.addNameAccess(AstUtil.asId(primary));
                 return;
             default:
                 $.notSupport(t.type);
@@ -296,10 +297,15 @@ public class PreparePass extends NoReturnPass {
 
         if (member.owner instanceof PropertyAccessNode) {
             var owner = (PropertyAccessNode) member.owner;
-            context.propertyTree.add(owner.propertyNode, member,
-                AstUtil.asConstantString(member.propertyName));
-        } else {
-            context.propertyTree.freePropertyNode(member, AstUtil.asConstantString(member.propertyName));
+            if (owner.propertyNode != null) {
+                member.propertyNode = context.names.addNameAccess(owner.propertyNode,
+                    AstUtil.asConstantString(member.propertyName));
+            }
+        }
+
+        if (member.propertyNode == null) {
+            // set slotNo
+            member.slotNo = JExpIndyFactory.nextSlotNo();
         }
 
         // currently member expression is always not a constant
@@ -313,5 +319,20 @@ public class PreparePass extends NoReturnPass {
         exp.valueType = Types.JEXP_ARRAY;
 
         exp.items.forEach(this::visit);
+    }
+
+    @Override
+    protected void visit(LambdaExpression exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        // construct names
+        var names = new NameClosure(names());
+        for (var parId : exp.parameters) {
+            names.declareName(parId);
+        }
+        exp.names = names;
+
+        in(names, () -> visit(exp.body));
     }
 }

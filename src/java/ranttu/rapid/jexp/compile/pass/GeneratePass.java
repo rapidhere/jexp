@@ -12,13 +12,14 @@ import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.JExpExpression;
 import ranttu.rapid.jexp.compile.JExpImmutableExpression;
-import ranttu.rapid.jexp.compile.PropertyTree;
+import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.constant.DebugNo;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
+import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -138,7 +139,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
         appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
 
-        context.propertyTree.visit(idNode -> {
+        context.names.visitTree(idNode -> {
             // for root node, load context on stack
             if (idNode.isRoot) {
                 // for a empty tree, do nothing
@@ -149,21 +150,22 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             // invoke the accessor to get the property
             else {
                 // dynamic identifier, just return
-                if (idNode.identifier == null) {
+                if (!idNode.isStatic()) {
                     return;
                 }
+
                 invokeAccessorGetter(idNode.slotNo,
                     () -> mv.visitLdcInsn(idNode.identifier));
             }
 
             // dup for each child
-            int dupSize = idNode.needDupChildrenCount() + (idNode.isAccessPoint ? 1 : 0);
+            int dupSize = idNode.needDupChildrenCount() + (idNode.isStatic() ? 1 : 0);
             for (int i = 1; i < dupSize; i++) {
                 mv.visitInsn(DUP);
             }
 
             // if this a access point, dup and store
-            if (idNode.isAccessPoint) {
+            if (idNode.isStatic()) {
                 idNode.variableIndex = context.nextVariableIndex();
                 mv.visitVarInsn(ASTORE, idNode.variableIndex);
             }
@@ -292,7 +294,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             } else {
                 loadContext();
                 invokeAccessorGetter(
-                    exp.propertyNode.slotNo,
+                    exp.getSlotNo(),
                     () -> mv.visitLdcInsn(exp.propertyNode.identifier)
                 );
             }
@@ -439,7 +441,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         else {
             visit(exp.owner);
             invokeAccessorGetter(
-                exp.propertyNode.slotNo,
+                exp.getSlotNo(),
                 () -> visit(exp.propertyName));
         }
     }
@@ -459,6 +461,11 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         });
     }
 
+    @Override
+    protected void visit(LambdaExpression exp) {
+
+    }
+
     /**
      * access a property on access tree
      */
@@ -466,7 +473,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         $.should(astNode.isStatic);
         $.should(context.option.treatGetterNoSideEffect);
 
-        PropertyTree.PropertyNode propertyNode = astNode.propertyNode;
+        PropertyNode propertyNode = astNode.propertyNode;
         mv.visitVarInsn(ALOAD, propertyNode.variableIndex);
     }
 

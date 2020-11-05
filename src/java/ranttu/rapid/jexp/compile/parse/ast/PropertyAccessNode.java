@@ -4,7 +4,7 @@
  */
 package ranttu.rapid.jexp.compile.parse.ast;
 
-import ranttu.rapid.jexp.compile.PropertyTree;
+import ranttu.rapid.jexp.compile.closure.PropertyNode;
 
 /**
  * a node that can fetch a property
@@ -16,11 +16,25 @@ public abstract class PropertyAccessNode extends ExpressionNode {
     /**
      * access node on the access tree of this ast node
      */
-    public PropertyTree.PropertyNode propertyNode;
+    public PropertyNode propertyNode;
 
     /**
      * if this is a static access?
      */
     public boolean isStatic = false;
 
+    /**
+     * the slot no of this node when access
+     *
+     * @see ranttu.rapid.jexp.runtime.indy.JExpIndyFactory#nextSlotNo
+     */
+    public int slotNo;
+
+    /**
+     * if has a property node, use node's
+     * else, use selves
+     */
+    public int getSlotNo() {
+        return propertyNode == null ? slotNo : propertyNode.slotNo;
+    }
 }

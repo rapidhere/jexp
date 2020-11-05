@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.compile;
 
+import ranttu.rapid.jexp.compile.closure.NameClosure;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,9 +56,9 @@ public class CompilingContext {
 
     //~~~ compiling variables
     /**
-     * access tree
+     * names
      */
-    public PropertyTree propertyTree;
+    public NameClosure names;
 
     /**
      * number of variables
