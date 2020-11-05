@@ -9,7 +9,7 @@ import lombok.experimental.var;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * a access property node
@@ -49,6 +49,11 @@ public class PropertyNode {
     public int variableIndex;
 
     /**
+     * is this a function parameter
+     */
+    public boolean isFunctionParameter = false;
+
+    /**
      * related closure of this property
      */
     /* package-private */ final NameClosure closure;
@@ -72,11 +77,18 @@ public class PropertyNode {
         return cnt;
     }
 
-    /* package-private */ void visit(Consumer<PropertyNode> tv) {
-        tv.accept(this);
+    /**
+     * visit on tree, dfs
+     *
+     * @param tv return true on continue visit children
+     */
+    /* package-private */ void visit(Function<PropertyNode, Boolean> tv) {
+        var res = tv.apply(this);
 
-        for (PropertyNode child : children.values()) {
-            child.visit(tv);
+        if (res) {
+            for (PropertyNode child : children.values()) {
+                child.visit(tv);
+            }
         }
     }
 }

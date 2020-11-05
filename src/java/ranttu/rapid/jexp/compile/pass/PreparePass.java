@@ -337,8 +337,11 @@ public class PreparePass extends NoReturnPass {
 
         // construct names
         var names = new NameClosure(names());
+        int idx = 2;
         for (var parId : exp.parameters) {
-            names.declareName(parId);
+            var node = names.declareName(parId);
+            node.variableIndex = idx++;
+            node.isFunctionParameter = true;
         }
         exp.names = names;
 

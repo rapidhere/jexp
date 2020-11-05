@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public enum DebugNo {
     ACC_TREE_PREPARE_START(0x0001),
 
-    ACC_TREE_PREPARE_END(0x0002),
+    MAIN_CONTENT_START(0x0002),
 
     ;
     @Getter

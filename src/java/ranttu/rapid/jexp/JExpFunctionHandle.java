@@ -13,7 +13,7 @@ import lombok.experimental.var;
  * @version : JExpFunction.java, v 0.1 2020-11-05 11:22 AM rapid Exp $
  */
 @FunctionalInterface
-public interface JExpFunction {
+public interface JExpFunctionHandle {
     /**
      * invoke the function
      *
@@ -27,7 +27,7 @@ public interface JExpFunction {
     /**
      * a convenience for default invoke method
      *
-     * @see JExpFunction#invoke(Object[])
+     * @see JExpFunctionHandle#invoke(Object[])
      */
     default <T> T exec(Object... args) {
         @SuppressWarnings("unchecked") var res = (T) invoke(args);

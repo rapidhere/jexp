@@ -2,8 +2,9 @@
  * Alipay.com Inc.
  * Copyright (c) 2004-2017 All Rights Reserved.
  */
-package ranttu.rapid.jexp.compile;
+package ranttu.rapid.jexp.runtime;
 
+import lombok.experimental.var;
 import ranttu.rapid.jexp.JExpExpression;
 
 /**
@@ -19,7 +20,7 @@ public class JExpImmutableExpression implements JExpExpression {
     }
 
     public static JExpImmutableExpression of(Object val) {
-        JExpImmutableExpression exp = new JExpImmutableExpression();
+        var exp = new JExpImmutableExpression();
         exp.val = val;
 
         return exp;

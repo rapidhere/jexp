@@ -5,6 +5,7 @@
 package ranttu.rapid.jexp.compile.closure;
 
 import lombok.experimental.var;
+import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.exception.DuplicatedName;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
@@ -52,12 +53,15 @@ public class NameClosure {
     /**
      * declare a name under this scope
      */
-    public void declareName(String id) {
+    public PropertyNode declareName(String id) {
         if (properties.containsKey(id)) {
             throw new DuplicatedName(id);
         }
 
-        properties.put(id, newNode(id));
+        var node = newNode(id);
+        properties.put(id, node);
+
+        return node;
     }
 
     /**
@@ -67,7 +71,10 @@ public class NameClosure {
         // if can find name in current closure
         // then access the name under this closure
         if (properties.containsKey(id)) {
-            return properties.get(id);
+            var node = properties.get(id);
+            var prevNode = rootNode.children.put(id, node);
+            $.should(prevNode == null || prevNode == node);
+            return node;
         }
         // for root closure, declare the name, add access to propertyTree
         else if (parent == null) {
@@ -89,10 +96,17 @@ public class NameClosure {
     }
 
     /**
-     * travel through the property tree, DFS
+     * travel through the static path on property tree, DFS
      */
-    public void visitTree(Consumer<PropertyNode> tv) {
-        rootNode.visit(tv);
+    public void visitStaticPathOnTree(Consumer<PropertyNode> v) {
+        rootNode.visit(propertyNode -> {
+            if (propertyNode.isRoot || propertyNode.isStatic()) {
+                v.accept(propertyNode);
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     //~~~ impl

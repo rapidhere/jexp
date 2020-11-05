@@ -15,7 +15,7 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void test0() {
         try {
             JExpFunctionFactory.register(TestFunctions.class);
@@ -28,7 +28,8 @@ public class SmokeTest {
         compileOption.debugInfo = true;
         compileOption.treatGetterNoSideEffect = true;
 
-        JExpExpression exp = JExp.compile("(a, b) => {1}", compileOption);
-        System.out.println(exp.execute(o));
+        JExpExpression exp = JExp.compile("(a, b) => { a + b }", compileOption);
+        JExpFunctionHandle func = exp.exec(o);
+        System.out.println((Object) func.exec(1 , 2));
     }
 }
