@@ -16,7 +16,7 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test
+    @Test(enabled = false)
     public void test0() {
         try {
             JExpFunctionFactory.register(TestFunctions.class);

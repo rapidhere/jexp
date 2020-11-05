@@ -82,6 +82,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         this.context = context;
         // reserved 2
         this.context.variableCount = 2;
+        // push names
+        nameStack.push(context.names);
 
         // prepare class
         visitClass();
@@ -139,7 +141,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
         appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
 
-        context.names.visitTree(idNode -> {
+        names().visitTree(idNode -> {
             // for root node, load context on stack
             if (idNode.isRoot) {
                 // for a empty tree, do nothing

@@ -70,7 +70,7 @@ public class PreparePass extends NoReturnPass {
 
                 // build id tree
                 primary.isStatic = true;
-                primary.propertyNode = context.names.addNameAccess(AstUtil.asId(primary));
+                primary.propertyNode = names().addNameAccess(AstUtil.asId(primary));
                 return;
             default:
                 $.notSupport(t.type);
@@ -298,7 +298,7 @@ public class PreparePass extends NoReturnPass {
         if (member.owner instanceof PropertyAccessNode) {
             var owner = (PropertyAccessNode) member.owner;
             if (owner.propertyNode != null) {
-                member.propertyNode = context.names.addNameAccess(owner.propertyNode,
+                member.propertyNode = names().addNameAccess(owner.propertyNode,
                     AstUtil.asConstantString(member.propertyName));
             }
         }
