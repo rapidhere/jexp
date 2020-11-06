@@ -21,5 +21,7 @@ public enum AstType {
 
     LAMBDA_EXP,
 
-    COMMA_EXP
+    COMMA_EXP,
+
+    LINQ_EXP,
 }

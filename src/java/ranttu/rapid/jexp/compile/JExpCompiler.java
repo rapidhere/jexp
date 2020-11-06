@@ -7,8 +7,6 @@ import ranttu.rapid.jexp.compile.pass.GeneratePass;
 import ranttu.rapid.jexp.compile.pass.PreparePass;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * the jexp compiler
  *
@@ -20,11 +18,6 @@ public class JExpCompiler {
      * the compile option
      */
     private final CompileOption option;
-
-    /**
-     * the name count
-     */
-    private static AtomicLong nameCountPool = new AtomicLong(0);
 
     public JExpCompiler() {
         this.option = new CompileOption();
@@ -54,14 +47,5 @@ public class JExpCompiler {
         new GeneratePass().apply(ast, compilingContext);
 
         return compilingContext.compiledStub;
-    }
-
-    public static String nextName() {
-        return "ranttu.rapid.jexp.JExpCompiledExpression$" +
-            nameCountPool.getAndIncrement();
-    }
-
-    public static String nextFunctionName() {
-        return "ranttu.rapid.jexp.JExpCompiledFunction$" + nameCountPool.getAndIncrement();
     }
 }

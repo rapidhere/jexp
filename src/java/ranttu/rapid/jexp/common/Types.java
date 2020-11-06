@@ -70,33 +70,29 @@ public class Types {
         }
     }
 
-    public Type getWrapper(Type t) {
+    public Class<?> getWrapperClass(Type t) {
         switch (t.getSort()) {
             case Type.INT:
-                return Type.getType(Integer.class);
+                return Integer.class;
             case Type.BOOLEAN:
-                return Type.getType(Boolean.class);
+                return Boolean.class;
             case Type.BYTE:
-                return Type.getType(Byte.class);
+                return Byte.class;
             case Type.SHORT:
-                return Type.getType(Short.class);
+                return Short.class;
             case Type.LONG:
-                return Type.getType(Long.class);
+                return Long.class;
             case Type.CHAR:
-                return Type.getType(Character.class);
+                return Character.class;
             case Type.FLOAT:
-                return Type.getType(Float.class);
+                return Float.class;
             case Type.DOUBLE:
-                return Type.getType(Double.class);
+                return Double.class;
             case Type.VOID:
-                return Type.getType(Void.class);
+                return Void.class;
             default:
                 return null;
         }
-    }
-
-    public boolean isPrimitive(Class<?> c) {
-        return isPrimitive(Type.getType(c));
     }
 
     public boolean isPrimitive(Type t) {

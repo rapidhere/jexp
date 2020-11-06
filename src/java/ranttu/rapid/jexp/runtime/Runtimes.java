@@ -34,4 +34,37 @@ public class Runtimes {
             return o != null;
         }
     }
+
+    // ~~~ result converts
+    public boolean exactBoolean(Object o) {
+        return (Boolean) o;
+    }
+
+    public byte exactByte(Object o) {
+        return ((Number) o).byteValue();
+    }
+
+    public long exactCharacter(Object o) {
+        return (Character) o;
+    }
+
+    public short exactShort(Object o) {
+        return ((Number) o).shortValue();
+    }
+
+    public int exactInteger(Object o) {
+        return ((Number) o).intValue();
+    }
+
+    public long exactLong(Object o) {
+        return ((Number) o).longValue();
+    }
+
+    public float exactFloat(Object o) {
+        return ((Number) o).floatValue();
+    }
+
+    public double exactDouble(Object o) {
+        return ((Number) o).doubleValue();
+    }
 }

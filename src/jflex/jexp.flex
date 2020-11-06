@@ -60,6 +60,9 @@ OctIntegerLiteral = 0[0-9]+
   "=>"                           { return token(TokenType.POINTER, yytext()); }
   "{"                            { return token(TokenType.LEFT_BRACE, yytext()); }
   "}"                            { return token(TokenType.RIGHT_BRACE, yytext()); }
+  "from"                         { return token(TokenType.FROM, yytext()); }
+  "in"                           { return token(TokenType.IN, yytext()); }
+  "select"                       { return token(TokenType.SELECT, yytext()); }
 
   /* identifiers */
   [a-zA-Z\_][a-zA-Z0-9\_]*       { return token(TokenType.IDENTIFIER, yytext()); }

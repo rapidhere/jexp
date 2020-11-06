@@ -9,11 +9,11 @@ import lombok.experimental.var;
 import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.JExpFunctionHandle;
 import ranttu.rapid.jexp.common.$;
+import ranttu.rapid.jexp.common.ByteCodes;
 import ranttu.rapid.jexp.common.Types;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
 import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
-import ranttu.rapid.jexp.compile.JExpCompiler;
 import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.constant.DebugNo;
@@ -32,8 +32,8 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
-import ranttu.rapid.jexp.runtime.JExpClassLoader;
 import ranttu.rapid.jexp.runtime.JExpImmutableExpression;
+import ranttu.rapid.jexp.runtime.RuntimeCompiling;
 import ranttu.rapid.jexp.runtime.Runtimes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
@@ -92,7 +92,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         this.compilingContext = compilingContext;
 
         //~~~ generate context init
-        var ctx = newCtx(GCtxType.ROOT_EXP, JExpCompiler.nextName(), compilingContext.names);
+        var ctx = newCtx(GCtxType.ROOT_EXP, RuntimeCompiling.nextExpressionName(),
+            compilingContext.names);
         // reserved 2
         ctx.variableCount = 2;
 
@@ -155,7 +156,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             if (idNode.isRoot()) {
                 // for a empty tree, do nothing
                 if (!idNode.children.isEmpty()) {
-                    loadContext();
+                    mv.visitVarInsn(ALOAD, 1);
                 }
             }
             // invoke the accessor to get the property
@@ -461,7 +462,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     @Override
     protected void visit(LambdaExpression exp) {
-        var ctx = newCtx(GCtxType.FUNC_BODY, JExpCompiler.nextFunctionName(), exp.names);
+        var ctx = newCtx(GCtxType.FUNC_BODY, RuntimeCompiling.nextFunctionName(), exp.names);
         // reserved
         ctx.variableCount = 2 + exp.parameters.size();
         // init function parameter variable index
@@ -622,7 +623,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         if (propertyNode.variableIndex >= 0) {
             accessViaLocalVariable(propertyNode);
         } else if (ctx().type == GCtxType.ROOT_EXP) {
-            loadContext();
+            mv.visitVarInsn(ALOAD, 1);
             invokeAccessorGetter(
                 propertyNode.slotNo,
                 () -> mv.visitLdcInsn(propertyNode.identifier)
@@ -642,15 +643,8 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     }
 
     private void mathOpValConvert(MethodVisitor mv, Type valueType) {
-        if (Types.isInt(valueType)) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf",
-                "(I)Ljava/lang/Integer;", false);
-        } else if (Types.isFloat(valueType)) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;",
-                false);
-        } else if (valueType == Type.BOOLEAN_TYPE) {
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf",
-                "(Z)Ljava/lang/Boolean;", false);
+        if (Types.isPrimitive(valueType)) {
+            ByteCodes.box(mv, valueType);
         } else if (Types.isType(valueType, Object.class)) {
             mv.visitInsn(DUP);
             Label l = new Label();
@@ -662,10 +656,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             mv.visitFrame(F_SAME1, 0, null, 1,
                 new Object[]{Types.getFrameDesc(Object.class)});
         }
-    }
-
-    private void loadContext() {
-        mv.visitVarInsn(ALOAD, 1);
     }
 
     // function apply util
@@ -709,18 +699,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
 
     //~~~ generate context helper
     private <T> Class<T> defineClass() {
-        // generate
-        // write class
-        byte[] byteCodes = cw.toByteArray();
-
-        // for debug
-        $.printClass(ctx().className, byteCodes);
-
-        try {
-            return JExpClassLoader.define(ctx().className, byteCodes);
-        } catch (Exception e) {
-            throw new JExpCompilingException("error when define compiled class", e);
-        }
+        return RuntimeCompiling.defineTemporaryClass(ctx().className, cw.toByteArray());
     }
 
     private GenerateContext ctx() {

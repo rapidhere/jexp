@@ -42,6 +42,12 @@ public enum TokenType {
 
     DOT,
 
+    FROM,
+
+    IN,
+
+    SELECT,
+
     /**
      * math
      */

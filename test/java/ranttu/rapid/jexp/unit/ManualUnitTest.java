@@ -4,11 +4,18 @@
  */
 package ranttu.rapid.jexp.unit;
 
+import lombok.experimental.var;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.collections.Lists;
 import ranttu.rapid.jexp.JExp;
 import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.base.ManualUnitTestBase;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author rapid
@@ -39,9 +46,36 @@ public class ManualUnitTest extends ManualUnitTestBase {
 
     @Test
     public void testExecMethod() {
-        JExpExpression exp = JExp.compile("empty", compileOption);
+        var exp = JExp.compile("empty", compileOption);
 
         boolean res = exp.exec("'123'");
         Assert.assertFalse(res);
+    }
+
+    @Test
+    public void testStream() {
+        var exp = JExp.compile("a.stream().distinct().sorted()", compileOption);
+        var ctx = new HashMap<String, Object>() {
+            {
+                var l = new ArrayList<Integer>();
+                l.add(5);
+                l.add(3);
+                l.add(4);
+                l.add(2);
+                l.add(2);
+                l.add(5);
+                l.add(1);
+                put("a", l);
+            }
+        };
+
+        Stream<Integer> stream = exp.exec(ctx);
+        var res = stream.collect(Collectors.toList());
+        Assert.assertEquals(res, Lists.newArrayList(1, 2, 3, 4, 5));
+
+        exp = JExp.compile("a.stream().map((a) => a * 2)", compileOption);
+        stream = exp.exec(ctx);
+        res = stream.collect(Collectors.toList());
+        Assert.assertEquals(res, Lists.newArrayList(10, 6, 8, 4, 4, 10, 2));
     }
 }

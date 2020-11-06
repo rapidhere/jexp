@@ -7,7 +7,10 @@ package ranttu.rapid.jexp.runtime.indy;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.experimental.var;
+import ranttu.rapid.jexp.JExpFunctionHandle;
 import ranttu.rapid.jexp.common.StringUtil;
+import ranttu.rapid.jexp.exception.JExpRuntimeException;
+import ranttu.rapid.jexp.runtime.RuntimeCompiling;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -69,6 +72,8 @@ class MH {
 
     private final Map<Class<?>, Map<String, MethodHandle>> allMethodsCache = new WeakHashMap<>();
 
+    private final Map<Class<?>, MethodHandle> samAdaptorCache = new WeakHashMap<>();
+
     //~~~ accessor methods
 
     /**
@@ -89,7 +94,7 @@ class MH {
     }
 
     /**
-     * get all public methods
+     * get all methods, and wrapped method handle
      */
     @SneakyThrows
     public Map<String, MethodHandle> getAllMethods(Class<?> klass) {
@@ -97,22 +102,64 @@ class MH {
         if ((methods = allMethodsCache.get(klass)) == null) {
             synchronized (allMethodsCache) {
                 if ((methods = allMethodsCache.get(klass)) == null) {
-                    methods = new HashMap<>();
-
-                    for (Method m : klass.getMethods()) {
-                        // TODO: support private method access
-                        // TODO: support static method access
-                        // TODO: support varargs method access
-                        m.setAccessible(true);
-                        // convert to spreader invoke
-                        MethodHandle mh = LOOKUP.unreflect(m)
-                            .asSpreader(Object[].class, m.getParameterCount());
-                        methods.put(m.getName(), mh);
-                    }
-
+                    methods = collectAllMethod(klass);
                     allMethodsCache.put(klass, methods);
                 }
             }
+        }
+
+        return methods;
+    }
+
+    @SneakyThrows
+    private Map<String, MethodHandle> collectAllMethod(Class<?> klass) {
+        Map<String, MethodHandle> methods = new HashMap<>();
+
+        for (Method m : klass.getMethods()) {
+            // TODO: support private method access
+            // TODO: support static method access
+            // TODO: support varargs method access
+            if (Modifier.isStatic(m.getModifiers()) ||
+                m.isVarArgs() || !Modifier.isPublic(m.getModifiers())) {
+                continue;
+            }
+
+            m.setAccessible(true);
+
+            // test sam
+            boolean hasSAM = false;
+            for (var parType : m.getParameterTypes()) {
+                if (isSAM(parType)) {
+                    hasSAM = true;
+                    break;
+                }
+            }
+
+            // convert to methodHandle
+            var unreflected = LOOKUP.unreflect(m);
+
+            // if has sam object, add a wrapper
+            if (hasSAM) {
+                var filters = new MethodHandle[m.getParameterCount()];
+                var parTypes = m.getParameterTypes();
+                for (int i = 0; i < m.getParameterCount(); i++) {
+                    var parType = parTypes[i];
+                    if (!isSAM(parType)) {
+                        filters[i] = MethodHandles.identity(parType);
+                    } else {
+                        filters[i] = getSAMHandle(parType);
+                    }
+                }
+
+                unreflected = MethodHandles.filterArguments(unreflected, 1, filters);
+            }
+
+            // as spread invoker
+            var mh = unreflected
+                .asSpreader(Object[].class, m.getParameterCount());
+
+            // cached
+            methods.put(m.getName(), mh);
         }
 
         return methods;
@@ -147,6 +194,89 @@ class MH {
         }
 
         return res;
+    }
+
+    //~~~ SAM helper
+
+    /**
+     * test if target class is a sam class
+     */
+    public boolean isSAM(Class<?> target) {
+        return findSAMMethod(target) != null;
+    }
+
+
+    /**
+     * generate a SAM Method adaptor handle
+     * thread safe
+     */
+    public MethodHandle getSAMHandle(Class<?> target) {
+        MethodHandle res;
+        if ((res = samAdaptorCache.get(target)) == null) {
+            synchronized (samAdaptorCache) {
+                if ((res = samAdaptorCache.get(target)) == null) {
+                    res = getSAMHandleImpl(target);
+                    samAdaptorCache.put(target, res);
+                }
+            }
+        }
+
+        return res;
+    }
+
+    @SneakyThrows
+    private <T> MethodHandle getSAMHandleImpl(Class<T> target) {
+        // check constructor for non interface
+        if (!target.isInterface()) {
+            try {
+                target.getConstructor();
+            } catch (Throwable e) {
+                throw new JExpRuntimeException("target class have security limit by jvm or have no no-args constructor");
+            }
+        }
+
+        // check sam method
+        var samMethod = findSAMMethod(target);
+        if (samMethod == null) {
+            throw new JExpRuntimeException("target class is not a SAM class: " + target.getName());
+        }
+
+        // define a adaptor class
+        var adaptorClass = RuntimeCompiling.genSAMAdaptorClass(target, samMethod);
+
+        // wrap to methodHandle
+        // i.e,
+        // samTarget = (input instanceof T) ? input : new AdaptorClass(input);
+        var adaptorConstructor =
+            LOOKUP.findConstructor(adaptorClass, methodType(void.class, JExpFunctionHandle.class));
+
+        return MethodHandles.guardWithTest(
+            IS_INSTANCE.bindTo(target),
+            MethodHandles.identity(target).asType(methodType(target, Object.class)),
+            adaptorConstructor.asType(methodType(target, Object.class)));
+    }
+
+    /**
+     * find the sam method of the target class
+     */
+    private Method findSAMMethod(Class<?> target) {
+        Method samMethod = null;
+        for (var m : target.getMethods()) {
+            // modifier check
+            var modifier = m.getModifiers();
+            if (Modifier.isFinal(modifier) || Modifier.isNative(modifier)
+                || !Modifier.isAbstract(modifier) || !Modifier.isPublic(modifier)) {
+                continue;
+            }
+
+            // single method check
+            if (samMethod != null) {
+                return null;
+            }
+            samMethod = m;
+        }
+
+        return samMethod;
     }
 
     //~~~ method handle impl
