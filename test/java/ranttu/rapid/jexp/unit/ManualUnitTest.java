@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 import org.testng.collections.Lists;
 import ranttu.rapid.jexp.JExp;
 import ranttu.rapid.jexp.JExpExpression;
+import ranttu.rapid.jexp.JExpFunctionHandle;
 import ranttu.rapid.jexp.base.ManualUnitTestBase;
 
 import java.util.ArrayList;
@@ -50,6 +51,15 @@ public class ManualUnitTest extends ManualUnitTestBase {
 
         boolean res = exp.exec("'123'");
         Assert.assertFalse(res);
+    }
+
+    @Test
+    public void testExecOnFunction() {
+        var exp = JExp.compile("(a) => a", compileOption);
+
+        JExpFunctionHandle res = exp.exec(null);
+
+        Assert.assertFalse(res.exec(false));
     }
 
     @Test

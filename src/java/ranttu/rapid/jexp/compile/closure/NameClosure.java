@@ -35,8 +35,8 @@ public class NameClosure {
      * <p>
      * then we have the identifier tree:
      * a - b - c - d - e
-     * | |
-     * | -- b - f
+     * |   |
+     * |   -- f
      * ---- g
      */
     final private PropertyNode rootNode = new PropertyNode(this);

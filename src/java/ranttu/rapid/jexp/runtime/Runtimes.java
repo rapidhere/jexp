@@ -37,14 +37,14 @@ public class Runtimes {
 
     // ~~~ result converts
     public boolean exactBoolean(Object o) {
-        return (Boolean) o;
+        return booleanValue(o);
     }
 
     public byte exactByte(Object o) {
         return ((Number) o).byteValue();
     }
 
-    public long exactCharacter(Object o) {
+    public char exactCharacter(Object o) {
         return (Character) o;
     }
 

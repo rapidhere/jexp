@@ -127,10 +127,10 @@ class MH {
             m.setAccessible(true);
 
             // test sam
-            boolean hasSAM = false;
+            boolean hasSAMAdapt = false;
             for (var parType : m.getParameterTypes()) {
-                if (isSAM(parType)) {
-                    hasSAM = true;
+                if (isNeedSAMAdapt(parType)) {
+                    hasSAMAdapt = true;
                     break;
                 }
             }
@@ -139,12 +139,12 @@ class MH {
             var unreflected = LOOKUP.unreflect(m);
 
             // if has sam object, add a wrapper
-            if (hasSAM) {
+            if (hasSAMAdapt) {
                 var filters = new MethodHandle[m.getParameterCount()];
                 var parTypes = m.getParameterTypes();
                 for (int i = 0; i < m.getParameterCount(); i++) {
                     var parType = parTypes[i];
-                    if (!isSAM(parType)) {
+                    if (!isNeedSAMAdapt(parType)) {
                         filters[i] = MethodHandles.identity(parType);
                     } else {
                         filters[i] = getSAMHandle(parType);
@@ -199,10 +199,10 @@ class MH {
     //~~~ SAM helper
 
     /**
-     * test if target class is a sam class
+     * test if target class is a sam class and need adapt
      */
-    public boolean isSAM(Class<?> target) {
-        return findSAMMethod(target) != null;
+    public boolean isNeedSAMAdapt(Class<?> target) {
+        return !target.isAssignableFrom(JExpFunctionHandle.class) && findSAMMethod(target) != null;
     }
 
 
