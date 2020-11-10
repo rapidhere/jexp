@@ -1,0 +1,6 @@
+- desc: cross join
+  exp: '(from i in a from j in b select j + i).toList()'
+  res: ['a1', 'b1', 'c1', 'd1', 'e1', 'a2', 'b2', 'c2', 'd2', 'e2', 'a3', 'b3', 'c3', 'd3', 'e3', 'a4', 'b4', 'c4', 'd4', 'e4', 'a5', 'b5', 'c5', 'd5', 'e5']
+  ctx:
+    a: [1, 2, 3, 4, 5]
+    b: 'abcde'

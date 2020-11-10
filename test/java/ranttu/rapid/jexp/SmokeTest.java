@@ -19,19 +19,18 @@ import java.util.List;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test()
+    @Test(enabled = false)
     public void test0() {
         try {
             JExpFunctionFactory.register(TestFunctions.class);
         } catch (Throwable ignored) {
-            ignored.printStackTrace();
         }
 
         CompileOption compileOption = new CompileOption();
         compileOption.debugInfo = true;
         compileOption.treatGetterNoSideEffect = true;
 
-        JExpExpression exp = JExp.compile("a.stream().map((a) => a * 2).toList()", compileOption);
+        JExpExpression exp = JExp.compile("(from i in a from j in b select j + i).toList()", compileOption);
         List<?> res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<Integer>();
