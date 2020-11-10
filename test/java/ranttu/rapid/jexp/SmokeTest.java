@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test(enabled = false)
+    @Test()
     public void test0() {
         try {
             JExpFunctionFactory.register(TestFunctions.class);
@@ -31,18 +31,17 @@ public class SmokeTest {
         compileOption.debugInfo = true;
         compileOption.treatGetterNoSideEffect = true;
 
-        JExpExpression exp = JExp.compile("a.stream().map((a) => a * 2)", compileOption);
+        JExpExpression exp = JExp.compile("from i in b from j in b select i + j", compileOption);
         Stream<Integer> stream = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<Integer>();
-                l.add(5);
+                l.add(1);
+                l.add(2);
                 l.add(3);
                 l.add(4);
-                l.add(2);
-                l.add(2);
                 l.add(5);
-                l.add(1);
                 put("a", l);
+                put("b", "abcde");
             }
         });
         System.out.println(stream.collect(Collectors.toList()));

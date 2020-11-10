@@ -8,7 +8,7 @@ import lombok.experimental.UtilityClass;
 import lombok.experimental.var;
 import ranttu.rapid.jexp.external.org.objectweb.asm.MethodVisitor;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
-import ranttu.rapid.jexp.runtime.Runtimes;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class ByteCodes {
             $.should(wrapperClass != null);
 
             mv.visitMethodInsn(INVOKESTATIC,
-                getInternalName(Runtimes.class),
+                getInternalName(JExpLang.class),
                 "exact" + wrapperClass.getSimpleName(),
                 "(Ljava/lang/Object;)" + getDescriptor(c),
                 false);

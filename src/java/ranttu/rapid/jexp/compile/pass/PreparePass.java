@@ -8,7 +8,9 @@ import lombok.experimental.var;
 import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.common.AstUtil;
 import ranttu.rapid.jexp.common.Types;
+import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.closure.NameClosure;
+import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
@@ -16,18 +18,23 @@ import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
+import ranttu.rapid.jexp.exception.TooManyLinqRangeVariables;
 import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
-import ranttu.rapid.jexp.runtime.Runtimes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * do some prepare jobs
@@ -40,16 +47,12 @@ import java.util.Deque;
  * @author dongwei.dq
  * @version $Id: TypeInferPass.java, v0.1 2017-08-24 6:06 PM dongwei.dq Exp $
  */
-public class PreparePass extends NoReturnPass {
-    /**
-     * closures
-     */
-    protected Deque<NameClosure> nameStack = new ArrayDeque<>();
-
+public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void prepare() {
-        compilingContext.names = new NameClosure(null);
-        nameStack.push(compilingContext.names);
+        compilingContext.names = NameClosure.root();
+        var ctx = newCtx(compilingContext.names);
+        ctxStack.push(ctx);
     }
 
     @Override
@@ -137,10 +140,10 @@ public class PreparePass extends NoReturnPass {
 
                 switch (exp.op.type) {
                     case OR:
-                        exp.constantValue = Runtimes.booleanValue(leftValue) ? leftValue : rightValue;
+                        exp.constantValue = JExpLang.exactBoolean(leftValue) ? leftValue : rightValue;
                         break;
                     case AND:
-                        exp.constantValue = Runtimes.booleanValue(leftValue) ? rightValue : leftValue;
+                        exp.constantValue = JExpLang.exactBoolean(leftValue) ? rightValue : leftValue;
                         break;
                 }
 
@@ -336,29 +339,97 @@ public class PreparePass extends NoReturnPass {
         exp.valueType = Types.JEXP_GENERIC;
 
         // construct names
-        var names = new NameClosure(names());
+        var names = NameClosure.independent(names());
         var idx = 0;
         for (var parId : exp.parameters) {
             var node = names.declareName(parId);
-            node.isFunctionParameter = true;
+            node.functionParameter = true;
             node.functionParameterIndex = idx++;
         }
         exp.names = names;
 
-        in(names, () -> visit(exp.body));
+        in(newCtx(names), () -> {
+            visit(exp.body);
+            return null;
+        });
     }
 
-    //~~ name helpers
-    protected NameClosure names() {
-        return nameStack.peek();
+    @Override
+    protected void visit(LinqExpression exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        ((LinqFromClause) exp.queryBodyClauses.get(0)).firstFromClause = true;
+
+        // construct names
+        var names = NameClosure.embedded(names());
+        exp.names = names;
+        in(newCtx(names), () -> {
+            exp.queryBodyClauses.forEach(this::visit);
+            visit(exp.finalQueryClause);
+            return null;
+        });
     }
 
-    private void in(NameClosure names, Runnable runnable) {
-        try {
-            nameStack.push(names);
-            runnable.run();
-        } finally {
-            nameStack.pop();
+    @Override
+    protected void visit(LinqFromClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        var node = names().declareName(exp.itemName);
+        node.linqParameter = true;
+        node.linqParameterIndex = ctx().nextLinqVariableIndex();
+        exp.linqParameterIndex = node.linqParameterIndex;
+
+        visit(exp.sourceExp);
+    }
+
+    @Override
+    protected void visit(LinqSelectClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        //~~~ create lambda expression
+        // collect parameters
+        var parameterProperties = getAllLinqParametersInOrder();
+        var parIds = parameterProperties.stream()
+            .map(p -> p.identifier).collect(Collectors.toList());
+
+        exp.lambdaExp = new LambdaExpression(parIds, exp.selectExp);
+
+        // visit throw lambda parameter
+        visit(exp.lambdaExp);
+    }
+
+    //~~ ctx helpers
+    private NameClosure names() {
+        return ctx().names;
+    }
+
+    private List<PropertyNode> getAllLinqParametersInOrder() {
+        return ctx().names.getLocalNames().stream()
+            .filter(p -> p.linqParameter)
+            .sorted(Comparator.comparingInt(o -> o.linqParameterIndex))
+            .collect(Collectors.toList());
+    }
+
+    private PrepareContext newCtx(NameClosure names) {
+        var ctx = new PrepareContext();
+        ctx.names = names;
+        return ctx;
+    }
+
+    class PrepareContext {
+        public NameClosure names;
+
+        public int linqVariableCount = 0;
+
+        public int nextLinqVariableIndex() {
+            if (linqVariableCount >= CompileOption.MAX_LINQ_PARS) {
+                throw new TooManyLinqRangeVariables();
+            }
+
+            return linqVariableCount++;
         }
     }
 }

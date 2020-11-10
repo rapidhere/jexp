@@ -11,6 +11,9 @@ import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CommaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
@@ -237,7 +240,7 @@ public class JExpParser {
                 } else {
                     throw new UnexpectedToken(t);
                 }
-                
+
                 if (peek().is(TokenType.LEFT_BRACE)) {
                     next();
                     var items = parseItems(TokenType.RIGHT_BRACE);
@@ -278,6 +281,8 @@ public class JExpParser {
             } else {
                 return new CommaExpression(exps);
             }
+        } else if (t.is(TokenType.FROM)) {
+            return parseLinq();
         } else {
             return parsePrimary();
         }
@@ -301,6 +306,76 @@ public class JExpParser {
             pars.add(exp);
             return pars;
         }
+    }
+
+    /**
+     * see also: https://linq.andronova.de/tag/bnf/
+     * <p>
+     * query-expression ::= from-clause query-body
+     * <p>
+     * query-body ::=
+     * <p>
+     * query-body-clause* final-query-clause query-continuation?
+     * <p>
+     * query-body-clause ::=
+     * (from-clause
+     * | join-clause
+     * | let-clause
+     * | where-clause
+     * | orderby-clause)
+     * <p>
+     * from-clause ::= from itemName in srcExpr
+     * <p>
+     * join-clause ::= join itemName in srcExpr on keyExpr equals keyExpr
+     * (into itemName)?
+     * <p>
+     * let-clause ::= let itemName = selExpr
+     * <p>
+     * where-clause ::= where predExpr
+     * <p>
+     * orderby-clause ::= orderby (keyExpr (ascending | descending)?)*
+     * <p>
+     * final-query-clause ::=
+     * (select-clause | groupby-clause)
+     * <p>
+     * select-clause ::= select selExpr
+     * <p>
+     * groupby-clause ::= group selExpr by keyExpr
+     * <p>
+     * query-continuation ::= into itemName query-body
+     */
+    private LinqExpression parseLinq() {
+        var linqExp = new LinqExpression();
+
+        linqExp.queryBodyClauses.add(parseLinqFrom());
+        do {
+            switch (peek().type) {
+                case FROM:
+                    linqExp.queryBodyClauses.add(parseLinqFrom());
+                    break;
+                case SELECT:
+                    linqExp.finalQueryClause = parseLinqSelect();
+                    break;
+                default:
+                    throw new UnexpectedToken(peek());
+            }
+        } while (linqExp.finalQueryClause == null);
+
+        return linqExp;
+    }
+
+    private LinqFromClause parseLinqFrom() {
+        next(TokenType.FROM);
+        var id = next(TokenType.IDENTIFIER);
+        next(TokenType.IN);
+
+        return new LinqFromClause(id.getString(), parseExp());
+    }
+
+    private LinqSelectClause parseLinqSelect() {
+        next(TokenType.SELECT);
+
+        return new LinqSelectClause(parseExp());
     }
 
     private ExpressionNode parsePrimary() {

@@ -8,6 +8,8 @@ public class CompileOption {
     //~~~ constants
     public static final String JAVA_VERSION_17 = "1.7";
 
+    public static final int MAX_LINQ_PARS = 16;
+
     //~~~ options
     /**
      * the compiled target java version

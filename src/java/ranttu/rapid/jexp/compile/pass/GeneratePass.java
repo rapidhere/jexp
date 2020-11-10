@@ -23,6 +23,9 @@ import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
@@ -34,20 +37,21 @@ import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.JExpImmutableExpression;
 import ranttu.rapid.jexp.runtime.RuntimeCompiling;
-import ranttu.rapid.jexp.runtime.Runtimes;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
+import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 import ranttu.rapid.jexp.runtime.indy.JExpCallSiteType;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
+import ranttu.rapid.jexp.runtime.stream.JExpLinqStream;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getDescriptor;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getInternalName;
@@ -60,7 +64,7 @@ import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
  * @author dongwei.dq
  * @version $Id: GeneratePass.java, v0.1 2017-08-24 10:16 PM dongwei.dq Exp $
  */
-public class GeneratePass extends NoReturnPass implements Opcodes {
+public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> implements Opcodes {
     /**
      * @see GenerateContext#cw
      */
@@ -75,11 +79,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
      * @see GenerateContext#conMv
      */
     private MethodVisitor conMv;
-
-    /**
-     * generate context stack
-     */
-    private Deque<GenerateContext> ctxStack = new ArrayDeque<>(16);
 
     @Override
     public void apply(ExpressionNode root, CompilingContext compilingContext) {
@@ -387,7 +386,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         visit(exp.left);
         mv.visitInsn(DUP);
         // call Runtimes.booleanValue
-        mv.visitMethodInsn(INVOKESTATIC, getInternalName(Runtimes.class), "booleanValue",
+        mv.visitMethodInsn(INVOKESTATIC, getInternalName(JExpLang.class), "exactBoolean",
             getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
 
         switch (exp.op.type) {
@@ -548,6 +547,53 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         }
     }
 
+    @Override
+    protected void visit(LinqExpression exp) {
+        ctx().wrapNamesOnly(exp.names, () -> {
+            exp.queryBodyClauses.forEach(this::visit);
+            visit(exp.finalQueryClause);
+            return null;
+        });
+    }
+
+    @Override
+    protected void visit(LinqFromClause exp) {
+        // put name index on stack
+        mv.visitLdcInsn(exp.linqParameterIndex);
+
+        // put stream on stack
+        visit(exp.sourceExp);
+        ByteCodes.box(mv, exp.sourceExp.valueType);
+
+        // TODO: move to INDY
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class), "withName",
+            "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
+            false);
+
+        // if is not first from clause, call with crossJoin
+        if (!exp.firstFromClause) {
+            mv.visitMethodInsn(INVOKEVIRTUAL,
+                getInternalName(JExpLinqStream.class),
+                "crossJoin",
+                getMethodDescriptor(getType(JExpLinqStream.class), getType(JExpLinqStream.class)),
+                false);
+        }
+    }
+
+    @Override
+    protected void visit(LinqSelectClause exp) {
+        // put select function
+        visit(exp.lambdaExp);
+
+        // call JExpLinqStream.select
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+            getInternalName(JExpLinqStream.class),
+            "select",
+            getMethodDescriptor(getType(Stream.class), getType(JExpFunctionHandle.class))
+            , false);
+    }
+
     private void prepareFunctionExpressionMethod(GenerateContext ctx) {
         appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
 
@@ -561,7 +607,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             // first level properties
             if (idNode.parent.isRoot()) {
                 // for function parameters, store in local variables
-                if (idNode.isFunctionParameter) {
+                if (idNode.functionParameter) {
                     mv.visitVarInsn(ALOAD, 1);
                     mv.visitLdcInsn(idNode.functionParameterIndex);
                     mv.visitInsn(AALOAD);
@@ -702,10 +748,6 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
         return RuntimeCompiling.defineTemporaryClass(ctx().className, cw.toByteArray());
     }
 
-    private GenerateContext ctx() {
-        return ctxStack.peek();
-    }
-
     private void resetShortCuts() {
         if (ctxStack.isEmpty()) {
             return;
@@ -736,7 +778,7 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
     /**
      * the generate context
      */
-    private class GenerateContext {
+    class GenerateContext {
         /**
          * type of this context
          */
@@ -815,6 +857,20 @@ public class GeneratePass extends NoReturnPass implements Opcodes {
             } finally {
                 ctxStack.pop();
                 resetShortCuts();
+            }
+        }
+
+        /**
+         * run runnable in this ctx, with names changed only
+         */
+        @SneakyThrows
+        public <V> V wrapNamesOnly(NameClosure names, Callable<V> callable) {
+            var oldNames = this.names;
+            try {
+                this.names = names;
+                return callable.call();
+            } finally {
+                this.names = oldNames;
             }
         }
     }

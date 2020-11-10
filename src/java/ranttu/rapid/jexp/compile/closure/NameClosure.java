@@ -9,6 +9,7 @@ import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.exception.DuplicatedName;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
  * @author rapid
  * @version : NameClosure.java, v 0.1 2020-11-05 9:02 AM rapid Exp $
  */
-public class NameClosure {
+abstract public class NameClosure {
     /**
      * the parent closure
      */
@@ -39,15 +40,28 @@ public class NameClosure {
      * |   -- f
      * ---- g
      */
-    final private PropertyNode rootNode = new PropertyNode(this);
+    final protected PropertyNode rootNode = new PropertyNode(this);
 
     /**
      * root properties under this closure
      */
     final public Map<String, PropertyNode> properties = new HashMap<>();
 
-    public NameClosure(NameClosure parent) {
+    //~~~ constructors
+    protected NameClosure(NameClosure parent) {
         this.parent = parent;
+    }
+
+    public static NameClosure independent(NameClosure parent) {
+        return new IndependentNameClosure(parent);
+    }
+
+    public static NameClosure embedded(NameClosure parent) {
+        return new EmbeddedNameClosure(parent);
+    }
+
+    public static NameClosure root() {
+        return new RootNameClosure();
     }
 
     /**
@@ -55,6 +69,13 @@ public class NameClosure {
      */
     public PropertyNode getLocalName(String id) {
         return properties.get(id);
+    }
+
+    /**
+     * get names only in this scope
+     */
+    public Collection<PropertyNode> getLocalNames() {
+        return properties.values();
     }
 
     /**
@@ -66,9 +87,22 @@ public class NameClosure {
         }
 
         var node = newNode(id, rootNode);
+        node.functionParameter = true;
         properties.put(id, node);
 
         return node;
+    }
+
+    /**
+     * access a name under this closure's parent
+     */
+    abstract public PropertyNode addNameAccessOnParent(String id);
+
+    /**
+     * add a name access to a owner
+     */
+    public PropertyNode addNameAccess(PropertyNode owner, String id) {
+        return owner.children.computeIfAbsent(id, k -> newNode(id, owner));
     }
 
     /**
@@ -91,22 +125,9 @@ public class NameClosure {
             }
             // otherwise, name is access via parent closure
             else {
-                // declare a name access on parent path
-                parent.addNameAccess(id);
-
-                // add name access in current closure
-                var node = addNameAccess(rootNode, id);
-                properties.put(id, node);
-                return node;
+                return addNameAccessOnParent(id);
             }
         }
-    }
-
-    /**
-     * add a name access to a owner
-     */
-    public PropertyNode addNameAccess(PropertyNode owner, String id) {
-        return owner.children.computeIfAbsent(id, k -> newNode(id, owner));
     }
 
     /**

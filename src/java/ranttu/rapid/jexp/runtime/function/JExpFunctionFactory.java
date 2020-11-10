@@ -6,6 +6,7 @@ import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
 import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
+import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
 
 import java.io.IOException;
@@ -35,6 +36,7 @@ final public class JExpFunctionFactory {
         register(StringFunctions.class);
         register(CommonFunctions.class);
         register(JExpLang.class);
+        register(StreamFunctions.class);
     }
 
     /**
@@ -68,13 +70,13 @@ final public class JExpFunctionFactory {
                 // modifier check
                 if (!Modifier.isStatic(m.getModifiers())) {
                     throw new JExpFunctionLoadException(
-                            "java function can only be static: " + name);
+                        "java function can only be static: " + name);
                 }
 
                 // update function info
                 if (infos.containsKey(lib) && infos.get(lib).containsKey(name)) {
                     throw new JExpFunctionLoadException(
-                            "function name duplicated: " + name + " in lib: " + lib);
+                        "function name duplicated: " + name + " in lib: " + lib);
                 }
 
                 var info = new FunctionInfo();

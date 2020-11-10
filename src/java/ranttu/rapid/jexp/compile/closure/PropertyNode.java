@@ -56,12 +56,22 @@ public class PropertyNode {
     /**
      * is this a function parameter
      */
-    public boolean isFunctionParameter = false;
+    public boolean functionParameter = false;
 
     /**
      * the index when this node is the parameter of a function
      */
     public int functionParameterIndex = -1;
+
+    /**
+     * is this a linq parameter
+     */
+    public boolean linqParameter = false;
+
+    /**
+     * the index when this node is the parameter of a linq expression
+     */
+    public int linqParameterIndex = -1;
 
     /**
      * related closure of this property

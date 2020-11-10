@@ -24,4 +24,8 @@ public enum AstType {
     COMMA_EXP,
 
     LINQ_EXP,
+
+    LINQ_FROM_CLAUSE,
+
+    LINQ_SELECT_CLAUSE,
 }

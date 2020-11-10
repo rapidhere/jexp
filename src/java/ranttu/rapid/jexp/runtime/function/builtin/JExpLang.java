@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import ranttu.rapid.jexp.JExpFunctionHandle;
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ import java.util.Map;
  * @version $Id: JExpLang.java, v0.1 2017-08-31 8:45 PM dongwei.dq Exp $
  */
 final public class JExpLang {
-    // invoke
+    //~~~ invokers
     @JExpFunction(lib = "lang", name = "invoke")
     public static Object invoke(Object o, String methodName, Object... args) throws Throwable {
         return MethodUtils.invokeMethod(o, methodName, args);
@@ -35,7 +36,6 @@ final public class JExpLang {
         return functionHandle.invoke(args.toArray());
     }
 
-    // getter
     @JExpFunction(lib = "lang", name = "get_prop")
     public static Object getProperty(Object o, String name) throws Throwable {
         if (o instanceof Map) {
@@ -45,12 +45,60 @@ final public class JExpLang {
         }
     }
 
-    @JExpFunction(lib = "lang", name = "equals")
-    public static Object equals(Object a, Object b) {
-        return a.equals(b);
+    // ~~~ result converts
+    @JExpFunction(lib = "lang", name = "bool")
+    public static boolean exactBoolean(Object o) {
+        if (o instanceof Boolean) {
+            return (Boolean) o;
+        } else if (o instanceof Number) {
+            return ((Number) o).intValue() != 0;
+        } else if (o instanceof String) {
+            return ((String) o).length() != 0;
+        } else if (o instanceof Collection) {
+            return !((Collection<?>) o).isEmpty();
+        } else if (o instanceof Map) {
+            return !((Map<?, ?>) o).isEmpty();
+        } else {
+            return o != null;
+        }
     }
 
-    // ~~~ math
+    @JExpFunction(lib = "lang", name = "byte")
+    public static byte exactByte(Object o) {
+        return ((Number) o).byteValue();
+    }
+
+    @JExpFunction(lib = "lang", name = "char")
+    public static char exactCharacter(Object o) {
+        return (Character) o;
+    }
+
+    @JExpFunction(lib = "lang", name = "short")
+    public static short exactShort(Object o) {
+        return ((Number) o).shortValue();
+    }
+
+    @JExpFunction(lib = "lang", name = "int")
+    public static int exactInteger(Object o) {
+        return ((Number) o).intValue();
+    }
+
+    @JExpFunction(lib = "lang", name = "long")
+    public static long exactLong(Object o) {
+        return ((Number) o).longValue();
+    }
+
+    @JExpFunction(lib = "lang", name = "float")
+    public static float exactFloat(Object o) {
+        return ((Number) o).floatValue();
+    }
+
+    @JExpFunction(lib = "lang", name = "double")
+    public static double exactDouble(Object o) {
+        return ((Number) o).doubleValue();
+    }
+
+    //~~~ maths
     @JExpFunction(lib = "math", name = "add")
     public static Object add(Object a, Object b) {
         if (a instanceof String) {
@@ -61,6 +109,8 @@ final public class JExpLang {
             return new StringBuilder(String.valueOf(a)).append((String) b);
         } else if (b instanceof StringBuilder) {
             return ((StringBuilder) b).insert(0, a);
+        } else if (a instanceof Character || b instanceof Character) {
+            return new StringBuilder().append(a).append(b);
         } else {
             Number numA = (Number) a, numB = (Number) b;
 
