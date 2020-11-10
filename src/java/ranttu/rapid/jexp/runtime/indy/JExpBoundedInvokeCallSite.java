@@ -72,7 +72,7 @@ import static java.lang.invoke.MethodType.methodType;
         // step1: find method through map
         var methodGetMH = MH.MAP_GET_OR_METHOD_NOT_FOUND
             .asType(methodType(MethodHandle.class, Map.class, Object.class))
-            .bindTo(MH.getAllMethods(invokee.getClass()));
+            .bindTo(MH.getAllMethods(invokee.getClass()).asStatic());
 
         var accessor = MethodHandles.filterArguments(swapped, 0,
             MethodHandles.identity(Object.class),

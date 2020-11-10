@@ -30,7 +30,7 @@ import static java.lang.invoke.MethodType.methodType;
  * @version : MH.java, v 0.1 2020-11-01 4:27 PM rapid Exp $
  */
 @UtilityClass
-class MH {
+public class MH {
     /**
      * context look up
      */
@@ -70,7 +70,7 @@ class MH {
     //~~~ caches
     private final Map<Class<?>, Map<String, MethodHandle>> accessorMethodCache = new WeakHashMap<>();
 
-    private final Map<Class<?>, Map<String, MethodHandle>> allMethodsCache = new WeakHashMap<>();
+    private final Map<Class<?>, ClassMethodCluster> allMethodsCache = new WeakHashMap<>();
 
     private final Map<Class<?>, MethodHandle> samAdaptorCache = new WeakHashMap<>();
 
@@ -97,25 +97,34 @@ class MH {
      * get all methods, and wrapped method handle
      */
     @SneakyThrows
-    public Map<String, MethodHandle> getAllMethods(Class<?> klass) {
-        Map<String, MethodHandle> methods;
-        if ((methods = allMethodsCache.get(klass)) == null) {
+    public ClassMethodCluster getAllMethods(Class<?> klass) {
+        ClassMethodCluster cluster;
+        if ((cluster = allMethodsCache.get(klass)) == null) {
             synchronized (allMethodsCache) {
-                if ((methods = allMethodsCache.get(klass)) == null) {
-                    methods = collectAllMethod(klass);
-                    allMethodsCache.put(klass, methods);
+                if ((cluster = allMethodsCache.get(klass)) == null) {
+                    cluster = collectAllMethod(klass);
+                    allMethodsCache.put(klass, cluster);
                 }
             }
         }
 
-        return methods;
+        return cluster;
     }
 
     @SneakyThrows
-    private Map<String, MethodHandle> collectAllMethod(Class<?> klass) {
-        Map<String, MethodHandle> methods = new HashMap<>();
+    private ClassMethodCluster collectAllMethod(Class<?> klass) {
+        var cluster = new ClassMethodCluster();
 
-        for (Method m : klass.getMethods()) {
+        // super class and interfaces
+        if (klass.getSuperclass() != null) {
+            cluster.parents.add(getAllMethods(klass.getSuperclass()));
+        }
+
+        for (Class<?> itf : klass.getInterfaces()) {
+            cluster.parents.add(getAllMethods(itf));
+        }
+
+        for (Method m : klass.getDeclaredMethods()) {
             // TODO: support private method access
             // TODO: support static method access
             // TODO: support varargs method access
@@ -126,43 +135,47 @@ class MH {
 
             m.setAccessible(true);
 
-            // test sam
-            boolean hasSAMAdapt = false;
-            for (var parType : m.getParameterTypes()) {
-                if (isNeedSAMAdapt(parType)) {
-                    hasSAMAdapt = true;
-                    break;
-                }
-            }
-
-            // convert to methodHandle
-            var unreflected = LOOKUP.unreflect(m);
-
-            // if has sam object, add a wrapper
-            if (hasSAMAdapt) {
-                var filters = new MethodHandle[m.getParameterCount()];
-                var parTypes = m.getParameterTypes();
-                for (int i = 0; i < m.getParameterCount(); i++) {
-                    var parType = parTypes[i];
-                    if (!isNeedSAMAdapt(parType)) {
-                        filters[i] = MethodHandles.identity(parType);
-                    } else {
-                        filters[i] = getSAMHandle(parType);
-                    }
-                }
-
-                unreflected = MethodHandles.filterArguments(unreflected, 1, filters);
-            }
-
-            // as spread invoker
-            var mh = unreflected
-                .asSpreader(Object[].class, m.getParameterCount());
-
             // cached
-            methods.put(m.getName(), mh);
+            cluster.addDeclared(m.getName(), wrapBoundedInvokeMethod(m, false));
         }
 
-        return methods;
+        return cluster;
+    }
+
+    @SneakyThrows
+    public MethodHandle wrapBoundedInvokeMethod(Method m, boolean isExtensionMethod) {
+        // test sam
+        boolean hasSAMAdapt = false;
+        for (var parType : m.getParameterTypes()) {
+            if (isNeedSAMAdapt(parType)) {
+                hasSAMAdapt = true;
+                break;
+            }
+        }
+
+        // convert to methodHandle
+        var unreflected = LOOKUP.unreflect(m);
+
+        // if has sam object, add a wrapper
+        if (hasSAMAdapt) {
+            var filters = new MethodHandle[m.getParameterCount()];
+            var parTypes = m.getParameterTypes();
+            for (int i = 0; i < m.getParameterCount(); i++) {
+                var parType = parTypes[i];
+                if (!isNeedSAMAdapt(parType)) {
+                    filters[i] = MethodHandles.identity(parType);
+                } else {
+                    filters[i] = getSAMHandle(parType);
+                }
+            }
+
+            unreflected = MethodHandles.filterArguments(unreflected, 1, filters);
+        }
+
+        // as spread invoker
+        return unreflected
+            .asSpreader(Object[].class,
+                isExtensionMethod ? m.getParameterCount() - 1 : m.getParameterCount());
     }
 
     @SneakyThrows

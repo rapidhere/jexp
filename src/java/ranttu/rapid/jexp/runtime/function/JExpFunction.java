@@ -23,11 +23,4 @@ public @interface JExpFunction {
      * the lib of this function belong to
      */
     String lib() default "";
-
-    /**
-     * whether this function is inlinable, default is false
-     * <p>
-     * NOTE: this feature is still under experiment, and is not quite useful
-     */
-    boolean inline() default false;
 }

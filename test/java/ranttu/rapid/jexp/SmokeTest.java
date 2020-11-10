@@ -12,8 +12,7 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * @author rapid
@@ -25,14 +24,15 @@ public class SmokeTest {
         try {
             JExpFunctionFactory.register(TestFunctions.class);
         } catch (Throwable ignored) {
+            ignored.printStackTrace();
         }
 
         CompileOption compileOption = new CompileOption();
         compileOption.debugInfo = true;
         compileOption.treatGetterNoSideEffect = true;
 
-        JExpExpression exp = JExp.compile("from i in b from j in b select i + j", compileOption);
-        Stream<Integer> stream = exp.exec(new HashMap<String, Object>() {
+        JExpExpression exp = JExp.compile("a.stream().map((a) => a * 2).toList()", compileOption);
+        List<?> res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<Integer>();
                 l.add(1);
@@ -44,6 +44,6 @@ public class SmokeTest {
                 put("b", "abcde");
             }
         });
-        System.out.println(stream.collect(Collectors.toList()));
+        System.out.println(res);
     }
 }

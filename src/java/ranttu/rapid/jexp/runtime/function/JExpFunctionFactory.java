@@ -1,15 +1,13 @@
 package ranttu.rapid.jexp.runtime.function;
 
 import lombok.experimental.var;
-import org.apache.commons.io.IOUtils;
-import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
 import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
+import ranttu.rapid.jexp.runtime.indy.MH;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -43,61 +41,91 @@ final public class JExpFunctionFactory {
      * register a new function class
      */
     public synchronized static void register(Class<?> callClass) throws JExpFunctionLoadException {
-        // load class bytes
-        var classBytes = loadClassByteCode(callClass);
-
         // for debug
         // $.printClass(callClass.getSimpleName(), classBytes);
-
-        var infoCollectMap = new HashMap<String, FunctionInfo>();
 
         // filter methods
         for (Method m : callClass.getMethods()) {
             if (m.isAnnotationPresent(JExpFunction.class)) {
-                JExpFunction ann = m.getAnnotation(JExpFunction.class);
-                // get name
-                var name = ann.name();
-                if (name.length() == 0) {
-                    name = m.getName();
-                }
+                onStaticFunction(m);
+            }
 
-                // get lib
-                var lib = ann.lib();
-                if (lib.length() == 0) {
-                    lib = DEFAULT_LIB_NAME;
-                }
-
-                // modifier check
-                if (!Modifier.isStatic(m.getModifiers())) {
-                    throw new JExpFunctionLoadException(
-                        "java function can only be static: " + name);
-                }
-
-                // update function info
-                if (infos.containsKey(lib) && infos.get(lib).containsKey(name)) {
-                    throw new JExpFunctionLoadException(
-                        "function name duplicated: " + name + " in lib: " + lib);
-                }
-
-                var info = new FunctionInfo();
-                info.byteCodes = classBytes;
-                info.name = name;
-                info.inline = ann.inline();
-                info.method = m;
-
-                // put into infos
-                var libMap = infos.computeIfAbsent(lib, k -> new HashMap<>());
-                libMap.put(name, info);
-
-                // for inline functions, we need to collect the compiling info
-                if (info.inline) {
-                    infoCollectMap.put(m.getName(), info);
-                }
+            if (m.isAnnotationPresent(JExpExtensionMethod.class)) {
+                onExtensionMethod(m);
             }
         }
+    }
 
-        // collect info
-        FunctionInfoCollector.collectInfo(classBytes, infoCollectMap);
+    private static void onStaticFunction(Method m) {
+        JExpFunction ann = m.getAnnotation(JExpFunction.class);
+        // get name
+        var name = ann.name();
+        if (name.length() == 0) {
+            name = m.getName();
+        }
+
+        // get lib
+        var lib = ann.lib();
+        if (lib.length() == 0) {
+            lib = DEFAULT_LIB_NAME;
+        }
+
+        // modifier check
+        if (!Modifier.isStatic(m.getModifiers())) {
+            throw new JExpFunctionLoadException(
+                "java function can only be static: " + name);
+        }
+
+        // update function info
+        if (infos.containsKey(lib) && infos.get(lib).containsKey(name)) {
+            throw new JExpFunctionLoadException(
+                "function name duplicated: " + name + " in lib: " + lib);
+        }
+
+        var info = new FunctionInfo();
+        info.name = name;
+        info.method = m;
+
+        // put into infos
+        var libMap = infos.computeIfAbsent(lib, k -> new HashMap<>());
+        libMap.put(name, info);
+    }
+
+    private static void onExtensionMethod(Method m) {
+        JExpExtensionMethod ann = m.getAnnotation(JExpExtensionMethod.class);
+        // get name
+        var name = ann.name();
+        if (name.length() == 0) {
+            name = m.getName();
+        }
+
+        // modifier check
+        if (!Modifier.isStatic(m.getModifiers())
+            || m.isVarArgs() || !Modifier.isPublic(m.getModifiers())) {
+            throw new JExpFunctionLoadException(
+                "java extension method can only be public static with no varargs: " + m.toString());
+        }
+
+        // this check
+        var pars = m.getParameters();
+        if (pars.length == 0
+            || !pars[0].isAnnotationPresent(This.class)) {
+            throw new JExpFunctionLoadException(
+                "java extension method must have a annotation This on first parameter " + m.toString());
+        }
+
+        var extTarget = pars[0].getType();
+
+        // dup check
+        var cluster = MH.getAllMethods(extTarget);
+
+        if (cluster.hasDeclared(name)) {
+            throw new JExpFunctionLoadException(
+                "target class " + extTarget.getName() + " already have a method named " + name);
+        }
+
+        // add method handle
+        cluster.addDeclared(name, MH.wrapBoundedInvokeMethod(m, true));
     }
 
     /**
@@ -115,22 +143,6 @@ final public class JExpFunctionFactory {
             return Optional.ofNullable(infos.get(libName).get(name));
         } else {
             return Optional.empty();
-        }
-    }
-
-    // load class byte code from class
-    private static byte[] loadClassByteCode(Class<?> klass) {
-        // get klass file path
-        var classPath = klass.getName().replace(".", "/") + ".class";
-
-        // load class source
-        var ins = JExpFunctionFactory.class.getClassLoader().getResourceAsStream(classPath);
-
-        try {
-            $.should(ins != null);
-            return IOUtils.toByteArray(ins);
-        } catch (IOException e) {
-            throw new JExpFunctionLoadException("failed to load class file " + classPath, e);
         }
     }
 }

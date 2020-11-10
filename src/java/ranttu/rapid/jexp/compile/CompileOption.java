@@ -26,11 +26,4 @@ public class CompileOption {
      * property getters treated as no-side-effects
      */
     public boolean treatGetterNoSideEffect = false;
-
-    /**
-     * whether inlining functions on need
-     * <p>
-     * **NOTE: this feature is still under experiment, and is not quite useful**
-     */
-    public boolean inlineFunction = false;
 }

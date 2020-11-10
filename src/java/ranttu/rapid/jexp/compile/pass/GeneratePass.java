@@ -13,7 +13,6 @@ import ranttu.rapid.jexp.common.ByteCodes;
 import ranttu.rapid.jexp.common.Types;
 import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.CompilingContext;
-import ranttu.rapid.jexp.compile.JExpByteCodeTransformer;
 import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.constant.DebugNo;
@@ -715,24 +714,19 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
     }
 
     private void applyFunction(FunctionInfo info, List<ExpressionNode> args) {
-        if (info.inline && compilingContext.option.inlineFunction) {
-            // inline the function
-            JExpByteCodeTransformer.transform(info, this, mv, args, compilingContext);
-        } else {
-            if (args.size() != info.method.getParameterCount()) {
-                throw new JExpFunctionLoadException(info.name + " has " + info.method.getParameterCount() +
-                    " parameters, but give " + args.size());
-            }
-
-            // load stack
-            for (ExpressionNode astNode : args) {
-                visitOnStack(astNode);
-            }
-
-            // call
-            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
-                info.method.getName(), getMethodDescriptor(info.method), false);
+        if (args.size() != info.method.getParameterCount()) {
+            throw new JExpFunctionLoadException(info.name + " has " + info.method.getParameterCount() +
+                " parameters, but give " + args.size());
         }
+
+        // load stack
+        for (ExpressionNode astNode : args) {
+            visitOnStack(astNode);
+        }
+
+        // call
+        mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
+            info.method.getName(), getMethodDescriptor(info.method), false);
     }
 
     private void appendDebugInfo(DebugNo debugNo) {

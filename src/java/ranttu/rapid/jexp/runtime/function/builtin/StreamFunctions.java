@@ -4,12 +4,16 @@
  */
 package ranttu.rapid.jexp.runtime.function.builtin;
 
+import ranttu.rapid.jexp.runtime.function.JExpExtensionMethod;
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
+import ranttu.rapid.jexp.runtime.function.This;
 import ranttu.rapid.jexp.runtime.stream.JExpLinqStream;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,5 +44,11 @@ final public class StreamFunctions {
         }
 
         return JExpLinqStream.withName(stream, idx);
+    }
+
+    //~~~ default stream extensions
+    @JExpExtensionMethod
+    public static <T> List<T> toList(@This Stream<T> stream) {
+        return stream.collect(Collectors.toList());
     }
 }
