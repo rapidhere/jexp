@@ -24,6 +24,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqGroupByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
@@ -595,25 +596,35 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
 
     @Override
     protected void visit(LinqFromClause exp) {
-        // put name index on stack
-        mv.visitLdcInsn(exp.linqParameterIndex);
+        // for first from clause, just load from parent, no need to join
+        if (exp.firstFromClause) {
+            // put name index on stack
+            mv.visitLdcInsn(exp.linqParameterIndex);
 
-        // put stream on stack
-        visit(exp.sourceExp);
-        ByteCodes.box(mv, exp.sourceExp.valueType);
+            // put stream on stack
+            visit(exp.sourceExp);
+            ByteCodes.box(mv, exp.sourceExp.valueType);
 
-        // TODO: move to INDY
-        mv.visitMethodInsn(INVOKESTATIC,
-            getInternalName(StreamFunctions.class), "withName",
-            "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
-            false);
-
+            // TODO: move to INDY
+            mv.visitMethodInsn(INVOKESTATIC,
+                getInternalName(StreamFunctions.class), "withName",
+                "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
+                false);
+        }
         // if is not first from clause, call with crossJoin
-        if (!exp.firstFromClause) {
+        else {
+            // name index on stack
+            mv.visitLdcInsn(exp.linqParameterIndex);
+
+            // put source function on stack
+            visit(exp.sourceLambda);
+
+            // for static source, call with buffered method
             mv.visitMethodInsn(INVOKEVIRTUAL,
                 getInternalName(JExpLinqStream.class),
-                "crossJoin",
-                getMethodDescriptor(getType(JExpLinqStream.class), getType(JExpLinqStream.class)),
+                exp.isSourceStatic ? "crossJoinStatic" : "crossJoinDynamic",
+                getMethodDescriptor(getType(JExpLinqStream.class),
+                    getType(int.class), getType(JExpFunctionHandle.class)),
                 false);
         }
     }
@@ -734,6 +745,23 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                     getType(int.class), getType(int.class))
                 , false);
         }
+    }
+
+    @Override
+    protected void visit(LinqGroupByClause exp) {
+        // select handle
+        visit(exp.selectLambda);
+
+        // key handle
+        visit(exp.keyLambda);
+
+        // JExpLinqStream.group
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+            getInternalName(JExpLinqStream.class),
+            "group",
+            getMethodDescriptor(getType(Map.class),
+                getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
+            , false);
     }
 
     private void prepareFunctionExpressionMethod(GenerateContext ctx) {

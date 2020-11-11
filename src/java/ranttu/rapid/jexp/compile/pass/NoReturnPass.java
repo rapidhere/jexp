@@ -14,6 +14,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqGroupByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
@@ -87,6 +88,9 @@ public abstract class NoReturnPass<C> implements Pass {
             case LINQ_JOIN_CLAUSE:
                 visit((LinqJoinClause) astNode);
                 break;
+            case LINQ_GROUPBY_CLAUSE:
+                visit((LinqGroupByClause) astNode);
+                break;
             default:
                 $.notSupport(astNode.type);
         }
@@ -117,6 +121,8 @@ public abstract class NoReturnPass<C> implements Pass {
     protected abstract void visit(LinqOrderByClause exp);
 
     protected abstract void visit(LinqJoinClause exp);
+
+    protected abstract void visit(LinqGroupByClause exp);
 
     //~~~ ctx helper
     @SneakyThrows

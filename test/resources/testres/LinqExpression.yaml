@@ -102,3 +102,19 @@
     - 'peaches: [peaches, oranges]'
     - 'pears: [hello, world, pears]'
     - 'oranges: [peaches, oranges]'
+
+- desc: embedded from
+  exp: '(from i in a from j in (from t in i select t) orderby i select i + ": " + j).toList()'
+  ctx:
+    a:
+      - hat
+      - bug
+      - a
+  res:
+    - 'a: a'
+    - 'bug: b'
+    - 'bug: u'
+    - 'bug: g'
+    - 'hat: h'
+    - 'hat: a'
+    - 'hat: t'

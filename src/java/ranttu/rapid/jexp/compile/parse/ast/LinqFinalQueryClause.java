@@ -8,5 +8,10 @@ package ranttu.rapid.jexp.compile.parse.ast;
  * @author rapid
  * @version : LinqFinalQueryClause.java, v 0.1 2020-11-09 4:29 PM rapid Exp $
  */
-abstract public class LinqFinalQueryClause extends LinqQueryBodyClause {
+abstract public class LinqFinalQueryClause extends LinqQueryBody {
+    public String contItemName;
+
+    public boolean hasQueryContinuation() {
+        return contItemName != null;
+    }
 }

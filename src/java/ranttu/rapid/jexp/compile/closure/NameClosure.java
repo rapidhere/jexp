@@ -115,6 +115,7 @@ abstract public class NameClosure {
             var node = properties.get(id);
             var prevNode = rootNode.children.put(id, node);
             $.should(prevNode == null || prevNode == node);
+            node.accessedFromLocalOrChildren = true;
             return node;
         } else {
             // otherwise, name is access via parent closure

@@ -12,14 +12,13 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author rapid
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void test0() {
         try {
             JExpFunctionFactory.register(TestFunctions.class);
@@ -32,8 +31,8 @@ public class SmokeTest {
 
 
         JExpExpression exp = JExp.compile(
-            "(from outer in a join inner in b on outer.length() equals inner.length() into g select outer + ': ' + g.toList()).toList()", compileOption);
-        List<?> res = exp.exec(new HashMap<String, Object>() {
+            "(from i in a from j in b orderby i, j select i + ': ' + j).toList()", compileOption);
+        Object res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<String>();
                 l.add("hello");

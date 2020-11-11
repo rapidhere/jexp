@@ -68,6 +68,10 @@ public enum TokenType {
 
     INTO,
 
+    GROUP,
+
+    BY,
+
     /**
      * math
      */

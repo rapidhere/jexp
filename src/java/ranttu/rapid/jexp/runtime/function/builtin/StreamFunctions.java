@@ -39,6 +39,10 @@ final public class StreamFunctions {
             stream = Arrays.stream((Object[]) o);
         } else if (o instanceof CharSequence) {
             stream = ((CharSequence) o).chars().boxed().map(i -> (char) i.intValue());
+        } else if (o instanceof JExpLinqStream) {
+            return (JExpLinqStream) o;
+        } else if (o instanceof Stream) {
+            stream = (Stream<?>) o;
         } else {
             stream = (o == null ? Stream.empty() : Stream.of(o));
         }

@@ -73,6 +73,8 @@ OctIntegerLiteral = 0[0-9]+
   "on"                           { return token(TokenType.ON, yytext()); }
   "equals"                       { return token(TokenType.EQUALS, yytext()); }
   "into"                         { return token(TokenType.INTO, yytext()); }
+  "group"                        { return token(TokenType.GROUP, yytext()); }
+  "by"                           { return token(TokenType.BY, yytext()); }
   "=="                           { return token(TokenType.EQEQ, yytext()); }
   "!="                           { return token(TokenType.NOT_EQ, yytext()); }
   ">"                            { return token(TokenType.GREATER, yytext()); }

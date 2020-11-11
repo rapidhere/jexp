@@ -36,4 +36,6 @@ public enum AstType {
     LINQ_JOIN_CLAUSE,
 
     LINQ_SELECT_CLAUSE,
+
+    LINQ_GROUPBY_CLAUSE,
 }

@@ -17,7 +17,11 @@ public class LinqFromClause extends LinqQueryBodyClause {
 
     final public ExpressionNode sourceExp;
 
+    public LambdaExpression sourceLambda;
+
     public int linqParameterIndex;
 
     public boolean firstFromClause = false;
+
+    public boolean isSourceStatic = false;
 }

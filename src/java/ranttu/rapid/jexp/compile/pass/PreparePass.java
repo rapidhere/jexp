@@ -20,6 +20,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqGroupByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
@@ -419,7 +420,20 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.isConstant = false;
         exp.valueType = Types.JEXP_GENERIC;
 
-        visit(exp.sourceExp);
+        if (exp.firstFromClause) {
+            visit(exp.sourceExp);
+        } else {
+            exp.sourceLambda = defineLinqLambda(exp.sourceExp);
+            exp.isSourceStatic = true;
+
+            for (var id : exp.sourceLambda.parameters) {
+                var node = exp.sourceLambda.names.getLocalName(id);
+                if (node.accessedFromLocalOrChildren) {
+                    exp.isSourceStatic = false;
+                    break;
+                }
+            }
+        }
 
         var node = declareLinqParameter(exp.itemName);
         exp.linqParameterIndex = node.linqParameterIndex;
@@ -486,6 +500,15 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
             var groupJoinNode = declareLinqParameter(exp.groupJoinItemName);
             exp.groupJoinItemLinqParameterIndex = groupJoinNode.linqParameterIndex;
         }
+    }
+
+    @Override
+    protected void visit(LinqGroupByClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        exp.selectLambda = defineLinqLambda(exp.selectExp);
+        exp.keyLambda = defineLinqLambda(exp.keyExp);
     }
 
     //~~ ctx helpers

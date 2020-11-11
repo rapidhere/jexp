@@ -64,6 +64,11 @@ public class PropertyNode {
     public int functionParameterIndex = -1;
 
     /**
+     * this name has accessed from current closure or childrens
+     */
+    public boolean accessedFromLocalOrChildren = false;
+
+    /**
      * is this a linq parameter
      */
     public boolean linqParameter = false;

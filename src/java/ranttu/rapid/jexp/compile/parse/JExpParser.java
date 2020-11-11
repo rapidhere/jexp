@@ -13,13 +13,16 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqGroupByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqQueryBody;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.exception.DuplicatedFinalQueryClause;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnexpectedEOF;
 import ranttu.rapid.jexp.exception.UnexpectedToken;
@@ -352,32 +355,57 @@ public class JExpParser {
         var linqExp = new LinqExpression();
 
         linqExp.queryBodyClauses.add(parseLinqFrom());
+        parseLinqQueryBody(linqExp);
+
+        return linqExp;
+    }
+
+    private void parseLinqQueryBody(LinqQueryBody queryBody) {
         do {
             switch (peek().type) {
                 case FROM:
-                    linqExp.queryBodyClauses.add(parseLinqFrom());
+                    queryBody.queryBodyClauses.add(parseLinqFrom());
                     break;
                 case LET:
-                    linqExp.queryBodyClauses.add(parseLinqLet());
+                    queryBody.queryBodyClauses.add(parseLinqLet());
                     break;
                 case WHERE:
-                    linqExp.queryBodyClauses.add(parseLinqWhere());
+                    queryBody.queryBodyClauses.add(parseLinqWhere());
                     break;
                 case ORDERBY:
-                    linqExp.queryBodyClauses.add(parseLinqOrderBy());
+                    queryBody.queryBodyClauses.add(parseLinqOrderBy());
                     break;
                 case JOIN:
-                    linqExp.queryBodyClauses.add(parseLinqJoin());
+                    queryBody.queryBodyClauses.add(parseLinqJoin());
                     break;
                 case SELECT:
-                    linqExp.finalQueryClause = parseLinqSelect();
+                    if (queryBody.finalQueryClause != null) {
+                        throw new DuplicatedFinalQueryClause();
+                    }
+                    queryBody.finalQueryClause = parseLinqSelect();
+                    break;
+                case GROUP:
+                    if (queryBody.finalQueryClause != null) {
+                        throw new DuplicatedFinalQueryClause();
+                    }
+                    queryBody.finalQueryClause = parseLinqGroupBy();
                     break;
                 default:
                     throw new UnexpectedToken(peek());
             }
-        } while (linqExp.finalQueryClause == null);
+        } while (queryBody.finalQueryClause == null);
+    }
 
-        return linqExp;
+    private LinqGroupByClause parseLinqGroupBy() {
+        next(TokenType.GROUP);
+
+        var selectExp = parseExp();
+
+        next(TokenType.BY);
+
+        var keyExp = parseExp();
+
+        return new LinqGroupByClause(selectExp, keyExp);
     }
 
     private LinqJoinClause parseLinqJoin() {

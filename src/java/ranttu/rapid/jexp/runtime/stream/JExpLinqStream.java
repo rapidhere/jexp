@@ -7,7 +7,10 @@ package ranttu.rapid.jexp.runtime.stream;
 import lombok.experimental.var;
 import ranttu.rapid.jexp.JExpFunctionHandle;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
+import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -31,6 +34,20 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     @SuppressWarnings("unused")
     public Stream<?> select(JExpFunctionHandle handle) {
         return map(tuple -> handle.invoke(tuple.toArray()));
+    }
+
+    /**
+     * group the stream
+     */
+    @SuppressWarnings("unused")
+    public Map<?, ?> group(JExpFunctionHandle selectHandle, JExpFunctionHandle keyHandle) {
+        return collect(Collectors.groupingBy(
+            tuple -> keyHandle.invoke(tuple.toArray()),
+            Collectors.mapping(
+                tuple -> selectHandle.invoke(tuple.toArray()),
+                Collectors.toList()
+            )
+        ));
     }
 
     /**
@@ -128,11 +145,26 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
      * join another stream
      */
     @SuppressWarnings("unused")
-    public JExpLinqStream crossJoin(JExpLinqStream other) {
-        var buff = StreamCache.of(other);
+    public JExpLinqStream crossJoinStatic(int nameIdx, JExpFunctionHandle otherSourceHandle) {
+        var buff = StreamCache.of(
+            StreamFunctions.withName(nameIdx, otherSourceHandle.invoke(new Object[0])));
 
         Stream<OrderedTuple> stream = flatMap(thisValue ->
             buff.stream().map(otherValue -> OrderedTuple.merge(thisValue, otherValue)));
+
+        return new JExpLinqStream(stream);
+    }
+
+    /**
+     * join another stream, dynamic
+     */
+    @SuppressWarnings("unused")
+    public JExpLinqStream crossJoinDynamic(int nameIdx, JExpFunctionHandle otherSourceHandle) {
+        Stream<OrderedTuple> stream = flatMap(thisValue ->
+            StreamFunctions
+                .withName(nameIdx, otherSourceHandle.invoke(thisValue.toArray()))
+                .map(otherValue -> OrderedTuple.merge(thisValue, otherValue))
+        );
 
         return new JExpLinqStream(stream);
     }
