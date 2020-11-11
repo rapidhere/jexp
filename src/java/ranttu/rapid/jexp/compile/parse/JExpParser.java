@@ -15,6 +15,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
@@ -357,6 +358,9 @@ public class JExpParser {
                 case LET:
                     linqExp.queryBodyClauses.add(parseLinqLet());
                     break;
+                case WHERE:
+                    linqExp.queryBodyClauses.add(parseLinqWhere());
+                    break;
                 case SELECT:
                     linqExp.finalQueryClause = parseLinqSelect();
                     break;
@@ -380,6 +384,12 @@ public class JExpParser {
         next(TokenType.SELECT);
 
         return new LinqSelectClause(parseExp());
+    }
+
+    private LinqWhereClause parseLinqWhere() {
+        next(TokenType.WHERE);
+
+        return new LinqWhereClause(parseExp());
     }
 
     private LinqLetClause parseLinqLet() {

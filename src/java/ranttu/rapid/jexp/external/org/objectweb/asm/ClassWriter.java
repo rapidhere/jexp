@@ -1642,6 +1642,10 @@ public class ClassWriter extends ClassVisitor {
      * classes.
      */
     protected String getCommonSuperClass(final String type1, final String type2) {
+        // modified by dongwei.dq
+        return "java/lang/Object";
+
+        /**
         Class<?> c, d;
         ClassLoader classLoader = getClass().getClassLoader();
         try {
@@ -1664,6 +1668,7 @@ public class ClassWriter extends ClassVisitor {
             } while (!c.isAssignableFrom(d));
             return c.getName().replace('.', '/');
         }
+         */
     }
 
     /**

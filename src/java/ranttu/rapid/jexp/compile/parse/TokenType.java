@@ -52,9 +52,12 @@ public enum TokenType {
 
     LET,
 
+    WHERE,
+
     /**
      * math
      */
+
     PLUS(11, true),
 
     SUBTRACT(11, true),
@@ -71,6 +74,20 @@ public enum TokenType {
     OR(10, true),
 
     AND(10, true),
+
+    EQEQ(11, true),
+
+    NOT_EQ(11, true),
+
+    GREATER(11, true),
+
+    SMALLER(11, true),
+
+    GREATER_EQ(11, true),
+
+    SMALLER_EQ(11, true),
+
+    NOT,
 
     /**
      * fake

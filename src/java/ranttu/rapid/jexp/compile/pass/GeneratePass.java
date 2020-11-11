@@ -26,6 +26,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
@@ -150,6 +151,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
     private void prepareAccessTree() {
         appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
 
+
         ctx().names.visitStaticPathOnTree(idNode -> {
             // for root node, load context on stack
             if (idNode.isRoot()) {
@@ -199,6 +201,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 getMethodDescriptor(getType(Object.class), getType(Object.class)), null, null);
             mv.visitParameter("this", 0);
             mv.visitParameter("context", 0);
+
             mv.visitCode();
         } else {
             throw new JExpCompilingException(
@@ -302,8 +305,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             return;
         }
 
+        boolean isComparator = $.in(exp.op.type, TokenType.EQEQ, TokenType.NOT_EQ, TokenType.GREATER,
+            TokenType.GREATER_EQ, TokenType.SMALLER, TokenType.SMALLER_EQ);
+
         // for float type
-        if (Types.isFloat(exp.valueType)) {
+        if (Types.isFloat(exp.valueType) && !isComparator) {
             visit(exp.left);
             if (Types.isInt(exp.left.valueType)) {
                 mv.visitInsn(I2D);
@@ -333,7 +339,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             }
         }
         // for int type
-        else if (Types.isInt(exp.valueType)) {
+        else if (Types.isInt(exp.valueType) && !isComparator) {
             visit(exp.left);
             visit(exp.right);
 
@@ -378,16 +384,42 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 case MODULAR:
                     applyFunction("math", "mod", args);
                     break;
+                case EQEQ:
+                    applyFunction("lang", "eq", args);
+                    break;
+                case NOT_EQ:
+                    applyFunction("lang", "neq", args);
+                    break;
+                case GREATER:
+                    applyFunction("math", "grt", args);
+                    break;
+                case GREATER_EQ:
+                    applyFunction("math", "gre", args);
+                    break;
+                case SMALLER:
+                    applyFunction("math", "lst", args);
+                    break;
+                case SMALLER_EQ:
+                    applyFunction("math", "lse", args);
+                    break;
             }
         }
     }
 
     private void onCondOp(BinaryExpression exp) {
         visit(exp.left);
-        mv.visitInsn(DUP);
-        // call Runtimes.booleanValue
-        mv.visitMethodInsn(INVOKESTATIC, getInternalName(JExpLang.class), "exactBoolean",
-            getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
+
+        if (exp.left.valueType == Types.JEXP_BOOL) {
+            mv.visitInsn(DUP);
+            ByteCodes.box(mv, Types.JEXP_BOOL);
+            mv.visitInsn(SWAP);
+        } else {
+            // call Runtimes.booleanValue
+            ByteCodes.box(mv, exp.left.valueType);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESTATIC, getInternalName(JExpLang.class), "exactBoolean",
+                getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
+        }
 
         switch (exp.op.type) {
             case OR:
@@ -395,16 +427,19 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 mv.visitJumpInsn(IFNE, trueLabel);
                 mv.visitInsn(POP);
                 visit(exp.right);
+                ByteCodes.box(mv, exp.right.valueType);
                 mv.visitLabel(trueLabel);
-                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{Types.getFrameDesc(Object.class)});
+//                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{
+//                    Types.getFrameDesc(Object.class)});
                 break;
             case AND:
                 var falseLabel = new Label();
                 mv.visitJumpInsn(IFEQ, falseLabel);
                 mv.visitInsn(POP);
                 visit(exp.right);
+                ByteCodes.box(mv, exp.right.valueType);
                 mv.visitLabel(falseLabel);
-                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{Types.getFrameDesc(Object.class)});
+//                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{Types.getFrameDesc(Object.class)});
                 break;
         }
     }
@@ -607,6 +642,19 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             , false);
     }
 
+    @Override
+    protected void visit(LinqWhereClause exp) {
+        // put where predicate
+        visit(exp.lambdaExp);
+
+        // call JExpLinqStream.where
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+            getInternalName(JExpLinqStream.class),
+            "where",
+            getMethodDescriptor(getType(JExpLinqStream.class), getType(JExpFunctionHandle.class))
+            , false);
+    }
+
     private void prepareFunctionExpressionMethod(GenerateContext ctx) {
         appendDebugInfo(DebugNo.ACC_TREE_PREPARE_START);
 
@@ -712,8 +760,8 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "toString",
                 getMethodDescriptor(getType(String.class)), false);
             mv.visitLabel(l);
-            mv.visitFrame(F_SAME1, 0, null, 1,
-                new Object[]{Types.getFrameDesc(Object.class)});
+//            mv.visitFrame(F_SAME1, 0, null, 1,
+//                new Object[]{Types.getFrameDesc(Object.class)});
         }
     }
 
@@ -770,7 +818,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         var ctx = new GenerateContext();
         ctx.className = className;
         ctx.classInternalName = className.replace('.', '/');
-        ctx.cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ctx.cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         ctx.names = names;
         ctx.type = type;
 

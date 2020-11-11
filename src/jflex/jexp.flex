@@ -65,6 +65,14 @@ OctIntegerLiteral = 0[0-9]+
   "select"                       { return token(TokenType.SELECT, yytext()); }
   "let"                          { return token(TokenType.LET, yytext()); }
   "="                            { return token(TokenType.EQ, yytext()); }
+  "where"                        { return token(TokenType.WHERE, yytext()); }
+  "=="                           { return token(TokenType.EQEQ, yytext()); }
+  "!="                           { return token(TokenType.NOT_EQ, yytext()); }
+  ">"                            { return token(TokenType.GREATER, yytext()); }
+  ">="                           { return token(TokenType.GREATER_EQ, yytext()); }
+  "<"                            { return token(TokenType.SMALLER, yytext()); }
+  "<="                           { return token(TokenType.SMALLER_EQ, yytext()); }
+  "!"                            { return token(TokenType.NOT, yytext()); }
 
   /* identifiers */
   [a-zA-Z\_][a-zA-Z0-9\_]*       { return token(TokenType.IDENTIFIER, yytext()); }

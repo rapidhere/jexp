@@ -16,6 +16,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 
@@ -75,6 +76,9 @@ public abstract class NoReturnPass<C> implements Pass {
             case LINQ_SELECT_CLAUSE:
                 visit((LinqSelectClause) astNode);
                 break;
+            case LINQ_WHERE_CLAUSE:
+                visit((LinqWhereClause) astNode);
+                break;
             default:
                 $.notSupport(astNode.type);
         }
@@ -99,6 +103,8 @@ public abstract class NoReturnPass<C> implements Pass {
     protected abstract void visit(LinqLetClause exp);
 
     protected abstract void visit(LinqSelectClause exp);
+
+    protected abstract void visit(LinqWhereClause exp);
 
     //~~~ ctx helper
     @SneakyThrows

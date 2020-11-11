@@ -63,6 +63,20 @@ final public class JExpLang {
         }
     }
 
+    @JExpFunction(lib = "lang", name = "eq")
+    public static boolean eq(Object o, Object b) {
+        if (o == null) {
+            return b == null;
+        } else {
+            return o.equals(b);
+        }
+    }
+
+    @JExpFunction(lib = "lang", name = "neq")
+    public static boolean notEq(Object o, Object b) {
+        return !eq(o, b);
+    }
+
     @JExpFunction(lib = "lang", name = "byte")
     public static byte exactByte(Object o) {
         return ((Number) o).byteValue();
@@ -99,6 +113,50 @@ final public class JExpLang {
     }
 
     //~~~ maths
+    @JExpFunction(lib = "math", name = "grt")
+    public static boolean greater(Object a, Object b) {
+        Number numA = (Number) a, numB = (Number) b;
+
+        if (a instanceof Double || b instanceof Double) {
+            return numA.doubleValue() > numB.doubleValue();
+        } else {
+            return numA.intValue() > numB.intValue();
+        }
+    }
+
+    @JExpFunction(lib = "math", name = "gre")
+    public static boolean greaterEq(Object a, Object b) {
+        Number numA = (Number) a, numB = (Number) b;
+
+        if (a instanceof Double || b instanceof Double) {
+            return numA.doubleValue() >= numB.doubleValue();
+        } else {
+            return numA.intValue() >= numB.intValue();
+        }
+    }
+
+    @JExpFunction(lib = "math", name = "lst")
+    public static boolean smaller(Object a, Object b) {
+        Number numA = (Number) a, numB = (Number) b;
+
+        if (a instanceof Double || b instanceof Double) {
+            return numA.doubleValue() < numB.doubleValue();
+        } else {
+            return numA.intValue() < numB.intValue();
+        }
+    }
+
+    @JExpFunction(lib = "math", name = "lse")
+    public static boolean smallerEq(Object a, Object b) {
+        Number numA = (Number) a, numB = (Number) b;
+
+        if (a instanceof Double || b instanceof Double) {
+            return numA.doubleValue() <= numB.doubleValue();
+        } else {
+            return numA.intValue() <= numB.intValue();
+        }
+    }
+
     @JExpFunction(lib = "math", name = "add")
     public static Object add(Object a, Object b) {
         if (a instanceof String) {

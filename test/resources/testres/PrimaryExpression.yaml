@@ -149,6 +149,12 @@
     class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
   res: -9798
 
+- desc: and 4
+  exp: 'someVal && b && a'
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: 12312312
+
 - desc: or 1
   exp: '0 or "hello world"'
   res: "hello world"
@@ -157,6 +163,12 @@
   ctx:
     class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
   exp: 'a || b'
+  res: 12312312
+
+- desc: or 3
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  exp: 'a || b || someVal'
   res: 12312312
 
 - desc: misc

@@ -6,6 +6,7 @@ package ranttu.rapid.jexp.runtime.stream;
 
 import lombok.experimental.var;
 import ranttu.rapid.jexp.JExpFunctionHandle;
+import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 
 import java.util.stream.Stream;
 
@@ -38,6 +39,14 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     @SuppressWarnings("unused")
     public JExpLinqStream let(int idx, JExpFunctionHandle handle) {
         return new JExpLinqStream(map(tuple -> tuple.put(idx, handle.invoke(tuple.toArray()))));
+    }
+
+    /**
+     * where clause
+     */
+    public JExpLinqStream where(JExpFunctionHandle handle) {
+        return new JExpLinqStream(filter(
+            tuple -> JExpLang.exactBoolean(handle.invoke(tuple.toArray()))));
     }
 
     /**

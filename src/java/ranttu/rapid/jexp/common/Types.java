@@ -29,6 +29,8 @@ public class Types {
 
     public static Type JEXP_GENERIC = Type.getType(Object.class);
 
+    public static Type JEXP_BOOL = Type.BOOLEAN_TYPE;
+
     //~~~ helper functions
     public boolean isString(Type t) {
         return JEXP_STRING.equals(t);

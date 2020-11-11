@@ -22,6 +22,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
@@ -104,11 +105,12 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         }
         // for cond
         else if (exp.op.is(TokenType.OR) || exp.op.is(TokenType.AND)) {
-            if (exp.left.valueType.equals(exp.right.valueType)) {
-                exp.valueType = exp.left.valueType;
-            } else {
-                exp.valueType = Types.JEXP_GENERIC;
-            }
+            exp.valueType = Types.JEXP_GENERIC;
+        }
+        // comparator
+        else if ($.in(exp.op.type, TokenType.EQEQ, TokenType.NOT_EQ, TokenType.GREATER,
+            TokenType.GREATER_EQ, TokenType.SMALLER, TokenType.SMALLER_EQ)) {
+            exp.valueType = Types.JEXP_BOOL;
         }
         // number
         else {
@@ -155,6 +157,20 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
                     exp.valueType = Type.getType(exp.constantValue.getClass());
                 }
             }
+            // comparators
+            else if ($.in(exp.op, TokenType.EQEQ, TokenType.NOT_EQ)) {
+                var leftValue = exp.left.constantValue;
+                var rightValue = exp.right.constantValue;
+
+                switch (exp.op.type) {
+                    case EQEQ:
+                        exp.constantValue = JExpLang.eq(leftValue, rightValue);
+                        break;
+                    case NOT_EQ:
+                        exp.constantValue = !JExpLang.eq(leftValue, rightValue);
+                        break;
+                }
+            }
             // for math
             else {
                 if (Types.isString(exp.valueType)) {
@@ -179,6 +195,18 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
                         case MODULAR:
                             exp.constantValue = leftValue % rightValue;
                             break;
+                        case GREATER:
+                            exp.constantValue = leftValue > rightValue;
+                            break;
+                        case GREATER_EQ:
+                            exp.constantValue = leftValue >= rightValue;
+                            break;
+                        case SMALLER:
+                            exp.constantValue = leftValue < rightValue;
+                            break;
+                        case SMALLER_EQ:
+                            exp.constantValue = leftValue <= rightValue;
+                            break;
                     }
                 } else {
                     int leftValue = exp.left.intConstant();
@@ -199,6 +227,18 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
                             break;
                         case MODULAR:
                             exp.constantValue = leftValue % rightValue;
+                            break;
+                        case GREATER:
+                            exp.constantValue = leftValue > rightValue;
+                            break;
+                        case GREATER_EQ:
+                            exp.constantValue = leftValue >= rightValue;
+                            break;
+                        case SMALLER:
+                            exp.constantValue = leftValue < rightValue;
+                            break;
+                        case SMALLER_EQ:
+                            exp.constantValue = leftValue <= rightValue;
                             break;
                     }
                 }
@@ -402,6 +442,15 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.lambdaExp = defineLinqLambda(exp.selectExp);
 
         // visit throw lambda parameter
+        visit(exp.lambdaExp);
+    }
+
+    @Override
+    protected void visit(LinqWhereClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        exp.lambdaExp = defineLinqLambda(exp.whereExp);
         visit(exp.lambdaExp);
     }
 

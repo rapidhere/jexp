@@ -62,7 +62,7 @@ public class ManualUnitTest extends ManualUnitTestBase {
         Assert.assertFalse(res.exec(false));
     }
 
-    @Test
+    @Test(enabled = false)
     public void testStream() {
         var exp = JExp.compile("a.stream().distinct().sorted((a, b) => a - b)", compileOption);
         var ctx = new HashMap<String, Object>() {

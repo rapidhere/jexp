@@ -10,3 +10,9 @@
   ctx:
     a: [1, 2, 3, 4, 5]
   res: [6, 12, 18, 24, 30]
+
+- desc: where clause
+  exp: '(from i in a where i == 2 or i == 3 or i == 5 select i).toList()'
+  ctx:
+    a: [1, 2, 3, 4, 5]
+  res: [2, 3, 5]

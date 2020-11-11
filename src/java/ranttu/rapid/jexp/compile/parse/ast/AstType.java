@@ -29,5 +29,7 @@ public enum AstType {
 
     LINQ_LET_CLAUSE,
 
+    LINQ_WHERE_CLAUSE,
+
     LINQ_SELECT_CLAUSE,
 }
