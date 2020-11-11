@@ -19,6 +19,7 @@ import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqFinalQueryClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqGroupByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
@@ -413,6 +414,9 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
             visit(exp.finalQueryClause);
             return null;
         });
+
+        // don't share parents name closure
+        prepareForFinalCont(exp.finalQueryClause);
     }
 
     @Override
@@ -451,6 +455,14 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     }
 
     @Override
+    protected void visit(LinqWhereClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        exp.lambdaExp = defineLinqLambda(exp.whereExp);
+    }
+
+    @Override
     protected void visit(LinqSelectClause exp) {
         exp.isConstant = false;
         exp.valueType = Types.JEXP_GENERIC;
@@ -458,12 +470,33 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.lambdaExp = defineLinqLambda(exp.selectExp);
     }
 
+
     @Override
-    protected void visit(LinqWhereClause exp) {
+    protected void visit(LinqGroupByClause exp) {
         exp.isConstant = false;
         exp.valueType = Types.JEXP_GENERIC;
 
-        exp.lambdaExp = defineLinqLambda(exp.whereExp);
+        exp.selectLambda = defineLinqLambda(exp.selectExp);
+        exp.keyLambda = defineLinqLambda(exp.keyExp);
+    }
+
+
+    private void prepareForFinalCont(LinqFinalQueryClause exp) {
+        if (!exp.hasQueryContinuation()) {
+            return;
+        }
+
+        var names = NameClosure.embedded(names());
+        exp.names = names;
+
+        in(newCtx(names), () -> {
+            var node = declareLinqParameter(exp.contItemName);
+            exp.contItemLinqParameterIndex = node.linqParameterIndex;
+
+            exp.queryBodyClauses.forEach(this::visit);
+            visit(exp.finalQueryClause);
+            return null;
+        });
     }
 
     @Override
@@ -500,15 +533,6 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
             var groupJoinNode = declareLinqParameter(exp.groupJoinItemName);
             exp.groupJoinItemLinqParameterIndex = groupJoinNode.linqParameterIndex;
         }
-    }
-
-    @Override
-    protected void visit(LinqGroupByClause exp) {
-        exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
-
-        exp.selectLambda = defineLinqLambda(exp.selectExp);
-        exp.keyLambda = defineLinqLambda(exp.keyExp);
     }
 
     //~~ ctx helpers

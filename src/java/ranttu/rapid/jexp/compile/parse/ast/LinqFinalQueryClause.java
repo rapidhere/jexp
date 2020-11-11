@@ -11,6 +11,8 @@ package ranttu.rapid.jexp.compile.parse.ast;
 abstract public class LinqFinalQueryClause extends LinqQueryBody {
     public String contItemName;
 
+    public int contItemLinqParameterIndex;
+
     public boolean hasQueryContinuation() {
         return contItemName != null;
     }

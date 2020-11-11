@@ -12,6 +12,7 @@ import ranttu.rapid.jexp.compile.parse.ast.CommaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqFinalQueryClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqGroupByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
@@ -405,7 +406,19 @@ public class JExpParser {
 
         var keyExp = parseExp();
 
-        return new LinqGroupByClause(selectExp, keyExp);
+        return tryParseFinalContinue(new LinqGroupByClause(selectExp, keyExp));
+    }
+
+    private <L extends LinqFinalQueryClause> L tryParseFinalContinue(L clause) {
+        if (!peek().is(TokenType.INTO)) {
+            return clause;
+        }
+
+        next();
+        clause.contItemName = next(TokenType.IDENTIFIER).getString();
+        parseLinqQueryBody(clause);
+
+        return clause;
     }
 
     private LinqJoinClause parseLinqJoin() {
@@ -475,7 +488,7 @@ public class JExpParser {
     private LinqSelectClause parseLinqSelect() {
         next(TokenType.SELECT);
 
-        return new LinqSelectClause(parseExp());
+        return tryParseFinalContinue(new LinqSelectClause(parseExp()));
     }
 
     private LinqWhereClause parseLinqWhere() {

@@ -118,3 +118,19 @@
     - 'hat: h'
     - 'hat: a'
     - 'hat: t'
+
+- desc: group into
+  exp: '(from i in a group i by i.length() into g orderby g.key descending select g.key + ": " + g.value).toList()'
+  ctx:
+    a:
+      - hello
+      - world
+      - hat
+      - bug
+      - peaches
+      - pears
+      - oranges
+  res:
+    - '7: [peaches, oranges]'
+    - '5: [hello, world, pears]'
+    - '3: [hat, bug]'

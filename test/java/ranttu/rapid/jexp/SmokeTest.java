@@ -18,7 +18,7 @@ import java.util.HashMap;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test(enabled = true)
+    @Test(enabled = false)
     public void test0() {
         try {
             JExpFunctionFactory.register(TestFunctions.class);
@@ -31,7 +31,7 @@ public class SmokeTest {
 
 
         JExpExpression exp = JExp.compile(
-            "(from i in a from j in b orderby i, j select i + ': ' + j).toList()", compileOption);
+            "(from i in a group i by i.length() into g orderby g.key descending select g).toList()", compileOption);
         Object res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<String>();

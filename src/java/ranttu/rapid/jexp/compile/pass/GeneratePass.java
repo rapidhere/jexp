@@ -23,6 +23,7 @@ import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
+import ranttu.rapid.jexp.compile.parse.ast.LinqFinalQueryClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqGroupByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
@@ -587,6 +588,28 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
 
     @Override
     protected void visit(LinqExpression exp) {
+        ctx().wrapNamesOnly(exp.names, () -> {
+            exp.queryBodyClauses.forEach(this::visit);
+            visit(exp.finalQueryClause);
+            return null;
+        });
+
+        processLinqFinalCont(exp.finalQueryClause);
+    }
+
+    private void processLinqFinalCont(LinqFinalQueryClause exp) {
+        if (!exp.hasQueryContinuation()) {
+            return;
+        }
+        // wrap to linq stream
+        mv.visitLdcInsn(exp.contItemLinqParameterIndex);
+        mv.visitInsn(SWAP);
+
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class),
+            "withName", "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
+            false);
+
         ctx().wrapNamesOnly(exp.names, () -> {
             exp.queryBodyClauses.forEach(this::visit);
             visit(exp.finalQueryClause);
