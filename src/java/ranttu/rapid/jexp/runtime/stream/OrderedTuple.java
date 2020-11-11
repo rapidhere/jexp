@@ -33,6 +33,10 @@ class OrderedTuple {
         return res;
     }
 
+    Object get(int idx) {
+        return values[idx];
+    }
+
     static OrderedTuple of(int idx, Object val) {
         var tuple = new OrderedTuple(new Object[CompileOption.MAX_LINQ_PARS]);
         tuple.values[idx] = val;

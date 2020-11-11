@@ -74,3 +74,31 @@
     - pearspears
     - orangespeaches
     - orangesoranges
+
+- desc: inner join
+  exp: '(from outer in a join inner in b on outer.length() equals inner.length() into g select outer + ": " + g.toList()).toList()'
+  ctx:
+    a:
+      - hello
+      - world
+      - hat
+      - bug
+      - peaches
+      - pears
+      - oranges
+    b:
+      - hello
+      - world
+      - hat
+      - bug
+      - peaches
+      - pears
+      - oranges
+  res:
+    - 'hello: [hello, world, pears]'
+    - 'world: [hello, world, pears]'
+    - 'hat: [hat, bug]'
+    - 'bug: [hat, bug]'
+    - 'peaches: [peaches, oranges]'
+    - 'pears: [hello, world, pears]'
+    - 'oranges: [peaches, oranges]'

@@ -32,7 +32,7 @@ public class SmokeTest {
 
 
         JExpExpression exp = JExp.compile(
-            "(from outer in a join inner in b on outer.length() equals inner.length() select outer + inner).toList()", compileOption);
+            "(from outer in a join inner in b on outer.length() equals inner.length() into g select outer + ': ' + g.toList()).toList()", compileOption);
         List<?> res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<String>();

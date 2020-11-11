@@ -394,7 +394,15 @@ public class JExpParser {
 
         var rightKeyExpr = parseExp();
 
-        return new LinqJoinClause(id.getString(), sourceExpr, leftKeyExpr, rightKeyExpr);
+        // group join
+        String groupId = null;
+        if (peek().is(TokenType.INTO)) {
+            next();
+            groupId = next(TokenType.IDENTIFIER).getString();
+        }
+
+        return new LinqJoinClause(id.getString(), groupId,
+            sourceExpr, leftKeyExpr, rightKeyExpr);
     }
 
     private LinqOrderByClause parseLinqOrderBy() {

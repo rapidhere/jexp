@@ -481,6 +481,11 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
 
         // inner key lambda
         exp.innerKeyLambda = defineLinqLambda(exp.innerKeyExp);
+
+        if (exp.isGroupJoin()) {
+            var groupJoinNode = declareLinqParameter(exp.groupJoinItemName);
+            exp.groupJoinItemLinqParameterIndex = groupJoinNode.linqParameterIndex;
+        }
     }
 
     //~~ ctx helpers

@@ -66,6 +66,8 @@ public enum TokenType {
 
     EQUALS,
 
+    INTO,
+
     /**
      * math
      */

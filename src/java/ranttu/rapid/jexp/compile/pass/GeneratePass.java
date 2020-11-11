@@ -708,13 +708,32 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         visit(exp.outerKeyLambda);
         visit(exp.innerKeyLambda);
 
-        // JExpLinqStream.join
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-            getInternalName(JExpLinqStream.class),
-            "join",
-            getMethodDescriptor(getType(JExpLinqStream.class),
-                getType(JExpLinqStream.class), getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
-            , false);
+        // inner join
+        if (!exp.isGroupJoin()) {
+            // JExpLinqStream.join
+            mv.visitMethodInsn(INVOKEVIRTUAL,
+                getInternalName(JExpLinqStream.class),
+                "join",
+                getMethodDescriptor(getType(JExpLinqStream.class),
+                    getType(JExpLinqStream.class), getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
+                , false);
+        }
+        // group join
+        else {
+            mv.visitLdcInsn(exp.groupJoinItemLinqParameterIndex);
+            mv.visitLdcInsn(exp.innerItemLinqParameterIndex);
+
+            // JExpLinqStream.groupJoin
+            mv.visitMethodInsn(INVOKEVIRTUAL,
+                getInternalName(JExpLinqStream.class),
+                "groupJoin",
+                getMethodDescriptor(getType(JExpLinqStream.class),
+                    getType(JExpLinqStream.class),
+                    getType(JExpFunctionHandle.class),
+                    getType(JExpFunctionHandle.class),
+                    getType(int.class), getType(int.class))
+                , false);
+        }
     }
 
     private void prepareFunctionExpressionMethod(GenerateContext ctx) {
@@ -814,7 +833,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
     private void mathOpValConvert(MethodVisitor mv, Type valueType) {
         if (Types.isPrimitive(valueType)) {
             ByteCodes.box(mv, valueType);
-        } else if (Types.isType(valueType, Object.class)) {
+        } else {
             mv.visitInsn(DUP);
             Label l = new Label();
             mv.visitTypeInsn(INSTANCEOF, getInternalName(StringBuilder.class));

@@ -83,6 +83,27 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     }
 
     /**
+     * group join
+     */
+    @SuppressWarnings("unused")
+    public JExpLinqStream groupJoin(JExpLinqStream inner, JExpFunctionHandle outerKeySelector,
+                                    JExpFunctionHandle innerKeySelector, int groupIdx, int innerItemIdx) {
+        var kvBuff = StreamCache.of(inner
+            .map(v -> new KVPair(innerKeySelector.invoke(v.toArray()), v.get(innerItemIdx))));
+
+        Stream<OrderedTuple> stream = map(outerValue -> {
+            var outerKey = outerKeySelector.invoke(outerValue.toArray());
+            var innerStream = kvBuff.stream()
+                .filter(innerKV -> JExpLang.eq(outerKey, innerKV.key))
+                .map(innerKV -> innerKV.value);
+
+            return outerValue.put(groupIdx, innerStream);
+        });
+
+        return new JExpLinqStream(stream);
+    }
+
+    /**
      * inner join
      */
     @SuppressWarnings("unused")

@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 public class LinqJoinClause extends LinqQueryBodyClause {
     final public String innerItemName;
 
+    final public String groupJoinItemName;
+
     final public ExpressionNode sourceExp;
 
     final public ExpressionNode outerKeyExp;
@@ -26,4 +28,10 @@ public class LinqJoinClause extends LinqQueryBodyClause {
     public LambdaExpression innerKeyLambda;
 
     public int innerItemLinqParameterIndex;
+
+    public int groupJoinItemLinqParameterIndex;
+
+    public boolean isGroupJoin() {
+        return groupJoinItemName != null;
+    }
 }
