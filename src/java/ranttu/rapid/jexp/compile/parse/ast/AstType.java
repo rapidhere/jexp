@@ -31,5 +31,7 @@ public enum AstType {
 
     LINQ_WHERE_CLAUSE,
 
+    LINQ_ORDERBY_CLAUSE,
+
     LINQ_SELECT_CLAUSE,
 }

@@ -14,6 +14,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
@@ -361,6 +362,9 @@ public class JExpParser {
                 case WHERE:
                     linqExp.queryBodyClauses.add(parseLinqWhere());
                     break;
+                case ORDERBY:
+                    linqExp.queryBodyClauses.add(parseLinqOrderBy());
+                    break;
                 case SELECT:
                     linqExp.finalQueryClause = parseLinqSelect();
                     break;
@@ -370,6 +374,37 @@ public class JExpParser {
         } while (linqExp.finalQueryClause == null);
 
         return linqExp;
+    }
+
+    private LinqOrderByClause parseLinqOrderBy() {
+        next(TokenType.ORDERBY);
+
+        // parse items
+        var items = new ArrayList<LinqOrderByClause.OrderByItem>();
+        do {
+            var orderByExp = parseBinary();
+            var t = peek();
+            var descending = false;
+
+            if (t.is(TokenType.ASCENDING)) {
+                next();
+                t = peek();
+            } else if (t.is(TokenType.DESCENDING)) {
+                next();
+                descending = true;
+                t = peek();
+            }
+
+            items.add(LinqOrderByClause.item(orderByExp, descending));
+
+            if (t.is(TokenType.COMMA)) {
+                next();
+            } else {
+                break;
+            }
+        } while (true);
+
+        return new LinqOrderByClause(items);
     }
 
     private LinqFromClause parseLinqFrom() {

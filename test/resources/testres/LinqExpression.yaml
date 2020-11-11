@@ -16,3 +16,23 @@
   ctx:
     a: [1, 2, 3, 4, 5]
   res: [2, 3, 5]
+
+- desc: orderby clause
+  exp: '(from w in a orderby w.length() descending, w ascending select w).toList()'
+  ctx:
+    a:
+      - hello
+      - world
+      - hat
+      - bug
+      - peaches
+      - pears
+      - oranges
+  res:
+    - oranges
+    - peaches
+    - hello
+    - pears
+    - world
+    - bug
+    - hat

@@ -54,6 +54,12 @@ public enum TokenType {
 
     WHERE,
 
+    ORDERBY,
+
+    ASCENDING,
+
+    DESCENDING,
+
     /**
      * math
      */

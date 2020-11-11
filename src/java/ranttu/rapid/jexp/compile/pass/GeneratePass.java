@@ -25,6 +25,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
@@ -652,6 +653,37 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             getInternalName(JExpLinqStream.class),
             "where",
             getMethodDescriptor(getType(JExpLinqStream.class), getType(JExpFunctionHandle.class))
+            , false);
+    }
+
+    @Override
+    protected void visit(LinqOrderByClause exp) {
+        // load lambdas
+        mv.visitLdcInsn(exp.items.size());
+        mv.visitTypeInsn(ANEWARRAY, getInternalName(JExpFunctionHandle.class));
+        for (int i = 0; i < exp.items.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(i);
+            visit(exp.items.get(i).keySelectLambda);
+            mv.visitInsn(AASTORE);
+        }
+
+        // load descending flags
+        mv.visitLdcInsn(exp.items.size());
+        mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
+        for (int i = 0; i < exp.items.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(i);
+            mv.visitLdcInsn(exp.items.get(i).descending);
+            mv.visitInsn(BASTORE);
+        }
+
+        // JExpLinqStream.orderBy
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+            getInternalName(JExpLinqStream.class),
+            "orderBy",
+            getMethodDescriptor(getType(JExpLinqStream.class),
+                getType(JExpFunctionHandle[].class), getType(boolean[].class))
             , false);
     }
 

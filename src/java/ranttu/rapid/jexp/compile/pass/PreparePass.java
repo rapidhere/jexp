@@ -21,6 +21,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
@@ -440,9 +441,6 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.valueType = Types.JEXP_GENERIC;
 
         exp.lambdaExp = defineLinqLambda(exp.selectExp);
-
-        // visit throw lambda parameter
-        visit(exp.lambdaExp);
     }
 
     @Override
@@ -451,7 +449,16 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.valueType = Types.JEXP_GENERIC;
 
         exp.lambdaExp = defineLinqLambda(exp.whereExp);
-        visit(exp.lambdaExp);
+    }
+
+    @Override
+    protected void visit(LinqOrderByClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        for (var item : exp.items) {
+            item.keySelectLambda = defineLinqLambda(item.exp);
+        }
     }
 
     //~~ ctx helpers

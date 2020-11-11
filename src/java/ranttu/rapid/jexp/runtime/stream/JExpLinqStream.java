@@ -50,6 +50,37 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     }
 
     /**
+     * order by clause
+     */
+    public JExpLinqStream orderBy(JExpFunctionHandle[] keySelectorHandles, boolean[] descendingFlag) {
+        return new JExpLinqStream(sorted((t1, t2) -> {
+            var t1Keys = t1.toArray();
+            var t2Keys = t2.toArray();
+            var compRes = 0;
+
+            for (var i = 0; i < keySelectorHandles.length; i++) {
+                var handle = keySelectorHandles[i];
+                var descending = descendingFlag[i];
+
+                @SuppressWarnings("unchecked")
+                var left = (Comparable<Object>) handle.invoke(t1Keys);
+                var right = handle.invoke(t2Keys);
+
+                compRes = left.compareTo(right);
+                if (descending) {
+                    compRes = -compRes;
+                }
+
+                if (compRes != 0) {
+                    break;
+                }
+            }
+
+            return compRes;
+        }));
+    }
+
+    /**
      * join another stream
      */
     @SuppressWarnings("unused")
