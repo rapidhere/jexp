@@ -12,7 +12,8 @@ import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author rapid
@@ -30,8 +31,8 @@ public class SmokeTest {
         compileOption.debugInfo = true;
         compileOption.treatGetterNoSideEffect = true;
 
-        JExpExpression exp = JExp.compile("(from i in a from j in b select j + i).toList()", compileOption);
-        List<?> res = exp.exec(new HashMap<String, Object>() {
+        JExpExpression exp = JExp.compile("a.stream().distinct().sorted((a, b) =>  b - a)", compileOption);
+        Stream<?> res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<Integer>();
                 l.add(1);
@@ -43,6 +44,6 @@ public class SmokeTest {
                 put("b", "abcde");
             }
         });
-        System.out.println(res);
+        System.out.println(res.collect(Collectors.toList()));
     }
 }

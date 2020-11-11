@@ -63,6 +63,8 @@ OctIntegerLiteral = 0[0-9]+
   "from"                         { return token(TokenType.FROM, yytext()); }
   "in"                           { return token(TokenType.IN, yytext()); }
   "select"                       { return token(TokenType.SELECT, yytext()); }
+  "let"                          { return token(TokenType.LET, yytext()); }
+  "="                            { return token(TokenType.EQ, yytext()); }
 
   /* identifiers */
   [a-zA-Z\_][a-zA-Z0-9\_]*       { return token(TokenType.IDENTIFIER, yytext()); }

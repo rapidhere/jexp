@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.compile.closure;
 
+import lombok.experimental.var;
+
 /**
  * the name closure embedded int parnet name closure
  *
@@ -21,7 +23,10 @@ package ranttu.rapid.jexp.compile.closure;
     @Override
     public PropertyNode addNameAccessOnParent(String id) {
         // declare a name access on parent path
-        return parent.addNameAccess(id);
+        var node = parent.addNameAccess(id);
 
+        // share with parent
+        properties.put(id, node);
+        return node;
     }
 }

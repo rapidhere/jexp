@@ -1,11 +1,9 @@
 package ranttu.rapid.jexp.common;
 
 import lombok.experimental.UtilityClass;
-import ranttu.rapid.jexp.exception.FunctionOpcodeNotSupportedYet;
 import ranttu.rapid.jexp.exception.UnsupportedYet;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassReader;
 import ranttu.rapid.jexp.external.org.objectweb.asm.util.TraceClassVisitor;
-import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 
 import java.io.PrintWriter;
 
@@ -52,10 +50,6 @@ public class $ {
 
     public <T> T notSupport(Object s) {
         throw new UnsupportedYet(s.toString());
-    }
-
-    public <T> T opNotSupport(FunctionInfo info, int op) {
-        throw new FunctionOpcodeNotSupportedYet(info.name, op);
     }
 
     public <T> T shouldNotReach() {

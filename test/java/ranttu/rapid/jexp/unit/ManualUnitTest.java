@@ -64,7 +64,7 @@ public class ManualUnitTest extends ManualUnitTestBase {
 
     @Test
     public void testStream() {
-        var exp = JExp.compile("a.stream().distinct().sorted()", compileOption);
+        var exp = JExp.compile("a.stream().distinct().sorted((a, b) => a - b)", compileOption);
         var ctx = new HashMap<String, Object>() {
             {
                 var l = new ArrayList<Integer>();

@@ -20,6 +20,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
@@ -376,12 +377,21 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.isConstant = false;
         exp.valueType = Types.JEXP_GENERIC;
 
-        var node = names().declareName(exp.itemName);
-        node.linqParameter = true;
-        node.linqParameterIndex = ctx().nextLinqVariableIndex();
+        var node = declareLinqParameter(exp.itemName);
         exp.linqParameterIndex = node.linqParameterIndex;
 
         visit(exp.sourceExp);
+    }
+
+    @Override
+    protected void visit(LinqLetClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        exp.lambdaExp = defineLinqLambda(exp.sourceExp);
+
+        var node = declareLinqParameter(exp.itemName);
+        exp.linqParameterIndex = node.linqParameterIndex;
     }
 
     @Override
@@ -389,13 +399,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.isConstant = false;
         exp.valueType = Types.JEXP_GENERIC;
 
-        //~~~ create lambda expression
-        // collect parameters
-        var parameterProperties = getAllLinqParametersInOrder();
-        var parIds = parameterProperties.stream()
-            .map(p -> p.identifier).collect(Collectors.toList());
-
-        exp.lambdaExp = new LambdaExpression(parIds, exp.selectExp);
+        exp.lambdaExp = defineLinqLambda(exp.selectExp);
 
         // visit throw lambda parameter
         visit(exp.lambdaExp);
@@ -404,6 +408,26 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     //~~ ctx helpers
     private NameClosure names() {
         return ctx().names;
+    }
+
+    private PropertyNode declareLinqParameter(String name) {
+        var node = names().declareName(name);
+        node.linqParameter = true;
+        node.linqParameterIndex = ctx().nextLinqVariableIndex();
+
+        return node;
+    }
+
+    private LambdaExpression defineLinqLambda(ExpressionNode body) {
+        // collect parameters
+        var parameterProperties = getAllLinqParametersInOrder();
+        var parIds = parameterProperties.stream()
+            .map(p -> p.identifier).collect(Collectors.toList());
+
+        var lambda = new LambdaExpression(parIds, body);
+        visit(lambda);
+
+        return lambda;
     }
 
     private List<PropertyNode> getAllLinqParametersInOrder() {

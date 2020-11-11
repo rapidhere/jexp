@@ -25,6 +25,14 @@ class OrderedTuple {
         return values;
     }
 
+    OrderedTuple put(int idx, Object val) {
+        var res = new OrderedTuple(values.clone());
+        $.should(res.values[idx] == null);
+        res.values[idx] = val;
+
+        return res;
+    }
+
     static OrderedTuple of(int idx, Object val) {
         var tuple = new OrderedTuple(new Object[CompileOption.MAX_LINQ_PARS]);
         tuple.values[idx] = val;

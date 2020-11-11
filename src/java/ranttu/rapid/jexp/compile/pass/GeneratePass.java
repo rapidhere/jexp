@@ -24,6 +24,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
@@ -578,6 +579,19 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 getMethodDescriptor(getType(JExpLinqStream.class), getType(JExpLinqStream.class)),
                 false);
         }
+    }
+
+    @Override
+    protected void visit(LinqLetClause exp) {
+        mv.visitLdcInsn(exp.linqParameterIndex);
+        visit(exp.lambdaExp);
+
+        // call JExpLinqStream.let
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+            getInternalName(JExpLinqStream.class),
+            "let",
+            getMethodDescriptor(getType(JExpLinqStream.class), getType(int.class), getType(JExpFunctionHandle.class))
+            , false);
     }
 
     @Override

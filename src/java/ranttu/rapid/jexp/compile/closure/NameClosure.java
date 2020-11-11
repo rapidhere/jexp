@@ -117,16 +117,8 @@ abstract public class NameClosure {
             $.should(prevNode == null || prevNode == node);
             return node;
         } else {
-            // for root closure, declare the name, add access to propertyTree
-            if (parent == null) {
-                var node = addNameAccess(rootNode, id);
-                properties.put(id, node);
-                return node;
-            }
             // otherwise, name is access via parent closure
-            else {
-                return addNameAccessOnParent(id);
-            }
+            return addNameAccessOnParent(id);
         }
     }
 

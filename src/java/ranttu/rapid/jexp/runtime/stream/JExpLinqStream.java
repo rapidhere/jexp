@@ -27,13 +27,23 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     /**
      * select from stream
      */
+    @SuppressWarnings("unused")
     public Stream<?> select(JExpFunctionHandle handle) {
         return map(tuple -> handle.invoke(tuple.toArray()));
     }
 
     /**
+     * declare a shortcut
+     */
+    @SuppressWarnings("unused")
+    public JExpLinqStream let(int idx, JExpFunctionHandle handle) {
+        return new JExpLinqStream(map(tuple -> tuple.put(idx, handle.invoke(tuple.toArray()))));
+    }
+
+    /**
      * join another stream
      */
+    @SuppressWarnings("unused")
     public JExpLinqStream crossJoin(JExpLinqStream other) {
         var buff = StreamCache.of(other);
 

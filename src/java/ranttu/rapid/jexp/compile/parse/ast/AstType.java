@@ -27,5 +27,7 @@ public enum AstType {
 
     LINQ_FROM_CLAUSE,
 
+    LINQ_LET_CLAUSE,
+
     LINQ_SELECT_CLAUSE,
 }

@@ -4,6 +4,8 @@
  */
 package ranttu.rapid.jexp.compile.closure;
 
+import lombok.experimental.var;
+
 /**
  * the root name closure
  *
@@ -20,6 +22,9 @@ package ranttu.rapid.jexp.compile.closure;
      */
     @Override
     public PropertyNode addNameAccessOnParent(String id) {
-        throw new UnsupportedOperationException();
+        // for root closure, declare the name, add access to propertyTree
+        var node = addNameAccess(rootNode, id);
+        properties.put(id, node);
+        return node;
     }
 }

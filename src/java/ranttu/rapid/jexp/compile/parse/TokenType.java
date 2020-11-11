@@ -48,6 +48,10 @@ public enum TokenType {
 
     SELECT,
 
+    EQ,
+
+    LET,
+
     /**
      * math
      */

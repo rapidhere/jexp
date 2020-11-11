@@ -272,6 +272,7 @@ public class MH {
     /**
      * find the sam method of the target class
      */
+    @SneakyThrows
     private Method findSAMMethod(Class<?> target) {
         Method samMethod = null;
         for (var m : target.getMethods()) {
@@ -280,6 +281,14 @@ public class MH {
             if (Modifier.isFinal(modifier) || Modifier.isNative(modifier)
                 || !Modifier.isAbstract(modifier) || !Modifier.isPublic(modifier)) {
                 continue;
+            }
+
+            // test if overriden Object method
+            try {
+                Object.class.getMethod(m.getName(), m.getParameterTypes());
+                continue;
+            } catch (NoSuchMethodException ignored) {
+
             }
 
             // single method check
