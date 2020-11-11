@@ -69,6 +69,9 @@ OctIntegerLiteral = 0[0-9]+
   "orderby"                      { return token(TokenType.ORDERBY, yytext()); }
   "ascending"                    { return token(TokenType.ASCENDING, yytext()); }
   "descending"                   { return token(TokenType.DESCENDING, yytext()); }
+  "join"                         { return token(TokenType.JOIN, yytext()); }
+  "on"                           { return token(TokenType.ON, yytext()); }
+  "equals"                       { return token(TokenType.EQUALS, yytext()); }
   "=="                           { return token(TokenType.EQEQ, yytext()); }
   "!="                           { return token(TokenType.NOT_EQ, yytext()); }
   ">"                            { return token(TokenType.GREATER, yytext()); }

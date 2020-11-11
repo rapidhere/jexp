@@ -20,6 +20,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
@@ -418,10 +419,10 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         exp.isConstant = false;
         exp.valueType = Types.JEXP_GENERIC;
 
+        visit(exp.sourceExp);
+
         var node = declareLinqParameter(exp.itemName);
         exp.linqParameterIndex = node.linqParameterIndex;
-
-        visit(exp.sourceExp);
     }
 
     @Override
@@ -459,6 +460,27 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         for (var item : exp.items) {
             item.keySelectLambda = defineLinqLambda(item.exp);
         }
+    }
+
+    @Override
+    protected void visit(LinqJoinClause exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        // won't limit left/right on equals operation
+
+        // source
+        visit(exp.sourceExp);
+
+        // outer key lambda
+        exp.outerKeyLambda = defineLinqLambda(exp.outerKeyExp);
+
+        // inner key enter namespace
+        var node = declareLinqParameter(exp.innerItemName);
+        exp.innerItemLinqParameterIndex = node.linqParameterIndex;
+
+        // inner key lambda
+        exp.innerKeyLambda = defineLinqLambda(exp.innerKeyExp);
     }
 
     //~~ ctx helpers

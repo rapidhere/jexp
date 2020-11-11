@@ -24,6 +24,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
@@ -684,6 +685,35 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             "orderBy",
             getMethodDescriptor(getType(JExpLinqStream.class),
                 getType(JExpFunctionHandle[].class), getType(boolean[].class))
+            , false);
+    }
+
+    @Override
+    protected void visit(LinqJoinClause exp) {
+        // load source
+        // put name index on stack
+        mv.visitLdcInsn(exp.innerItemLinqParameterIndex);
+
+        // put stream on stack
+        visit(exp.sourceExp);
+        ByteCodes.box(mv, exp.sourceExp.valueType);
+
+        // TODO: move to INDY
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class), "withName",
+            "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
+            false);
+
+        // outerKey/innerKey
+        visit(exp.outerKeyLambda);
+        visit(exp.innerKeyLambda);
+
+        // JExpLinqStream.join
+        mv.visitMethodInsn(INVOKEVIRTUAL,
+            getInternalName(JExpLinqStream.class),
+            "join",
+            getMethodDescriptor(getType(JExpLinqStream.class),
+                getType(JExpLinqStream.class), getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
             , false);
     }
 

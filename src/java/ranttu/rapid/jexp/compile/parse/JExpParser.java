@@ -13,6 +13,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqFromClause;
+import ranttu.rapid.jexp.compile.parse.ast.LinqJoinClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqLetClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqOrderByClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
@@ -365,6 +366,9 @@ public class JExpParser {
                 case ORDERBY:
                     linqExp.queryBodyClauses.add(parseLinqOrderBy());
                     break;
+                case JOIN:
+                    linqExp.queryBodyClauses.add(parseLinqJoin());
+                    break;
                 case SELECT:
                     linqExp.finalQueryClause = parseLinqSelect();
                     break;
@@ -374,6 +378,23 @@ public class JExpParser {
         } while (linqExp.finalQueryClause == null);
 
         return linqExp;
+    }
+
+    private LinqJoinClause parseLinqJoin() {
+        next(TokenType.JOIN);
+
+        var id = next(TokenType.IDENTIFIER);
+        next(TokenType.IN);
+
+        var sourceExpr = parseExp();
+        next(TokenType.ON);
+
+        var leftKeyExpr = parseExp();
+        next(TokenType.EQUALS);
+
+        var rightKeyExpr = parseExp();
+
+        return new LinqJoinClause(id.getString(), sourceExpr, leftKeyExpr, rightKeyExpr);
     }
 
     private LinqOrderByClause parseLinqOrderBy() {

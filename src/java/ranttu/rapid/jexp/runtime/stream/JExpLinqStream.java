@@ -44,6 +44,7 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     /**
      * where clause
      */
+    @SuppressWarnings("unused")
     public JExpLinqStream where(JExpFunctionHandle handle) {
         return new JExpLinqStream(filter(
             tuple -> JExpLang.exactBoolean(handle.invoke(tuple.toArray()))));
@@ -52,6 +53,7 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     /**
      * order by clause
      */
+    @SuppressWarnings("unused")
     public JExpLinqStream orderBy(JExpFunctionHandle[] keySelectorHandles, boolean[] descendingFlag) {
         return new JExpLinqStream(sorted((t1, t2) -> {
             var t1Keys = t1.toArray();
@@ -78,6 +80,27 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
 
             return compRes;
         }));
+    }
+
+    /**
+     * inner join
+     */
+    @SuppressWarnings("unused")
+    public JExpLinqStream /*inner-equi*/join(JExpLinqStream inner,
+                                             JExpFunctionHandle outerKeySelector,
+                                             JExpFunctionHandle innerKeySelector) {
+        var kvBuff = StreamCache.of(inner
+            .map(v -> new KVPair(innerKeySelector.invoke(v.toArray()), v)));
+
+        Stream<OrderedTuple> stream = flatMap(outerValue -> {
+            var outerKey = outerKeySelector.invoke(outerValue.toArray());
+
+            return kvBuff.stream()
+                .filter(innerKV -> JExpLang.eq(outerKey, innerKV.key))
+                .map(innerKV -> OrderedTuple.merge(outerValue, (OrderedTuple) innerKV.value));
+        });
+
+        return new JExpLinqStream(stream);
     }
 
     /**

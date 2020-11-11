@@ -60,6 +60,12 @@ public enum TokenType {
 
     DESCENDING,
 
+    JOIN,
+
+    ON,
+
+    EQUALS,
+
     /**
      * math
      */

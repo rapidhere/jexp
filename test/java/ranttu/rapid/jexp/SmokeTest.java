@@ -31,7 +31,8 @@ public class SmokeTest {
         compileOption.treatGetterNoSideEffect = true;
 
 
-        JExpExpression exp = JExp.compile("(from w in a orderby w.length() descending, w ascending select w).toList()", compileOption);
+        JExpExpression exp = JExp.compile(
+            "(from outer in a join inner in b on outer.length() equals inner.length() select outer + inner).toList()", compileOption);
         List<?> res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<String>();
@@ -44,6 +45,7 @@ public class SmokeTest {
                 l.add("bug");
 
                 put("a", l);
+                put("b", l);
             }
         });
         System.out.println(res);

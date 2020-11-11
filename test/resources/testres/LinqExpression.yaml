@@ -36,3 +36,41 @@
     - world
     - bug
     - hat
+
+- desc: inner join
+  exp: '(from outer in a join inner in b on outer.length() equals inner.length() select outer + inner).toList()'
+  ctx:
+    a:
+      - hello
+      - world
+      - hat
+      - bug
+      - peaches
+      - pears
+      - oranges
+    b:
+      - hello
+      - world
+      - hat
+      - bug
+      - peaches
+      - pears
+      - oranges
+  res:
+    - hellohello
+    - helloworld
+    - hellopears
+    - worldhello
+    - worldworld
+    - worldpears
+    - hathat
+    - hatbug
+    - bughat
+    - bugbug
+    - peachespeaches
+    - peachesoranges
+    - pearshello
+    - pearsworld
+    - pearspears
+    - orangespeaches
+    - orangesoranges
