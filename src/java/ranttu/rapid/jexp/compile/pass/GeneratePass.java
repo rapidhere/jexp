@@ -45,11 +45,10 @@ import ranttu.rapid.jexp.runtime.RuntimeCompiling;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
-import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 import ranttu.rapid.jexp.runtime.indy.JExpCallSiteType;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 import ranttu.rapid.jexp.runtime.stream.Grouping;
-import ranttu.rapid.jexp.runtime.stream.JExpLinqStream;
+import ranttu.rapid.jexp.runtime.stream.StreamFunctions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -608,7 +607,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
 
         mv.visitMethodInsn(INVOKESTATIC,
             getInternalName(StreamFunctions.class),
-            "withName", "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
+            "withName", "(ILjava/lang/Object;)" + getDescriptor(Stream.class),
             false);
 
         ctx().wrapNamesOnly(exp.names, () -> {
@@ -632,7 +631,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             // TODO: move to INDY
             mv.visitMethodInsn(INVOKESTATIC,
                 getInternalName(StreamFunctions.class), "withName",
-                "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
+                "(ILjava/lang/Object;)" + getDescriptor(Stream.class),
                 false);
         }
         // if is not first from clause, call with crossJoin
@@ -644,11 +643,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             visit(exp.sourceLambda);
 
             // for static source, call with buffered method
-            mv.visitMethodInsn(INVOKEVIRTUAL,
-                getInternalName(JExpLinqStream.class),
+            mv.visitMethodInsn(INVOKESTATIC,
+                getInternalName(StreamFunctions.class),
                 exp.isSourceStatic ? "crossJoinStatic" : "crossJoinDynamic",
-                getMethodDescriptor(getType(JExpLinqStream.class),
-                    getType(int.class), getType(JExpFunctionHandle.class)),
+                getMethodDescriptor(getType(Stream.class),
+                    getType(Stream.class), getType(int.class), getType(JExpFunctionHandle.class)),
                 false);
         }
     }
@@ -659,10 +658,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         visit(exp.lambdaExp);
 
         // call JExpLinqStream.let
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-            getInternalName(JExpLinqStream.class),
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class),
             "let",
-            getMethodDescriptor(getType(JExpLinqStream.class), getType(int.class), getType(JExpFunctionHandle.class))
+            getMethodDescriptor(getType(Stream.class),
+                getType(Stream.class), getType(int.class), getType(JExpFunctionHandle.class))
             , false);
     }
 
@@ -672,10 +672,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         visit(exp.lambdaExp);
 
         // call JExpLinqStream.select
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-            getInternalName(JExpLinqStream.class),
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class),
             "select",
-            getMethodDescriptor(getType(Stream.class), getType(JExpFunctionHandle.class))
+            getMethodDescriptor(getType(Stream.class),
+                getType(Stream.class), getType(JExpFunctionHandle.class))
             , false);
     }
 
@@ -685,10 +686,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         visit(exp.lambdaExp);
 
         // call JExpLinqStream.where
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-            getInternalName(JExpLinqStream.class),
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class),
             "where",
-            getMethodDescriptor(getType(JExpLinqStream.class), getType(JExpFunctionHandle.class))
+            getMethodDescriptor(getType(Stream.class),
+                getType(Stream.class), getType(JExpFunctionHandle.class))
             , false);
     }
 
@@ -715,11 +717,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         }
 
         // JExpLinqStream.orderBy
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-            getInternalName(JExpLinqStream.class),
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class),
             "orderBy",
-            getMethodDescriptor(getType(JExpLinqStream.class),
-                getType(JExpFunctionHandle[].class), getType(boolean[].class))
+            getMethodDescriptor(getType(Stream.class),
+                getType(Stream.class), getType(JExpFunctionHandle[].class), getType(boolean[].class))
             , false);
     }
 
@@ -736,7 +738,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         // TODO: move to INDY
         mv.visitMethodInsn(INVOKESTATIC,
             getInternalName(StreamFunctions.class), "withName",
-            "(ILjava/lang/Object;)" + getDescriptor(JExpLinqStream.class),
+            "(ILjava/lang/Object;)" + getDescriptor(Stream.class),
             false);
 
         // outerKey/innerKey
@@ -746,11 +748,12 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         // inner join
         if (!exp.isGroupJoin()) {
             // JExpLinqStream.join
-            mv.visitMethodInsn(INVOKEVIRTUAL,
-                getInternalName(JExpLinqStream.class),
+            mv.visitMethodInsn(INVOKESTATIC,
+                getInternalName(StreamFunctions.class),
                 "join",
-                getMethodDescriptor(getType(JExpLinqStream.class),
-                    getType(JExpLinqStream.class), getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
+                getMethodDescriptor(getType(Stream.class),
+                    getType(Stream.class), getType(Stream.class),
+                    getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
                 , false);
         }
         // group join
@@ -759,11 +762,12 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             mv.visitLdcInsn(exp.innerItemLinqParameterIndex);
 
             // JExpLinqStream.groupJoin
-            mv.visitMethodInsn(INVOKEVIRTUAL,
-                getInternalName(JExpLinqStream.class),
+            mv.visitMethodInsn(INVOKESTATIC,
+                getInternalName(StreamFunctions.class),
                 "groupJoin",
-                getMethodDescriptor(getType(JExpLinqStream.class),
-                    getType(JExpLinqStream.class),
+                getMethodDescriptor(getType(Stream.class),
+                    getType(Stream.class),
+                    getType(Stream.class),
                     getType(JExpFunctionHandle.class),
                     getType(JExpFunctionHandle.class),
                     getType(int.class), getType(int.class))
@@ -780,11 +784,13 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         visit(exp.keyLambda);
 
         // JExpLinqStream.group
-        mv.visitMethodInsn(INVOKEVIRTUAL,
-            getInternalName(JExpLinqStream.class),
+        mv.visitMethodInsn(INVOKESTATIC,
+            getInternalName(StreamFunctions.class),
             "group",
             getMethodDescriptor(getType(Grouping.class),
-                getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
+                getType(Stream.class),
+                getType(JExpFunctionHandle.class),
+                getType(JExpFunctionHandle.class))
             , false);
     }
 

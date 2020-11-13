@@ -4,9 +4,9 @@ import lombok.experimental.var;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
 import ranttu.rapid.jexp.runtime.function.builtin.CommonFunctions;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
-import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 import ranttu.rapid.jexp.runtime.function.builtin.StringFunctions;
 import ranttu.rapid.jexp.runtime.indy.MH;
+import ranttu.rapid.jexp.runtime.stream.StreamFunctions;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
