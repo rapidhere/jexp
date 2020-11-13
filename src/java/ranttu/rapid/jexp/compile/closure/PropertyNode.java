@@ -78,10 +78,19 @@ public class PropertyNode {
      */
     public int linqParameterIndex = -1;
 
+
     /**
      * related closure of this property
      */
     /* package-private */ final NameClosure closure;
+
+    public Object getActualIdentifer() {
+        try {
+            return Integer.parseInt(identifier);
+        } catch (NumberFormatException e) {
+            return identifier;
+        }
+    }
 
     /**
      * whether this node is static

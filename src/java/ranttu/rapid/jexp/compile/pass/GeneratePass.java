@@ -167,7 +167,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             // invoke the accessor to get the property
             else {
                 invokeAccessorGetter(idNode.slotNo,
-                    () -> mv.visitLdcInsn(idNode.identifier));
+                    () -> putActualIdOnStack(mv, idNode));
             }
 
             // dup for each child
@@ -843,7 +843,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             else if (compilingContext.option.treatGetterNoSideEffect) {
                 // put on stack
                 invokeAccessorGetter(idNode.slotNo,
-                    () -> mv.visitLdcInsn(idNode.identifier));
+                    () -> putActualIdOnStack(mv, idNode));
                 // dup for each child
                 // one more for access point
                 dupN(idNode.needDupChildrenCount());
@@ -853,6 +853,15 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 mv.visitVarInsn(ASTORE, idNode.variableIndex);
             }
         });
+    }
+
+    private void putActualIdOnStack(MethodVisitor mv, PropertyNode idNode) {
+        var id = idNode.getActualIdentifer();
+        mv.visitLdcInsn(id);
+
+        if (id instanceof Integer) {
+            ByteCodes.box(mv, Types.JEXP_INT);
+        }
     }
 
     private void dupN(int n) {

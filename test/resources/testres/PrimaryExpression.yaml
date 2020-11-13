@@ -178,3 +178,11 @@
       key0: hello
       key1: world
   res: world
+
+- desc: static array access
+  exp: 'a[0]'
+  ctx:
+    a:
+      - 'hello'
+      - 'world'
+  res: 'hello'

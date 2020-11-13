@@ -213,7 +213,7 @@ public class JExpParser {
                     throw new UnexpectedToken(token);
                 }
 
-                // cast id to str
+                // cast id to str or number
                 Token idToken = ((PrimaryExpression) identifier).token;
                 Token strToken = new Token(TokenType.STRING, idToken.line, idToken.column,
                     idToken.value);
