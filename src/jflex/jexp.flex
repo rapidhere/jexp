@@ -82,6 +82,7 @@ OctIntegerLiteral = 0[0-9]+
   "<"                            { return token(TokenType.SMALLER, yytext()); }
   "<="                           { return token(TokenType.SMALLER_EQ, yytext()); }
   "!"                            { return token(TokenType.NOT, yytext()); }
+  ":"                            { return token(TokenType.SEMI_COLON, yytext()); }
 
   /* identifiers */
   [a-zA-Z\_][a-zA-Z0-9\_]*       { return token(TokenType.IDENTIFIER, yytext()); }

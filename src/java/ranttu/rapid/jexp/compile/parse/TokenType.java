@@ -72,6 +72,8 @@ public enum TokenType {
 
     BY,
 
+    SEMI_COLON,
+
     /**
      * math
      */

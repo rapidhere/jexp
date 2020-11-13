@@ -186,3 +186,30 @@
       - 'hello'
       - 'world'
   res: 'hello'
+
+- desc: map literal
+  exp: '{ first: a[0], second: a[1] }'
+  ctx:
+    a:
+      - 'hello'
+      - 'world'
+  res:
+    first: hello
+    second: world
+
+- desc: map literal access
+  exp: '{ first: a[0], second: a[1] }.second'
+  ctx:
+    a:
+      - 'hello'
+      - 'world'
+  res: 'world'
+
+- desc: map literal access 2
+  exp: '{ first: a[0], second: a[1] }[a[2]]'
+  ctx:
+    a:
+      - 'hello'
+      - 'world'
+      - 'second'
+  res: 'world'

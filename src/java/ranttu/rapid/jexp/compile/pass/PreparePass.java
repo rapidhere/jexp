@@ -16,6 +16,7 @@ import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.DictExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
@@ -478,6 +479,14 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
 
         exp.selectLambda = defineLinqLambda(exp.selectExp);
         exp.keyLambda = defineLinqLambda(exp.keyExp);
+    }
+
+    @Override
+    protected void visit(DictExpression exp) {
+        exp.isConstant = false;
+        exp.valueType = Types.JEXP_GENERIC;
+
+        exp.items.forEach((k, v) -> visit(v));
     }
 
 

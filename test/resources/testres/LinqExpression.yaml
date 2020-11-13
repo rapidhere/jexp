@@ -5,6 +5,20 @@
     a: [1, 2, 3, 4, 5]
     b: 'abcde'
 
+- desc: cross join 2
+  exp: '(from i in a from j in b select { i: i, j: "" + j }).toList()'
+  ctx:
+    a: [1, 2]
+    b: 'abc'
+  res:
+    - {i: 1, j: a}
+    - {i: 1, j: b}
+    - {i: 1, j: c}
+    - {i: 2, j: a}
+    - {i: 2, j: b}
+    - {i: 2, j: c}
+
+
 - desc: let clause
   exp: '(from i in a let i2 = i * 2 select i2 * 3).toList()'
   ctx:

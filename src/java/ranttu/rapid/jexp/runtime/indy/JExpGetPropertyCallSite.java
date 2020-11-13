@@ -91,23 +91,19 @@ import static java.lang.invoke.MethodType.methodType;
     }
 
     private MethodHandle fitList() {
-        // escape gate: drop first exception
-        var eg = MethodHandles.dropArguments(thisEscapeGate, 0, Throwable.class);
-
         // anything that is not a list, will trigger the escape gate
-        return MethodHandles.catchException(
+        return MethodHandles.guardWithTest(
+            MH.IS_INSTANCE.bindTo(List.class),
             MH.LIST_GET.asType(thisEscapeGate.type()),
-            ClassCastException.class, eg);
+            thisEscapeGate);
     }
 
     private MethodHandle fitMap() {
-        // escape gate: drop first exception
-        var eg = MethodHandles.dropArguments(thisEscapeGate, 0, Throwable.class);
-
         // anything that is not a map, will trigger the escape gate
-        return MethodHandles.catchException(
+        return MethodHandles.guardWithTest(
+            MH.IS_INSTANCE.bindTo(Map.class),
             MH.MAP_GET.asType(thisEscapeGate.type()),
-            ClassCastException.class, eg);
+            thisEscapeGate);
     }
 
     private MethodHandle fitObject(Class<?> klass) {

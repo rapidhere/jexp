@@ -20,6 +20,7 @@ import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
+import ranttu.rapid.jexp.compile.parse.ast.DictExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
@@ -52,6 +53,7 @@ import ranttu.rapid.jexp.runtime.stream.StreamFunctions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -492,8 +494,36 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         exp.items.forEach(item -> {
             mv.visitInsn(DUP);
             visit(item);
+            if (! item.isConstant) {
+                mathOpValConvert(mv, item.valueType);
+            }
             mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(List.class), "add",
                 getMethodDescriptor(getType(boolean.class), getType(Object.class)), true);
+            mv.visitInsn(POP);
+        });
+    }
+
+
+    @Override
+    protected void visit(DictExpression exp) {
+        mv.visitTypeInsn(NEW, getInternalName(LinkedHashMap.class));
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, getInternalName(LinkedHashMap.class),
+            "<init>", "()V", false);
+
+        exp.items.forEach((id, itemExp) -> {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(id);
+            visit(itemExp);
+            if (! itemExp.isConstant) {
+                mathOpValConvert(mv, itemExp.valueType);
+            }
+            mv.visitMethodInsn(INVOKEINTERFACE,
+                getInternalName(Map.class),
+                "put",
+                getMethodDescriptor(getType(Object.class),
+                    getType(Object.class), getType(Object.class)),
+                true);
             mv.visitInsn(POP);
         });
     }

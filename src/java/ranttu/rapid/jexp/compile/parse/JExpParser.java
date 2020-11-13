@@ -9,6 +9,7 @@ import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CommaExpression;
+import ranttu.rapid.jexp.compile.parse.ast.DictExpression;
 import ranttu.rapid.jexp.compile.parse.ast.ExpressionNode;
 import ranttu.rapid.jexp.compile.parse.ast.LambdaExpression;
 import ranttu.rapid.jexp.compile.parse.ast.LinqExpression;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -514,11 +517,41 @@ public class JExpParser {
             next();
             return new ArrayExpression(parseItems(TokenType.RIGHT_BRACKET));
         }
+        // i.e., a dict expression
+        else if (t.is(TokenType.LEFT_BRACE)) {
+            return parseDict();
+        }
         // common primary expression
         else {
             t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.FLOAT);
             return new PrimaryExpression(t);
         }
+    }
+
+    private DictExpression parseDict() {
+        next(TokenType.LEFT_BRACE);
+
+        // empty map
+        if (peek().is(TokenType.RIGHT_BRACE)) {
+            next();
+            return new DictExpression(new LinkedHashMap<>());
+        }
+
+        var items = new HashMap<String, ExpressionNode>();
+
+        do {
+            var id = next(TokenType.IDENTIFIER);
+            next(TokenType.SEMI_COLON);
+            var exp = parseBinary();
+            items.put(id.getString(), exp);
+
+            var t = next(TokenType.COMMA, TokenType.RIGHT_BRACE);
+            if (t.is(TokenType.RIGHT_BRACE)) {
+                break;
+            }
+        } while (true);
+
+        return new DictExpression(items);
     }
 
     private Token peek() {

@@ -19,6 +19,8 @@ public enum AstType {
 
     ARRAY_EXP,
 
+    DICT_EXP,
+
     LAMBDA_EXP,
 
     COMMA_EXP,
