@@ -48,6 +48,7 @@ import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 import ranttu.rapid.jexp.runtime.indy.JExpCallSiteType;
 import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
+import ranttu.rapid.jexp.runtime.stream.Grouping;
 import ranttu.rapid.jexp.runtime.stream.JExpLinqStream;
 
 import java.util.ArrayList;
@@ -782,7 +783,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         mv.visitMethodInsn(INVOKEVIRTUAL,
             getInternalName(JExpLinqStream.class),
             "group",
-            getMethodDescriptor(getType(Map.class),
+            getMethodDescriptor(getType(Grouping.class),
                 getType(JExpFunctionHandle.class), getType(JExpFunctionHandle.class))
             , false);
     }

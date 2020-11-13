@@ -9,7 +9,6 @@ import ranttu.rapid.jexp.JExpFunctionHandle;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
 import ranttu.rapid.jexp.runtime.function.builtin.StreamFunctions;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +24,7 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
     }
 
     JExpLinqStream(Stream<OrderedTuple> delegate) {
-        super(delegate);
+        super(() -> delegate);
     }
 
     /**
@@ -40,14 +39,15 @@ public class JExpLinqStream extends DelegatedStream<OrderedTuple> {
      * group the stream
      */
     @SuppressWarnings("unused")
-    public Map<?, ?> group(JExpFunctionHandle selectHandle, JExpFunctionHandle keyHandle) {
-        return collect(Collectors.groupingBy(
-            tuple -> keyHandle.invoke(tuple.toArray()),
-            Collectors.mapping(
-                tuple -> selectHandle.invoke(tuple.toArray()),
-                Collectors.toList()
-            )
-        ));
+    public Grouping<?, ?> group(JExpFunctionHandle selectHandle, JExpFunctionHandle keyHandle) {
+        return Grouping.ofGrouped(() ->
+            collect(Collectors.groupingBy(
+                tuple -> keyHandle.invoke(tuple.toArray()),
+                Collectors.mapping(
+                    tuple -> selectHandle.invoke(tuple.toArray()),
+                    Collectors.toList()
+                )
+            )));
     }
 
     /**

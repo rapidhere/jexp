@@ -35,11 +35,13 @@ import java.util.stream.Stream;
  * @version : DelegatedStream.java, v 0.1 2020-11-09 10:17 PM rapid Exp $
  */
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
-public class DelegatedStream<T> implements Stream<T> {
+class DelegatedStream<T> implements Stream<T> {
     /**
      * inner wrapped stream
      */
-    private final Stream<T> stream;
+    private Stream<T> cachedStream = null;
+
+    private final Supplier<Stream<T>> streamSupplier;
 
     /**
      * create a new jexp stream
@@ -48,209 +50,217 @@ public class DelegatedStream<T> implements Stream<T> {
         if (stream instanceof DelegatedStream) {
             return (DelegatedStream<S>) stream;
         } else {
-            return new DelegatedStream<>(stream);
+            return new DelegatedStream<>(() -> stream);
+        }
+    }
+
+    private Stream<T> cached() {
+        if (cachedStream != null) {
+            return cachedStream;
+        } else {
+            return (cachedStream = streamSupplier.get());
         }
     }
 
     //~~~ delegate to Stream<T>
     @Override
     public Stream<T> filter(Predicate<? super T> predicate) {
-        return stream.filter(predicate);
+        return cached().filter(predicate);
     }
 
     @Override
     public <R> Stream<R> map(Function<? super T, ? extends R> mapper) {
-        return stream.map(mapper);
+        return cached().map(mapper);
     }
 
     @Override
     public IntStream mapToInt(ToIntFunction<? super T> mapper) {
-        return stream.mapToInt(mapper);
+        return cached().mapToInt(mapper);
     }
 
     @Override
     public LongStream mapToLong(ToLongFunction<? super T> mapper) {
-        return stream.mapToLong(mapper);
+        return cached().mapToLong(mapper);
     }
 
     @Override
     public DoubleStream mapToDouble(ToDoubleFunction<? super T> mapper) {
-        return stream.mapToDouble(mapper);
+        return cached().mapToDouble(mapper);
     }
 
     @Override
     public <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
-        return stream.flatMap(mapper);
+        return cached().flatMap(mapper);
     }
 
     @Override
     public IntStream flatMapToInt(Function<? super T, ? extends IntStream> mapper) {
-        return stream.flatMapToInt(mapper);
+        return cached().flatMapToInt(mapper);
     }
 
     @Override
     public LongStream flatMapToLong(Function<? super T, ? extends LongStream> mapper) {
-        return stream.flatMapToLong(mapper);
+        return cached().flatMapToLong(mapper);
     }
 
     @Override
     public DoubleStream flatMapToDouble(Function<? super T, ? extends DoubleStream> mapper) {
-        return stream.flatMapToDouble(mapper);
+        return cached().flatMapToDouble(mapper);
     }
 
     @Override
     public Stream<T> distinct() {
-        return stream.distinct();
+        return cached().distinct();
     }
 
     @Override
     public Stream<T> sorted() {
-        return stream.sorted();
+        return cached().sorted();
     }
 
     @Override
     public Stream<T> sorted(Comparator<? super T> comparator) {
-        return stream.sorted(comparator);
+        return cached().sorted(comparator);
     }
 
     @Override
     public Stream<T> peek(Consumer<? super T> action) {
-        return stream.peek(action);
+        return cached().peek(action);
     }
 
     @Override
     public Stream<T> limit(long maxSize) {
-        return stream.limit(maxSize);
+        return cached().limit(maxSize);
     }
 
     @Override
     public Stream<T> skip(long n) {
-        return stream.skip(n);
+        return cached().skip(n);
     }
 
     @Override
     public void forEach(Consumer<? super T> action) {
-        stream.forEach(action);
+        cached().forEach(action);
     }
 
     @Override
     public void forEachOrdered(Consumer<? super T> action) {
-        stream.forEachOrdered(action);
+        cached().forEachOrdered(action);
     }
 
     @Override
     public Object[] toArray() {
-        return stream.toArray();
+        return cached().toArray();
     }
 
     @Override
     public <A> A[] toArray(IntFunction<A[]> generator) {
         //noinspection SuspiciousToArrayCall
-        return stream.toArray(generator);
+        return cached().toArray(generator);
     }
 
     @Override
     public T reduce(T identity, BinaryOperator<T> accumulator) {
-        return stream.reduce(identity, accumulator);
+        return cached().reduce(identity, accumulator);
     }
 
     @Override
     public Optional<T> reduce(BinaryOperator<T> accumulator) {
-        return stream.reduce(accumulator);
+        return cached().reduce(accumulator);
     }
 
     @Override
     public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
-        return stream.reduce(identity, accumulator, combiner);
+        return cached().reduce(identity, accumulator, combiner);
     }
 
     @Override
     public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator, BiConsumer<R, R> combiner) {
-        return stream.collect(supplier, accumulator, combiner);
+        return cached().collect(supplier, accumulator, combiner);
     }
 
     @Override
     public <R, A> R collect(Collector<? super T, A, R> collector) {
-        return stream.collect(collector);
+        return cached().collect(collector);
     }
 
     @Override
     public Optional<T> min(Comparator<? super T> comparator) {
-        return stream.min(comparator);
+        return cached().min(comparator);
     }
 
     @Override
     public Optional<T> max(Comparator<? super T> comparator) {
-        return stream.max(comparator);
+        return cached().max(comparator);
     }
 
     @Override
     public long count() {
-        return stream.count();
+        return cached().count();
     }
 
     @Override
     public boolean anyMatch(Predicate<? super T> predicate) {
-        return stream.anyMatch(predicate);
+        return cached().anyMatch(predicate);
     }
 
     @Override
     public boolean allMatch(Predicate<? super T> predicate) {
-        return stream.allMatch(predicate);
+        return cached().allMatch(predicate);
     }
 
     @Override
     public boolean noneMatch(Predicate<? super T> predicate) {
-        return stream.noneMatch(predicate);
+        return cached().noneMatch(predicate);
     }
 
     @Override
     public Optional<T> findFirst() {
-        return stream.findFirst();
+        return cached().findFirst();
     }
 
     @Override
     public Optional<T> findAny() {
-        return stream.findAny();
+        return cached().findAny();
     }
 
     @Override
     public Iterator<T> iterator() {
-        return stream.iterator();
+        return cached().iterator();
     }
 
     @Override
     public Spliterator<T> spliterator() {
-        return stream.spliterator();
+        return cached().spliterator();
     }
 
     @Override
     public boolean isParallel() {
-        return stream.isParallel();
+        return cached().isParallel();
     }
 
     @Override
     public Stream<T> sequential() {
-        return stream.sequential();
+        return cached().sequential();
     }
 
     @Override
     public Stream<T> parallel() {
-        return stream.parallel();
+        return cached().parallel();
     }
 
     @Override
     public Stream<T> unordered() {
-        return stream.unordered();
+        return cached().unordered();
     }
 
     @Override
     public Stream<T> onClose(Runnable closeHandler) {
-        return stream.onClose(closeHandler);
+        return cached().onClose(closeHandler);
     }
 
     @Override
     public void close() {
-        stream.close();
+        cached().close();
     }
 }
