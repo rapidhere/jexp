@@ -17,8 +17,7 @@ public class StringFunctions {
     public static boolean isBlank(String s) {
         return s == null || s.length() == 0;
     }
-
-    // TODO: @dongwei.dq, return int
+    
     @JExpFunction(lib = "string", name = "length")
     public static int length(String s) {
         return s.length();

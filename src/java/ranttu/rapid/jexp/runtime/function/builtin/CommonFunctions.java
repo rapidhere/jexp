@@ -14,7 +14,12 @@ import java.util.Date;
  */
 public class CommonFunctions {
     @JExpFunction(name = "sysdate")
-    public static String sysDate() {
-        return new Date().toString();
+    public static Date sysDate() {
+        return new Date();
+    }
+
+    @JExpFunction(name = "test")
+    public static Object test(Object test, Object trueHandle, Object falseHandle) {
+        return JExpLang.exactBoolean(test) ? trueHandle : falseHandle;
     }
 }
