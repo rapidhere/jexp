@@ -15,7 +15,6 @@ import java.io.PrintWriter;
  */
 @UtilityClass
 public class $ {
-
     /**
      * print the class from byte code
      *
@@ -23,7 +22,7 @@ public class $ {
      * @param bytes     the bytes
      */
     public void printClass(String className, byte[] bytes) {
-        if (Boolean.parseBoolean(System.getProperty("jexp.printBC"))) {
+        if (JExpGlobalOptions.isPrintByteCodesToStdout()) {
             System.out.println("========Class: " + className);
             ClassReader reader = new ClassReader(bytes);
             reader.accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);

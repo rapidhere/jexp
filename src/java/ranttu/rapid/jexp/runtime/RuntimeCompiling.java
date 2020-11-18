@@ -64,6 +64,7 @@ final public class RuntimeCompiling {
         } catch (Exception e) {
             throw new JExpCompilingException("error when define compiled class", e);
         }
+
     }
 
     /**
