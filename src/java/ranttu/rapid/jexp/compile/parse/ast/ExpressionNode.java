@@ -1,6 +1,7 @@
 package ranttu.rapid.jexp.compile.parse.ast;
 
 import ranttu.rapid.jexp.common.$;
+import ranttu.rapid.jexp.compile.parse.ValueType;
 
 /**
  * a ast node
@@ -17,10 +18,8 @@ abstract public class ExpressionNode {
 
     /**
      * the result value type of this expression
-     *
-     * @see ranttu.rapid.jexp.common.Types
      */
-    public ranttu.rapid.jexp.external.org.objectweb.asm.Type valueType;
+    public ValueType valueType;
 
     //~~~ constant value related
     /**

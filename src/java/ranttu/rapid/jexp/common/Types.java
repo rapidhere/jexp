@@ -5,10 +5,8 @@
 package ranttu.rapid.jexp.common;
 
 import lombok.experimental.UtilityClass;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes;
+import ranttu.rapid.jexp.compile.parse.ValueType;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
-
-import java.util.List;
 
 /**
  * Type utils
@@ -18,36 +16,15 @@ import java.util.List;
  */
 @UtilityClass
 public class Types {
-    //~~~ common type constants
-    public static Type JEXP_FLOAT = Type.DOUBLE_TYPE;
+    public boolean isString(ValueType vt) {
+        return vt == ValueType.STRING || vt == ValueType.STRING_BUILDER;
+    }
 
-    public static Type JEXP_INT = Type.INT_TYPE;
-
-    public static Type JEXP_STRING = Type.getType(String.class);
-
-    public static Type JEXP_ARRAY = Type.getType(List.class);
-
-    public static Type JEXP_GENERIC = Type.getType(Object.class);
-
-    public static Type JEXP_BOOL = Type.BOOLEAN_TYPE;
+    public boolean isNumber(ValueType vt) {
+        return vt == ValueType.DOUBLE_WRAPPED || vt == ValueType.INT_WRAPPED;
+    }
 
     //~~~ helper functions
-    public boolean isString(Type t) {
-        return JEXP_STRING.equals(t);
-    }
-
-    public boolean isFloat(Type t) {
-        return JEXP_FLOAT.equals(t);
-    }
-
-    public boolean isNumber(Type t) {
-        return $.in(t.getSort(), Type.INT, Type.DOUBLE);
-    }
-
-    public boolean isInt(Type t) {
-        return JEXP_INT.equals(t);
-    }
-
     public Type getPrimitive(Class<?> c) {
         if (c == Integer.class) {
             return Type.INT_TYPE;
@@ -111,30 +88,6 @@ public class Types {
                 return true;
             default:
                 return false;
-        }
-    }
-
-    public boolean isType(Type t, Class<?> c) {
-        return t.getClassName().equals(c.getName());
-    }
-
-    public Object getFrameDesc(Class<?> c) {
-        Type t = Type.getType(c);
-        switch (t.getSort()) {
-            case Type.BOOLEAN:
-            case Type.BYTE:
-            case Type.CHAR:
-            case Type.SHORT:
-            case Type.INT:
-                return Opcodes.INTEGER;
-            case Type.LONG:
-                return Opcodes.LONG;
-            case Type.FLOAT:
-                return Opcodes.FLOAT;
-            case Type.DOUBLE:
-                return Opcodes.DOUBLE;
-            default:
-                return t.getInternalName();
         }
     }
 }

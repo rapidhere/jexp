@@ -20,7 +20,7 @@ public class StringFunctions {
 
     // TODO: @dongwei.dq, return int
     @JExpFunction(lib = "string", name = "length")
-    public static Object length(String s) {
+    public static int length(String s) {
         return s.length();
     }
 }

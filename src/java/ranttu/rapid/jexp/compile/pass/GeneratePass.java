@@ -17,6 +17,7 @@ import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.constant.DebugNo;
 import ranttu.rapid.jexp.compile.parse.TokenType;
+import ranttu.rapid.jexp.compile.parse.ValueType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
@@ -35,6 +36,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
+import ranttu.rapid.jexp.exception.JExpFunctionArgumentConvertException;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
 import ranttu.rapid.jexp.external.org.objectweb.asm.ClassWriter;
 import ranttu.rapid.jexp.external.org.objectweb.asm.Label;
@@ -143,13 +145,6 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         }
     }
 
-    /**
-     * visit and put the ast on the stack
-     */
-    public void visitOnStack(ExpressionNode astNode) {
-        visit(astNode);
-    }
-
     private String nextConstantSlot() {
         return "constant$" + ctx().constantCount++;
     }
@@ -168,12 +163,13 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             }
             // invoke the accessor to get the property
             else {
-                invokeAccessorGetter(idNode.slotNo,
-                    () -> putActualIdOnStack(mv, idNode));
+                putActualIdOnStack(mv, idNode);
+                invokeAccessorGetter(idNode.slotNo);
             }
 
             // dup for each child
-            dupN(idNode.needDupChildrenCount() + (idNode.isRoot() ? 0 : 1) - 1);
+            ByteCodes.dupN(mv,
+                idNode.needDupChildrenCount() + (idNode.isRoot() ? 0 : 1) - 1);
 
             // if this a access point, store
             if (!idNode.isRoot()) {
@@ -235,10 +231,8 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             JExpIndyFactory.INDY_FACTORY_HANDLE, slotNo);
     }
 
-    private void invokeAccessorGetter(int slotNo, Runnable invokePropertyName) {
-        // [propertyOwner] -> [propertyOwner, propertyName]
-        invokePropertyName.run();
-
+    private void invokeAccessorGetter(int slotNo) {
+        // [propertyOwner, propertyName]
         mv.visitInvokeDynamicInsn(
             JExpCallSiteType.GET_PROP.name(),
             "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
@@ -254,7 +248,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         }
 
         // load constant
-        Object val = astNode.constantValue;
+        var val = astNode.constantValue;
 
         // string, directly load
         if (val instanceof String) {
@@ -272,7 +266,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 // field init
                 conMv.visitVarInsn(ALOAD, 0);
                 conMv.visitLdcInsn(val);
-                mathOpValConvert(conMv, Types.getPrimitive(val.getClass()));
+                ByteCodes.box(conMv, Types.getPrimitive(val.getClass()));
                 conMv.visitFieldInsn(PUTFIELD, ctx().classInternalName, newSlot,
                     getDescriptor(val.getClass()));
 
@@ -311,117 +305,58 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             return;
         }
 
-        boolean isComparator = $.in(exp.op.type, TokenType.EQEQ, TokenType.NOT_EQ, TokenType.GREATER,
-            TokenType.GREATER_EQ, TokenType.SMALLER, TokenType.SMALLER_EQ);
+        // build arguments
+        List<ExpressionNode> args = new ArrayList<>();
+        args.add(exp.left);
+        args.add(exp.right);
 
-        // for float type
-        if (Types.isFloat(exp.valueType) && !isComparator) {
-            visit(exp.left);
-            if (Types.isInt(exp.left.valueType)) {
-                mv.visitInsn(I2D);
-            }
-
-            visit(exp.right);
-            if (Types.isInt(exp.right.valueType)) {
-                mv.visitInsn(I2D);
-            }
-
-            switch (exp.op.type) {
-                case PLUS:
-                    mv.visitInsn(DADD);
-                    break;
-                case SUBTRACT:
-                    mv.visitInsn(DSUB);
-                    break;
-                case MULTIPLY:
-                    mv.visitInsn(DMUL);
-                    break;
-                case DIVIDE:
-                    mv.visitInsn(DDIV);
-                    break;
-                case MODULAR:
-                    mv.visitInsn(DREM);
-                    break;
-            }
-        }
-        // for int type
-        else if (Types.isInt(exp.valueType) && !isComparator) {
-            visit(exp.left);
-            visit(exp.right);
-
-            switch (exp.op.type) {
-                case PLUS:
-                    mv.visitInsn(IADD);
-                    break;
-                case SUBTRACT:
-                    mv.visitInsn(ISUB);
-                    break;
-                case MULTIPLY:
-                    mv.visitInsn(IMUL);
-                    break;
-                case DIVIDE:
-                    mv.visitInsn(IDIV);
-                    break;
-                case MODULAR:
-                    mv.visitInsn(IREM);
-                    break;
-            }
-        }
-        // for any runtime types
-        else {
-            // build arguments
-            List<ExpressionNode> args = new ArrayList<>();
-            args.add(exp.left);
-            args.add(exp.right);
-
-            switch (exp.op.type) {
-                case PLUS:
-                    applyFunction("math", "add", args);
-                    break;
-                case SUBTRACT:
-                    applyFunction("math", "sub", args);
-                    break;
-                case MULTIPLY:
-                    applyFunction("math", "mul", args);
-                    break;
-                case DIVIDE:
-                    applyFunction("math", "div", args);
-                    break;
-                case MODULAR:
-                    applyFunction("math", "mod", args);
-                    break;
-                case EQEQ:
-                    applyFunction("lang", "eq", args);
-                    break;
-                case NOT_EQ:
-                    applyFunction("lang", "neq", args);
-                    break;
-                case GREATER:
-                    applyFunction("math", "grt", args);
-                    break;
-                case GREATER_EQ:
-                    applyFunction("math", "gre", args);
-                    break;
-                case SMALLER:
-                    applyFunction("math", "lst", args);
-                    break;
-                case SMALLER_EQ:
-                    applyFunction("math", "lse", args);
-                    break;
-            }
+        switch (exp.op.type) {
+            case PLUS:
+                applyFunction("math", "add", args, true);
+                break;
+            case SUBTRACT:
+                applyFunction("math", "sub", args, true);
+                break;
+            case MULTIPLY:
+                applyFunction("math", "mul", args, true);
+                break;
+            case DIVIDE:
+                applyFunction("math", "div", args, true);
+                break;
+            case MODULAR:
+                applyFunction("math", "mod", args, true);
+                break;
+            case EQEQ:
+                applyFunction("lang", "eq", args, false);
+                break;
+            case NOT_EQ:
+                applyFunction("lang", "neq", args, false);
+                break;
+            case GREATER:
+                applyFunction("math", "grt", args, false);
+                break;
+            case GREATER_EQ:
+                applyFunction("math", "gre", args, false);
+                break;
+            case SMALLER:
+                applyFunction("math", "lst", args, false);
+                break;
+            case SMALLER_EQ:
+                applyFunction("math", "lse", args, false);
+                break;
         }
     }
 
     private void onCondOp(BinaryExpression exp) {
         visit(exp.left);
 
-        if (exp.left.valueType == Types.JEXP_BOOL) {
+        if (exp.left.valueType == ValueType.BOOL) {
             mv.visitInsn(DUP);
-            ByteCodes.box(mv, Types.JEXP_BOOL);
+            ByteCodes.box(mv, Type.BOOLEAN_TYPE);
             mv.visitInsn(SWAP);
         } else {
             // call Runtimes.booleanValue
-            ByteCodes.box(mv, exp.left.valueType);
+            // ByteCodes.box(mv, exp.left.valueType);
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESTATIC, getInternalName(JExpLang.class), "exactBoolean",
                 getMethodDescriptor(getType(boolean.class), getType(Object.class)), false);
@@ -433,19 +368,16 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 mv.visitJumpInsn(IFNE, trueLabel);
                 mv.visitInsn(POP);
                 visit(exp.right);
-                ByteCodes.box(mv, exp.right.valueType);
+                ByteCodes.box(mv, exp.right.valueType.getType());
                 mv.visitLabel(trueLabel);
-//                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{
-//                    Types.getFrameDesc(Object.class)});
                 break;
             case AND:
                 var falseLabel = new Label();
                 mv.visitJumpInsn(IFEQ, falseLabel);
                 mv.visitInsn(POP);
                 visit(exp.right);
-                ByteCodes.box(mv, exp.right.valueType);
+                ByteCodes.box(mv, exp.right.valueType.getType());
                 mv.visitLabel(falseLabel);
-//                mv.visitFrame(F_SAME1, 0, null, 1, new Object[]{Types.getFrameDesc(Object.class)});
                 break;
         }
     }
@@ -455,7 +387,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
     protected void visit(CallExpression func) {
         // that is, a static call of inner methods
         if (!func.isBounded) {
-            applyFunction(func.functionInfo, func.parameters);
+            applyFunction(func.functionInfo, func.parameters, true);
         } else {
             // get caller on stack
             visit(func.caller);
@@ -479,9 +411,10 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         // for dynamic member expression
         else {
             visit(exp.owner);
-            invokeAccessorGetter(
-                exp.getSlotNo(),
-                () -> visit(exp.propertyName));
+
+            visit(exp.propertyName);
+
+            invokeAccessorGetter(exp.getSlotNo());
         }
     }
 
@@ -494,9 +427,8 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         exp.items.forEach(item -> {
             mv.visitInsn(DUP);
             visit(item);
-            if (! item.isConstant) {
-                mathOpValConvert(mv, item.valueType);
-            }
+            mathOpValConvert(mv, item.valueType);
+
             mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(List.class), "add",
                 getMethodDescriptor(getType(boolean.class), getType(Object.class)), true);
             mv.visitInsn(POP);
@@ -515,9 +447,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             mv.visitInsn(DUP);
             mv.visitLdcInsn(id);
             visit(itemExp);
-            if (! itemExp.isConstant) {
-                mathOpValConvert(mv, itemExp.valueType);
-            }
+            mathOpValConvert(mv, itemExp.valueType);
             mv.visitMethodInsn(INVOKEINTERFACE,
                 getInternalName(Map.class),
                 "put",
@@ -573,9 +503,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             visit(exp.body);
 
             // end of execute method
-            if (!exp.body.isConstant) {
-                mathOpValConvert(mv, exp.body.valueType);
-            }
+            mathOpValConvert(mv, exp.body.valueType);
             mv.visitInsn(ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -656,7 +584,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
 
             // put stream on stack
             visit(exp.sourceExp);
-            ByteCodes.box(mv, exp.sourceExp.valueType);
+            ByteCodes.box(mv, exp.sourceExp.valueType.getType());
 
             // TODO: move to INDY
             mv.visitMethodInsn(INVOKESTATIC,
@@ -763,7 +691,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
 
         // put stream on stack
         visit(exp.sourceExp);
-        ByteCodes.box(mv, exp.sourceExp.valueType);
+        ByteCodes.box(mv, exp.sourceExp.valueType.getType());
 
         // TODO: move to INDY
         mv.visitMethodInsn(INVOKESTATIC,
@@ -864,7 +792,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 if (compilingContext.option.treatGetterNoSideEffect) {
                     if (idNode.needDupChildrenCount() > 0) {
                         mv.visitVarInsn(ALOAD, idNode.variableIndex);
-                        dupN(idNode.needDupChildrenCount() - 1);
+                        ByteCodes.dupN(mv, idNode.needDupChildrenCount() - 1);
                     }
                 }
             }
@@ -872,11 +800,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             // when optimizing off, don't need to do this
             else if (compilingContext.option.treatGetterNoSideEffect) {
                 // put on stack
-                invokeAccessorGetter(idNode.slotNo,
-                    () -> putActualIdOnStack(mv, idNode));
+                putActualIdOnStack(mv, idNode);
+                invokeAccessorGetter(idNode.slotNo);
                 // dup for each child
                 // one more for access point
-                dupN(idNode.needDupChildrenCount());
+                ByteCodes.dupN(mv, idNode.needDupChildrenCount());
 
                 // store access point
                 idNode.variableIndex = ctx().nextVariableIndex();
@@ -890,13 +818,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         mv.visitLdcInsn(id);
 
         if (id instanceof Integer) {
-            ByteCodes.box(mv, Types.JEXP_INT);
-        }
-    }
-
-    private void dupN(int n) {
-        for (int i = 0; i < n; i++) {
-            mv.visitInsn(DUP);
+            ByteCodes.box(mv, Type.INT_TYPE);
         }
     }
 
@@ -909,10 +831,8 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             accessViaLocalVariable(propertyNode);
         } else if (ctx().type == GCtxType.ROOT_EXP) {
             mv.visitVarInsn(ALOAD, 1);
-            invokeAccessorGetter(
-                propertyNode.slotNo,
-                () -> mv.visitLdcInsn(propertyNode.identifier)
-            );
+            mv.visitLdcInsn(propertyNode.identifier);
+            invokeAccessorGetter(propertyNode.slotNo);
         }
         // for function body, should all load via variable index
         else {
@@ -927,46 +847,107 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         mv.visitVarInsn(ALOAD, propertyNode.variableIndex);
     }
 
-    private void mathOpValConvert(MethodVisitor mv, Type valueType) {
-        if (Types.isPrimitive(valueType)) {
-            ByteCodes.box(mv, valueType);
-        } else {
-            mv.visitInsn(DUP);
-            Label l = new Label();
-            mv.visitTypeInsn(INSTANCEOF, getInternalName(StringBuilder.class));
-            mv.visitJumpInsn(IFEQ, l);
-            mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "toString",
-                getMethodDescriptor(getType(String.class)), false);
-            mv.visitLabel(l);
-//            mv.visitFrame(F_SAME1, 0, null, 1,
-//                new Object[]{Types.getFrameDesc(Object.class)});
+    private void mathOpValConvert(MethodVisitor mv, ValueType valueType) {
+        if (Types.isPrimitive(valueType.getType())) {
+            ByteCodes.box(mv, valueType.getType());
+        } else if (valueType != ValueType.STRING) {
+            if (valueType == ValueType.STRING_BUILDER) {
+                mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "toString",
+                    getMethodDescriptor(getType(String.class)), false);
+            } else {
+                mv.visitMethodInsn(INVOKESTATIC, getInternalName(JExpLang.class),
+                    "stringBuilderToString",
+                    getMethodDescriptor(getType(Object.class), getType(Object.class)),
+                    false);
+            }
         }
     }
 
     // function apply util
-    private void applyFunction(String lib, String functionName, List<ExpressionNode> args) {
+    private void applyFunction(String lib, String functionName,
+                               List<ExpressionNode> args, boolean boxResult) {
         Optional<FunctionInfo> info = JExpFunctionFactory.getInfo(lib, functionName);
         if (!info.isPresent()) {
             throw new JExpCompilingException("function name not found: " + functionName);
         }
 
-        applyFunction(info.get(), args);
+        applyFunction(info.get(), args, boxResult);
     }
 
-    private void applyFunction(FunctionInfo info, List<ExpressionNode> args) {
+    private void applyFunction(FunctionInfo info, List<ExpressionNode> args, boolean boxResult) {
         if (args.size() != info.method.getParameterCount()) {
             throw new JExpFunctionLoadException(info.name + " has " + info.method.getParameterCount() +
                 " parameters, but give " + args.size());
         }
 
         // load stack
+        int idx = 0;
         for (ExpressionNode astNode : args) {
-            visitOnStack(astNode);
+            visit(astNode);
+            ValueType vt = astNode.valueType;
+            Class<?> parType = info.method.getParameterTypes()[idx++];
+
+            if (vt == ValueType.BOOL && parType != boolean.class) {
+                if (parType.isPrimitive()) {
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                } else {
+                    // wrap:
+                    ByteCodes.box(mv, Type.BOOLEAN_TYPE);
+                    // CHECKCAST on need
+                    ByteCodes.ccOnNeed(mv, Boolean.class, parType);
+                }
+            } else if (vt == ValueType.BOOL_WRAPPED) {
+                if (parType == boolean.class) {
+                    // unbox
+                    ByteCodes.unbox(mv, boolean.class);
+                } else if (parType.isPrimitive()) {
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                } else {
+                    ByteCodes.ccOnNeed(mv, Boolean.class, parType);
+                }
+            } else if (vt == ValueType.INT_WRAPPED) {
+                if (parType == int.class) {
+                    // unbox
+                    ByteCodes.unbox(mv, int.class);
+                } else if (parType.isPrimitive()) {
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                } else {
+                    ByteCodes.ccOnNeed(mv, Integer.class, parType);
+                }
+            } else if (vt == ValueType.DOUBLE_WRAPPED) {
+                if (parType == double.class) {
+                    // unbox
+                    ByteCodes.unbox(mv, double.class);
+                } else if (parType.isPrimitive()) {
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                } else {
+                    ByteCodes.ccOnNeed(mv, Double.class, parType);
+                }
+            }
+            // other generic values
+            else {
+                if (parType.isPrimitive()) {
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                }
+
+                if (vt == ValueType.STRING_BUILDER) {
+                    // toString
+                    mathOpValConvert(mv, vt);
+                    vt = ValueType.STRING;
+                }
+
+                // check cast on need
+                ByteCodes.ccOnNeed(mv, vt.getType().getClass(), parType);
+            }
         }
 
         // call
         mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
             info.method.getName(), getMethodDescriptor(info.method), false);
+        if (boxResult) {
+            // box values on need
+            ByteCodes.box(mv, Type.getType(info.method.getReturnType()));
+        }
     }
 
     private void appendDebugInfo(DebugNo debugNo) {

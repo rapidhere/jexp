@@ -45,6 +45,11 @@ final public class JExpLang {
         }
     }
 
+    @JExpFunction(lib = "lang", name = "sb_to_str")
+    public static Object stringBuilderToString(Object o) {
+        return (o instanceof StringBuilder) ? o.toString() : o;
+    }
+
     // ~~~ result converts
     @JExpFunction(lib = "lang", name = "bool")
     public static boolean exactBoolean(Object o) {

@@ -16,9 +16,11 @@ import java.util.Map;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ALOAD;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ARETURN;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.ASTORE;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.CHECKCAST;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.DLOAD;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.DRETURN;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.DSTORE;
+import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.DUP;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.FLOAD;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.FRETURN;
 import static ranttu.rapid.jexp.external.org.objectweb.asm.Opcodes.FSTORE;
@@ -43,6 +45,17 @@ import static ranttu.rapid.jexp.external.org.objectweb.asm.Type.getType;
 @UtilityClass
 public class ByteCodes {
     /**
+     * dup stack top for n times
+     */
+    public void dupN(MethodVisitor mv, int n) {
+        if (n > 0) {
+            for (int i = 0; i < n; i++) {
+                mv.visitInsn(DUP);
+            }
+        }
+    }
+
+    /**
      * convert primitive types to wrapper type on need
      */
     public void box(MethodVisitor mv, Type type) {
@@ -51,6 +64,15 @@ public class ByteCodes {
             $.should(wrapperClass != null);
             mv.visitMethodInsn(INVOKESTATIC, getInternalName(wrapperClass), "valueOf",
                 "(" + type.getDescriptor() + ")" + getDescriptor(wrapperClass), false);
+        }
+    }
+
+    /**
+     * check cast on need
+     */
+    public void ccOnNeed(MethodVisitor mv, Class<?> fromType, Class<?> targetType) {
+        if (!targetType.isAssignableFrom(fromType)) {
+            mv.visitTypeInsn(CHECKCAST, getInternalName(targetType));
         }
     }
 

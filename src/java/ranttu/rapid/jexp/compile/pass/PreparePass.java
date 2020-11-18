@@ -12,6 +12,7 @@ import ranttu.rapid.jexp.compile.CompileOption;
 import ranttu.rapid.jexp.compile.closure.NameClosure;
 import ranttu.rapid.jexp.compile.closure.PropertyNode;
 import ranttu.rapid.jexp.compile.parse.TokenType;
+import ranttu.rapid.jexp.compile.parse.ValueType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
 import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
@@ -33,7 +34,6 @@ import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
 import ranttu.rapid.jexp.exception.TooManyLinqRangeVariables;
 import ranttu.rapid.jexp.exception.UnknownFunction;
-import ranttu.rapid.jexp.external.org.objectweb.asm.Type;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
 import ranttu.rapid.jexp.runtime.function.JExpFunctionFactory;
 import ranttu.rapid.jexp.runtime.function.builtin.JExpLang;
@@ -41,6 +41,7 @@ import ranttu.rapid.jexp.runtime.indy.JExpIndyFactory;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -69,23 +70,23 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         switch (t.type) {
             case STRING:
                 primary.isConstant = true;
-                primary.valueType = Type.getType(String.class);
+                primary.valueType = ValueType.STRING;
                 primary.constantValue = t.getString();
                 return;
             case INTEGER:
                 primary.isConstant = true;
-                primary.valueType = Type.INT_TYPE;
+                primary.valueType = ValueType.INT_WRAPPED;
                 primary.constantValue = t.getInt();
                 return;
             case FLOAT:
                 primary.isConstant = true;
-                primary.valueType = Type.DOUBLE_TYPE;
+                primary.valueType = ValueType.DOUBLE_WRAPPED;
                 primary.constantValue = t.getDouble();
                 return;
             case IDENTIFIER:
                 // i.e. a direct identifier load
                 primary.isConstant = false;
-                primary.valueType = Type.getType(Object.class);
+                primary.valueType = ValueType.GENERIC;
 
                 // build id tree
                 primary.isStatic = true;
@@ -106,16 +107,17 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         // for String
         if (exp.op.is(TokenType.PLUS)
             && (Types.isString(exp.left.valueType) || Types.isString(exp.right.valueType))) {
-            exp.valueType = Types.JEXP_STRING;
+            exp.valueType = ValueType.STRING_BUILDER;
         }
         // for cond
         else if (exp.op.is(TokenType.OR) || exp.op.is(TokenType.AND)) {
-            exp.valueType = Types.JEXP_GENERIC;
+            // TODO: @dongwei.dq can refine
+            exp.valueType = ValueType.GENERIC;
         }
         // comparator
         else if ($.in(exp.op.type, TokenType.EQEQ, TokenType.NOT_EQ, TokenType.GREATER,
             TokenType.GREATER_EQ, TokenType.SMALLER, TokenType.SMALLER_EQ)) {
-            exp.valueType = Types.JEXP_BOOL;
+            exp.valueType = ValueType.BOOL;
         }
         // number
         else {
@@ -127,12 +129,13 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
             // TODO: @dongwei.dq, refine for wrapper types
             if (!Types.isNumber(exp.left.valueType) || !Types.isNumber(exp.right.valueType)) {
                 // i.e., determine at runtime
-                exp.valueType = Types.JEXP_GENERIC;
+                exp.valueType = ValueType.GENERIC;
             } else {
-                if (Types.isFloat(exp.left.valueType) || Types.isFloat(exp.right.valueType)) {
-                    exp.valueType = Types.JEXP_FLOAT;
+                if (exp.left.valueType == ValueType.DOUBLE_WRAPPED
+                    || exp.right.valueType == ValueType.DOUBLE_WRAPPED) {
+                    exp.valueType = ValueType.DOUBLE_WRAPPED;
                 } else {
-                    exp.valueType = Types.JEXP_INT;
+                    exp.valueType = ValueType.INT_WRAPPED;
                 }
             }
         }
@@ -148,18 +151,23 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
 
                 switch (exp.op.type) {
                     case OR:
-                        exp.constantValue = JExpLang.exactBoolean(leftValue) ? leftValue : rightValue;
+                        if (JExpLang.exactBoolean(leftValue)) {
+                            exp.constantValue = leftValue;
+                            exp.valueType = exp.left.valueType;
+                        } else {
+                            exp.constantValue = rightValue;
+                            exp.valueType = exp.right.valueType;
+                        }
                         break;
                     case AND:
-                        exp.constantValue = JExpLang.exactBoolean(leftValue) ? rightValue : leftValue;
+                        if (JExpLang.exactBoolean(leftValue)) {
+                            exp.constantValue = rightValue;
+                            exp.valueType = exp.right.valueType;
+                        } else {
+                            exp.constantValue = leftValue;
+                            exp.valueType = exp.left.valueType;
+                        }
                         break;
-                }
-
-                // re infer the type
-                if (exp.constantValue == null) {
-                    exp.valueType = Types.JEXP_GENERIC;
-                } else {
-                    exp.valueType = Type.getType(exp.constantValue.getClass());
                 }
             }
             // comparators
@@ -180,7 +188,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
             else {
                 if (Types.isString(exp.valueType)) {
                     exp.constantValue = exp.left.stringConstant() + exp.right.stringConstant();
-                } else if (Types.isFloat(exp.valueType)) {
+                } else if (exp.valueType == ValueType.DOUBLE_WRAPPED) {
                     var leftValue = exp.left.floatConstant();
                     var rightValue = exp.right.floatConstant();
 
@@ -322,7 +330,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         func.isBounded = true;
         func.slotNo = JExpIndyFactory.nextSlotNo();
         func.isConstant = false;
-        func.valueType = Type.getType(Object.class);
+        func.valueType = ValueType.GENERIC;
         func.methodName = AstUtil.asExactString(callerMember.propertyName);
     }
 
@@ -336,7 +344,24 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
         func.isBounded = false;
         func.functionInfo = info;
         func.isConstant = false;
-        func.valueType = Type.getType(info.method.getReturnType());
+
+        // function return type is always wrapped
+        var retType = info.method.getReturnType();
+        if (retType == boolean.class || retType == Boolean.class) {
+            func.valueType = ValueType.BOOL_WRAPPED;
+        } else if (retType == int.class || retType == Integer.class) {
+            func.valueType = ValueType.INT_WRAPPED;
+        } else if (retType == double.class || retType == Double.class) {
+            func.valueType = ValueType.DOUBLE_WRAPPED;
+        } else if (retType == String.class) {
+            func.valueType = ValueType.STRING;
+        } else if (retType == List.class) {
+            func.valueType = ValueType.ARRAY;
+        } else if (retType == Map.class) {
+            func.valueType = ValueType.DICT;
+        } else {
+            func.valueType = ValueType.GENERIC;
+        }
     }
 
     @Override
@@ -368,13 +393,13 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
 
         // currently member expression is always not a constant
         member.isConstant = false;
-        member.valueType = Types.JEXP_GENERIC;
+        member.valueType = ValueType.GENERIC;
     }
 
     @Override
     protected void visit(ArrayExpression exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_ARRAY;
+        exp.valueType = ValueType.ARRAY;
 
         exp.items.forEach(this::visit);
     }
@@ -382,7 +407,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LambdaExpression exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         // construct names
         var names = NameClosure.independent(names());
@@ -403,7 +428,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqExpression exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         ((LinqFromClause) exp.queryBodyClauses.get(0)).firstFromClause = true;
 
@@ -423,7 +448,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqFromClause exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         if (exp.firstFromClause) {
             visit(exp.sourceExp);
@@ -447,7 +472,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqLetClause exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         exp.lambdaExp = defineLinqLambda(exp.sourceExp);
 
@@ -458,7 +483,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqWhereClause exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         exp.lambdaExp = defineLinqLambda(exp.whereExp);
     }
@@ -466,7 +491,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqSelectClause exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         exp.lambdaExp = defineLinqLambda(exp.selectExp);
     }
@@ -475,7 +500,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqGroupByClause exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         exp.selectLambda = defineLinqLambda(exp.selectExp);
         exp.keyLambda = defineLinqLambda(exp.keyExp);
@@ -484,7 +509,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(DictExpression exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         exp.items.forEach((k, v) -> visit(v));
     }
@@ -511,7 +536,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqOrderByClause exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         for (var item : exp.items) {
             item.keySelectLambda = defineLinqLambda(item.exp);
@@ -521,7 +546,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
     @Override
     protected void visit(LinqJoinClause exp) {
         exp.isConstant = false;
-        exp.valueType = Types.JEXP_GENERIC;
+        exp.valueType = ValueType.GENERIC;
 
         // won't limit left/right on equals operation
 
