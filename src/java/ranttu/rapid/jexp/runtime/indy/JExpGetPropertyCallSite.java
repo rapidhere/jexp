@@ -72,9 +72,6 @@ import static java.lang.invoke.MethodType.methodType;
     }
 
     private MethodHandle fitArray(Class<?> arrClass) {
-        // escape gate: drop first exception
-        var eg = MethodHandles.dropArguments(thisEscapeGate, 0, Throwable.class);
-
         // resolve array class
         Class<?> targetArrClass;
         if (arrClass.getComponentType().isPrimitive()) {
@@ -84,10 +81,11 @@ import static java.lang.invoke.MethodType.methodType;
         }
 
         // anything that is not a array, will trigger the escape gate
-        return MethodHandles.catchException(
+        return MethodHandles.guardWithTest(
+            MH.IS_OF_CLASS_OR_NULL.bindTo(arrClass),
             MethodHandles.arrayElementGetter(targetArrClass)
                 .asType(thisEscapeGate.type()),
-            ClassCastException.class, eg);
+            thisEscapeGate);
     }
 
     private MethodHandle fitList() {

@@ -162,6 +162,24 @@ public class FuncExpTest extends ManualUnitTestBase {
     }
 
     @Test
+    public void testListOrArrayAccessErr() {
+        JExpExpression exp = JExp.compile("int_arr()['a']", compileOption);
+
+        try {
+            exp.execute(new Object());
+            Assert.fail();
+        } catch (ClassCastException ignored) {
+        }
+
+        exp = JExp.compile("[1, 2, 3]['a']", compileOption);
+        try {
+            exp.execute(new Object());
+            Assert.fail();
+        } catch (ClassCastException ignored) {
+        }
+    }
+
+    @Test
     public void testNoSuchMethod() {
         JExpExpression exp = JExp.compile("a.nima()", compileOption);
 
