@@ -50,6 +50,14 @@
   exp: 0.0
   res: 0.0
 
+- desc: true
+  exp: true
+  res: true
+
+- desc: false
+  exp: false
+  res: false
+
 - desc: eqeq constant 1
   exp: '"a" == "b"'
   res: false

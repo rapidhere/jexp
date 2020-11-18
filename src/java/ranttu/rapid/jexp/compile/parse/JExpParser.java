@@ -523,7 +523,12 @@ public class JExpParser {
         }
         // common primary expression
         else {
-            t = next(TokenType.INTEGER, TokenType.STRING, TokenType.IDENTIFIER, TokenType.FLOAT);
+            t = next(TokenType.INTEGER,
+                TokenType.STRING,
+                TokenType.IDENTIFIER,
+                TokenType.FLOAT,
+                TokenType.TRUE,
+                TokenType.FALSE);
             return new PrimaryExpression(t);
         }
     }

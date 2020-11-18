@@ -92,6 +92,12 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
                 primary.isStatic = true;
                 primary.propertyNode = names().addNameAccess(AstUtil.asId(primary));
                 return;
+            case TRUE:
+            case FALSE:
+                primary.isConstant = true;
+                primary.constantValue = t.is(TokenType.TRUE);
+                primary.valueType = ValueType.BOOL_WRAPPED;
+                break;
             default:
                 $.notSupport(t.type);
         }

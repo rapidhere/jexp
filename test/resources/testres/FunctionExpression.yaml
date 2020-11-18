@@ -44,6 +44,14 @@
   exp: 'bool_ide("a" == "b")'
   res: false
 
+- desc: ub boolw to bool 2
+  exp: 'bool_ide(true)'
+  res: true
+
+- desc: ub boolw to bool 3
+  exp: 'bool_ide(false)'
+  res: false
+
 - desc: ub boolw to boolw
   exp: 'boolw_ide("a" == "b")'
   res: false

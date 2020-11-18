@@ -21,6 +21,10 @@ public enum TokenType {
 
     STRING,
 
+    TRUE,
+
+    FALSE,
+
     /**
      * symbols
      */
