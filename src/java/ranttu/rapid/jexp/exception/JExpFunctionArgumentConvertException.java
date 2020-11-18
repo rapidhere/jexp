@@ -9,7 +9,7 @@ package ranttu.rapid.jexp.exception;
  * @version : JExpFunctionArgumentConvertException.java, v 0.1 2020-11-17 6:52 PM rapid Exp $
  */
 public class JExpFunctionArgumentConvertException extends JExpCompilingException {
-    public JExpFunctionArgumentConvertException(Class<?> from, Class<?> to) {
-        super("cannot convert type from " + from.getName() + " to  " + to.getName());
+    public JExpFunctionArgumentConvertException(String from, Class<?> to) {
+        super("cannot convert type from " + from + " to  " + to.getName());
     }
 }

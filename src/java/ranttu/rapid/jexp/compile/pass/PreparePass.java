@@ -171,7 +171,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
                 }
             }
             // comparators
-            else if ($.in(exp.op, TokenType.EQEQ, TokenType.NOT_EQ)) {
+            else if ($.in(exp.op.type, TokenType.EQEQ, TokenType.NOT_EQ)) {
                 var leftValue = exp.left.constantValue;
                 var rightValue = exp.right.constantValue;
 
@@ -183,6 +183,7 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
                         exp.constantValue = !JExpLang.eq(leftValue, rightValue);
                         break;
                 }
+                exp.valueType = ValueType.BOOL_WRAPPED;
             }
             // for math
             else {

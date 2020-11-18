@@ -4,6 +4,7 @@
  */
 package ranttu.rapid.jexp.data;
 
+import ranttu.rapid.jexp.common.$;
 import ranttu.rapid.jexp.runtime.function.JExpFunction;
 
 /**
@@ -34,17 +35,17 @@ public class TestFunctions {
     }
 
     @JExpFunction(name = "one")
-    public static Integer one() {
+    public static int one() {
         return 1;
     }
 
     @JExpFunction(name = "two")
-    public static Integer two() {
+    public static int two() {
         return 2;
     }
 
     @JExpFunction(name = "sum")
-    public static Integer sum(Object a, Object b, Object c) {
+    public static int sum(Object a, Object b, Object c) {
         return (Integer) a + (Integer) b + (Integer) c;
     }
 
@@ -95,12 +96,57 @@ public class TestFunctions {
 
     @JExpFunction(name = "complex_arr")
     public static Object complexArr() {
-        return new Object[][] {
+        return new Object[][]{
             {true, false},
             {1, 2, 3, 4, 5},
             {1.1, 2.2, 3.3, 4.4, 5.5},
             {"s1", "s2", "s3", "s4", "s5"}
         };
+    }
+
+    @JExpFunction(name = "check_not_sb")
+    public static void checkNotStringBuilder(Object o) {
+        $.should(!(o instanceof StringBuilder));
+    }
+
+    @JExpFunction(name = "bool_ide")
+    public static boolean boolIde(boolean b) {
+        return b;
+    }
+
+    @JExpFunction(name = "boolw_ide")
+    public static Boolean boolIde(Boolean b) {
+        return b;
+    }
+
+    @JExpFunction(name = "int_ide")
+    public static int intIde(int i) {
+        return i;
+    }
+
+    @JExpFunction(name = "intw_ide")
+    public static Integer intIde(Integer i) {
+        return i;
+    }
+
+    @JExpFunction(name = "double_ide")
+    public static double doubleIde(double d) {
+        return d;
+    }
+
+    @JExpFunction(name = "byte_ide")
+    public static byte byteIde(byte b) {
+        return b;
+    }
+
+    @JExpFunction(name = "doublew_ide")
+    public static Double doubleIde(Double d) {
+        return d;
+    }
+
+    @JExpFunction(name = "tf_ide")
+    public static TestFunctions tfIde(TestFunctions tf) {
+        return tf;
     }
 
     @JExpFunction(name = "rand_arr")

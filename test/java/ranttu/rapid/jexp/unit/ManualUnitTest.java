@@ -12,9 +12,11 @@ import ranttu.rapid.jexp.JExp;
 import ranttu.rapid.jexp.JExpExpression;
 import ranttu.rapid.jexp.JExpFunctionHandle;
 import ranttu.rapid.jexp.base.ManualUnitTestBase;
+import ranttu.rapid.jexp.common.$;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +25,34 @@ import java.util.stream.Stream;
  * @version : ManualUnitTest.java, v 0.1 2020-11-05 11:27 AM rapid Exp $
  */
 public class ManualUnitTest extends ManualUnitTestBase {
+    @Test
+    public void testBoundedInvokeExtra() {
+        JExpExpression exp = JExp.compile("a.checkNotSb('a' + 'b')", compileOption);
+        var o = new Object() {
+            @SuppressWarnings("unused")
+            public void checkNotSb(Object o) {
+                $.should(!(o instanceof StringBuilder));
+            }
+
+            @SuppressWarnings("unused")
+            public boolean identity(boolean b) {
+                return b;
+            }
+        };
+
+        Map<Object, Object> m = new HashMap<>();
+        m.put("a", o);
+        m.put("b", "hello");
+        m.put("c", 1);
+        Assert.assertNull(exp.exec(m));
+
+        exp = JExp.compile("a.checkNotSb(b + c)", compileOption);
+        Assert.assertNull(exp.exec(m));
+
+        exp = JExp.compile("a.identity(b == 'hello')", compileOption);
+        Assert.assertTrue(exp.exec(m));
+    }
+
     @Test
     public void testArrAccess() {
         JExpExpression exp = JExp.compile("rand_arr()[1]", compileOption);

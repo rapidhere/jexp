@@ -19,6 +19,7 @@ import ranttu.rapid.jexp.compile.constant.DebugNo;
 import ranttu.rapid.jexp.compile.parse.TokenType;
 import ranttu.rapid.jexp.compile.parse.ValueType;
 import ranttu.rapid.jexp.compile.parse.ast.ArrayExpression;
+import ranttu.rapid.jexp.compile.parse.ast.AstType;
 import ranttu.rapid.jexp.compile.parse.ast.BinaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.CallExpression;
 import ranttu.rapid.jexp.compile.parse.ast.DictExpression;
@@ -120,7 +121,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             visit(root);
 
             // end of execute method
-            mathOpValConvert(mv, root.valueType);
+            mathOpValConvert(mv, root);
             mv.visitInsn(ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -219,9 +220,11 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         mv.visitLdcInsn(func.parameters.size());
         mv.visitTypeInsn(ANEWARRAY, getInternalName(Object.class));
         for (int i = 0; i < func.parameters.size(); i++) {
+            var par = func.parameters.get(i);
             mv.visitInsn(DUP);
             mv.visitLdcInsn(i);
             visit(func.parameters.get(i));
+            mathOpValConvert(mv, par);
             mv.visitInsn(AASTORE);
         }
 
@@ -310,6 +313,8 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         args.add(exp.left);
         args.add(exp.right);
 
+        checkNotPrimitive(exp.left.valueType, exp.op.type.name());
+        checkNotPrimitive(exp.right.valueType, exp.op.type.name());
         switch (exp.op.type) {
             case PLUS:
                 applyFunction("math", "add", args, true);
@@ -344,6 +349,12 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             case SMALLER_EQ:
                 applyFunction("math", "lse", args, false);
                 break;
+        }
+    }
+
+    private void checkNotPrimitive(ValueType vt, String msg) {
+        if (Types.isPrimitive(vt.getType())) {
+            throw new JExpCompilingException(msg + ", cannot apply type " + vt);
         }
     }
 
@@ -391,6 +402,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         } else {
             // get caller on stack
             visit(func.caller);
+            mathOpValConvert(mv, func.caller);
 
             // call
             invokeAccessorInvoker(func.slotNo, func);
@@ -411,9 +423,9 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         // for dynamic member expression
         else {
             visit(exp.owner);
+            mathOpValConvert(mv, exp.owner);
 
             visit(exp.propertyName);
-
             invokeAccessorGetter(exp.getSlotNo());
         }
     }
@@ -427,7 +439,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         exp.items.forEach(item -> {
             mv.visitInsn(DUP);
             visit(item);
-            mathOpValConvert(mv, item.valueType);
+            mathOpValConvert(mv, item);
 
             mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(List.class), "add",
                 getMethodDescriptor(getType(boolean.class), getType(Object.class)), true);
@@ -447,7 +459,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             mv.visitInsn(DUP);
             mv.visitLdcInsn(id);
             visit(itemExp);
-            mathOpValConvert(mv, itemExp.valueType);
+            mathOpValConvert(mv, itemExp);
             mv.visitMethodInsn(INVOKEINTERFACE,
                 getInternalName(Map.class),
                 "put",
@@ -503,7 +515,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             visit(exp.body);
 
             // end of execute method
-            mathOpValConvert(mv, exp.body.valueType);
+            mathOpValConvert(mv, exp.body);
             mv.visitInsn(ARETURN);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
@@ -584,7 +596,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
 
             // put stream on stack
             visit(exp.sourceExp);
-            ByteCodes.box(mv, exp.sourceExp.valueType.getType());
+            mathOpValConvert(mv, exp.sourceExp);
 
             // TODO: move to INDY
             mv.visitMethodInsn(INVOKESTATIC,
@@ -691,7 +703,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
 
         // put stream on stack
         visit(exp.sourceExp);
-        ByteCodes.box(mv, exp.sourceExp.valueType.getType());
+        mathOpValConvert(mv, exp);
 
         // TODO: move to INDY
         mv.visitMethodInsn(INVOKESTATIC,
@@ -847,10 +859,13 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         mv.visitVarInsn(ALOAD, propertyNode.variableIndex);
     }
 
-    private void mathOpValConvert(MethodVisitor mv, ValueType valueType) {
+    private void mathOpValConvert(MethodVisitor mv, ExpressionNode exp) {
+        var valueType = exp.valueType;
+
         if (Types.isPrimitive(valueType.getType())) {
             ByteCodes.box(mv, valueType.getType());
-        } else if (valueType != ValueType.STRING) {
+        } else if (valueType != ValueType.STRING &&
+            $.in(exp.type, AstType.BINARY_EXP, AstType.UNARY_EXP, AstType.COMMA_EXP)) {
             if (valueType == ValueType.STRING_BUILDER) {
                 mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Object.class), "toString",
                     getMethodDescriptor(getType(String.class)), false);
@@ -887,21 +902,23 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             ValueType vt = astNode.valueType;
             Class<?> parType = info.method.getParameterTypes()[idx++];
 
-            if (vt == ValueType.BOOL && parType != boolean.class) {
-                if (parType.isPrimitive()) {
-                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
-                } else {
-                    // wrap:
-                    ByteCodes.box(mv, Type.BOOLEAN_TYPE);
-                    // CHECKCAST on need
-                    ByteCodes.ccOnNeed(mv, Boolean.class, parType);
+            if (vt == ValueType.BOOL) {
+                if (parType != boolean.class) {
+                    if (parType.isPrimitive()) {
+                        throw new JExpFunctionArgumentConvertException(vt.getType().getClassName(), parType);
+                    } else {
+                        // wrap:
+                        ByteCodes.box(mv, Type.BOOLEAN_TYPE);
+                        // CHECKCAST on need
+                        ByteCodes.ccOnNeed(mv, Boolean.class, parType);
+                    }
                 }
             } else if (vt == ValueType.BOOL_WRAPPED) {
                 if (parType == boolean.class) {
                     // unbox
                     ByteCodes.unbox(mv, boolean.class);
                 } else if (parType.isPrimitive()) {
-                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClassName(), parType);
                 } else {
                     ByteCodes.ccOnNeed(mv, Boolean.class, parType);
                 }
@@ -910,7 +927,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                     // unbox
                     ByteCodes.unbox(mv, int.class);
                 } else if (parType.isPrimitive()) {
-                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClassName(), parType);
                 } else {
                     ByteCodes.ccOnNeed(mv, Integer.class, parType);
                 }
@@ -919,7 +936,7 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                     // unbox
                     ByteCodes.unbox(mv, double.class);
                 } else if (parType.isPrimitive()) {
-                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClassName(), parType);
                 } else {
                     ByteCodes.ccOnNeed(mv, Double.class, parType);
                 }
@@ -927,14 +944,12 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
             // other generic values
             else {
                 if (parType.isPrimitive()) {
-                    throw new JExpFunctionArgumentConvertException(vt.getType().getClass(), parType);
+                    throw new JExpFunctionArgumentConvertException(vt.getType().getClassName(), parType);
                 }
 
-                if (vt == ValueType.STRING_BUILDER) {
-                    // toString
-                    mathOpValConvert(mv, vt);
-                    vt = ValueType.STRING;
-                }
+                // toString
+                mathOpValConvert(mv, astNode);
+                vt = ValueType.STRING;
 
                 // check cast on need
                 ByteCodes.ccOnNeed(mv, vt.getType().getClass(), parType);
@@ -944,9 +959,14 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
         // call
         mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(info.method.getDeclaringClass()),
             info.method.getName(), getMethodDescriptor(info.method), false);
-        if (boxResult) {
-            // box values on need
-            ByteCodes.box(mv, Type.getType(info.method.getReturnType()));
+
+        if (info.method.getReturnType() == void.class) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            if (boxResult) {
+                // box values on need
+                ByteCodes.box(mv, Type.getType(info.method.getReturnType()));
+            }
         }
     }
 

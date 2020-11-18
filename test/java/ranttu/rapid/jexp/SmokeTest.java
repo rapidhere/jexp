@@ -18,7 +18,7 @@ import java.util.HashMap;
  * @version : SmokeTest.java, v 0.1 2020-11-01 5:18 PM rapid Exp $
  */
 public class SmokeTest {
-    @Test(enabled = true)
+    @Test(enabled = false)
     public void test0() {
         try {
             JExpFunctionFactory.register(TestFunctions.class);
@@ -30,7 +30,7 @@ public class SmokeTest {
         compileOption.treatGetterNoSideEffect = true;
 
         JExpExpression exp = JExp.compile(
-            "(from i in a where i == 2 or i == 3 or i == 5 select i).toList()", compileOption);
+            "(a == b).hashCode()", compileOption);
         Object res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<String>();
@@ -42,8 +42,8 @@ public class SmokeTest {
                 l.add("hat");
                 l.add("bug");
 
-                put("a", l);
-                put("b", l);
+                put("a", "hello");
+                put("b", "world");
             }
         });
         System.out.println(res);

@@ -26,6 +26,44 @@
   exp: 'string.is_blank(get_str(""))'
   res: false
 
+- desc: ub bool to bool
+  exp: 'bool_ide(a == b)'
+  res: false
+  ctx:
+    a: 'a'
+    b: 'b'
+
+- desc: ub bool to boolw
+  exp: 'boolw_ide(a == b)'
+  res: false
+  ctx:
+    a: 'a'
+    b: 'b'
+
+- desc: ub boolw to bool
+  exp: 'bool_ide("a" == "b")'
+  res: false
+
+- desc: ub boolw to boolw
+  exp: 'boolw_ide("a" == "b")'
+  res: false
+
+- desc: ub intw to int
+  exp: 'int_ide(1)'
+  res: 1
+
+- desc: ub intw to intw
+  exp: 'intw_ide(1)'
+  res: 1
+
+- desc: ub doublew to double
+  exp: 'double_ide(1.1)'
+  res: 1.1
+
+- desc: ub doublew to doublew
+  exp: 'doublew_ide(1.1)'
+  res: 1.1
+
 - desc: lang.invoke_no_args
   exp: 'lang.invoke_no_args("hello world", "length")'
   res: 11
@@ -73,6 +111,30 @@
     c: 3
     d: 1
   res: two2
+
+- desc: constant invoke 4
+  exp: '("a" + "b").length()'
+  res: 2
+
+- desc: constant invoke 5
+  exp: '("a" == "b").hashCode()'
+  res: 1237
+
+- desc: constant invoke 6
+  exp: '(a == b).hashCode()'
+  ctx:
+    a: 1
+    b: 1
+  res: 1231
+
+- desc: pass string to func 2
+  exp: 'check_not_sb("a" + "b")'
+
+- desc: pass string to func 3
+  exp: 'check_not_sb(a + b)'
+  ctx:
+    a: 'hello'
+    b: 'world'
 
 - desc: simple lambda
   exp: 'lang.run_func(() => {1}, [])'

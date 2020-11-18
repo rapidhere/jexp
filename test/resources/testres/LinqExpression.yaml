@@ -1,3 +1,18 @@
+- desc: simple select 1
+  exp: '(from c in "12345" select c.toString()).toList()'
+  res: ["1", "2", "3", "4", "5"]
+
+- desc: simple select 2
+  exp: '(from c in "12345" + " 8" select c.toString()).toList()'
+  res: ["1", "2", "3", "4", "5", " ", "8"]
+
+- desc: simple select 3
+  exp: '(from c in a == b select c).findFirst().get()'
+  ctx:
+    a: 1
+    b: 2
+  res: false
+
 - desc: cross join
   exp: '(from i in a from j in b select j + i).toList()'
   res: ['a1', 'b1', 'c1', 'd1', 'e1', 'a2', 'b2', 'c2', 'd2', 'e2', 'a3', 'b3', 'c3', 'd3', 'e3', 'a4', 'b4', 'c4', 'd4', 'e4', 'a5', 'b5', 'c5', 'd5', 'e5']
