@@ -24,6 +24,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.compile.parse.ast.UnaryExpression;
 import ranttu.rapid.jexp.exception.DuplicatedFinalQueryClause;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.UnexpectedEOF;
@@ -292,6 +293,8 @@ public class JExpParser {
             } else {
                 return new CommaExpression(exps);
             }
+        } else if ($.in(t.type, TokenType.SUBTRACT, TokenType.NOT)) {
+            return new UnaryExpression(next(), parseExp());
         } else if (t.is(TokenType.FROM)) {
             return parseLinq();
         } else {

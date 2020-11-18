@@ -30,6 +30,10 @@
   exp: 10000000
   res: 10000000
 
+- desc: integer literal 2
+  exp: -10000000
+  res: -10000000
+
 - desc: hex literal
   exp: 0x1000
   res: 4096
@@ -46,16 +50,32 @@
   exp: 1.0
   res: 1.0
 
+- desc: double literal 2
+  exp: -1.0
+  res: -1.0
+
 - desc: double zero
   exp: 0.0
   res: 0.0
+
+- desc: double zero 2
+  exp: -0.0
+  res: -0.0
 
 - desc: true
   exp: true
   res: true
 
+- desc: true 2
+  exp: '!false'
+  res: true
+
 - desc: false
   exp: false
+  res: false
+
+- desc: false 2
+  exp: '!true'
   res: false
 
 - desc: eqeq constant 1
@@ -131,6 +151,18 @@
   exp: a().empty
   ctx:
     class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  res: false
+
+- desc: minus
+  exp: -a
+  ctx:
+    a: 1
+  res: -1
+
+- desc: not
+  exp: '!a'
+  ctx:
+    a: true
   res: false
 
 - desc: list exp
@@ -212,6 +244,12 @@
     class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
   exp: 'a || b || someVal'
   res: 12312312
+
+- desc: or 4
+  ctx:
+    class: 'ranttu.rapid.jexp.data.ImmutableRecursiveContext'
+  exp: '!(a || b)'
+  res: false
 
 - desc: complex access 1
   exp: 'a[["key0", "key1"].get(1)]'

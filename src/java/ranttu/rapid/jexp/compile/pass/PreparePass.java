@@ -32,6 +32,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PropertyAccessNode;
+import ranttu.rapid.jexp.compile.parse.ast.UnaryExpression;
 import ranttu.rapid.jexp.exception.TooManyLinqRangeVariables;
 import ranttu.rapid.jexp.exception.UnknownFunction;
 import ranttu.rapid.jexp.runtime.function.FunctionInfo;
@@ -100,6 +101,41 @@ public class PreparePass extends NoReturnPass<PreparePass.PrepareContext> {
                 break;
             default:
                 $.notSupport(t.type);
+        }
+    }
+
+
+    @Override
+    protected void visit(UnaryExpression exp) {
+        visit(exp.exp);
+
+        //~~~ infer type
+        if (exp.op.is(TokenType.SUBTRACT)) {
+            if (exp.exp.valueType == ValueType.INT_WRAPPED) {
+                exp.valueType = ValueType.INT_WRAPPED;
+            } else if (exp.exp.valueType == ValueType.DOUBLE_WRAPPED) {
+                exp.valueType = ValueType.DOUBLE_WRAPPED;
+            } else {
+                exp.valueType = ValueType.GENERIC;
+            }
+        } else if (exp.op.is(TokenType.NOT)) {
+            exp.valueType = ValueType.BOOL;
+        } else {
+            $.notSupport("unknown unary op: " + exp.op);
+        }
+
+        //~~ calc constant
+        if (exp.exp.isConstant) {
+            exp.isConstant = true;
+            switch (exp.op.type) {
+                case SUBTRACT:
+                    exp.constantValue = JExpLang.minus(exp.exp.constantValue);
+                    break;
+                case NOT:
+                    exp.constantValue = !JExpLang.exactBoolean(exp.exp.constantValue);
+                    exp.valueType = ValueType.BOOL_WRAPPED;
+                    break;
+            }
         }
     }
 

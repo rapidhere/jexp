@@ -30,7 +30,7 @@ public class SmokeTest {
         compileOption.treatGetterNoSideEffect = true;
 
         JExpExpression exp = JExp.compile(
-            "(a == b).hashCode()", compileOption);
+            "!false", compileOption);
         Object res = exp.exec(new HashMap<String, Object>() {
             {
                 var l = new ArrayList<String>();

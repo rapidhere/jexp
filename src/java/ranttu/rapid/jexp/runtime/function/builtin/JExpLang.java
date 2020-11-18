@@ -118,6 +118,27 @@ final public class JExpLang {
     }
 
     //~~~ maths
+    @JExpFunction(lib = "math", name = "minus")
+    public static Object minus(Object a) {
+        Number number = (Number) a;
+
+        if (a instanceof Double) {
+            return -number.doubleValue();
+        } else {
+            return -number.intValue();
+        }
+    }
+
+    @JExpFunction(lib = "math", name = "not")
+    public static boolean not(Object a) {
+        return !exactBoolean(a);
+    }
+
+    @JExpFunction(lib = "math", name = "bnot")
+    public static boolean not(boolean a) {
+        return !a;
+    }
+
     @JExpFunction(lib = "math", name = "grt")
     public static boolean greater(Object a, Object b) {
         Number numA = (Number) a, numB = (Number) b;

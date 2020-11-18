@@ -23,6 +23,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.compile.parse.ast.UnaryExpression;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -95,6 +96,9 @@ public abstract class NoReturnPass<C> implements Pass {
             case DICT_EXP:
                 visit((DictExpression) astNode);
                 break;
+            case UNARY_EXP:
+                visit((UnaryExpression) astNode);
+                break;
             default:
                 $.notSupport(astNode.type);
         }
@@ -129,6 +133,8 @@ public abstract class NoReturnPass<C> implements Pass {
     protected abstract void visit(LinqGroupByClause exp);
 
     protected abstract void visit(DictExpression exp);
+
+    protected abstract void visit(UnaryExpression exp);
 
     //~~~ ctx helper
     @SneakyThrows

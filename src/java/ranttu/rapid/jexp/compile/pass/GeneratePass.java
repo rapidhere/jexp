@@ -36,6 +36,7 @@ import ranttu.rapid.jexp.compile.parse.ast.LinqSelectClause;
 import ranttu.rapid.jexp.compile.parse.ast.LinqWhereClause;
 import ranttu.rapid.jexp.compile.parse.ast.MemberExpression;
 import ranttu.rapid.jexp.compile.parse.ast.PrimaryExpression;
+import ranttu.rapid.jexp.compile.parse.ast.UnaryExpression;
 import ranttu.rapid.jexp.exception.JExpCompilingException;
 import ranttu.rapid.jexp.exception.JExpFunctionArgumentConvertException;
 import ranttu.rapid.jexp.exception.JExpFunctionLoadException;
@@ -348,6 +349,26 @@ public class GeneratePass extends NoReturnPass<GeneratePass.GenerateContext> imp
                 break;
             case SMALLER_EQ:
                 applyFunction("math", "lse", args, false);
+                break;
+        }
+    }
+
+    @Override
+    protected void visit(UnaryExpression exp) {
+        List<ExpressionNode> args = new ArrayList<>();
+        args.add(exp.exp);
+
+        switch (exp.op.type) {
+            case SUBTRACT:
+                applyFunction("math", "minus", args, true);
+                break;
+            case NOT:
+                if (exp.exp.valueType == ValueType.BOOL
+                    || exp.exp.valueType == ValueType.BOOL_WRAPPED) {
+                    applyFunction("math", "bnot", args, false);
+                } else {
+                    applyFunction("math", "not", args, false);
+                }
                 break;
         }
     }
